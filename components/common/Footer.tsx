@@ -125,87 +125,86 @@ export function Footer() {
       {/* Bottom Section */}
       <div className="border-b border-gray-300">
         <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Left Column - Store Location */}
-            <div className="flex flex-col justify-between">
-              <div className="mb-4">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
+            {/* Left Column - Logo and Store Location */}
+            <div className="flex flex-col lg:flex-row lg:w-1/2 gap-6 lg:gap-8">
+              {/* Logo */}
+              <div className="flex-shrink-0">
                 <Image
                   src="/logo.png"
-                  alt="Swanand Pathology Laboratory"
+                  alt="swanand Pathology Laboratory"
                   width={120}
                   height={100}
                   className="object-contain"
-                  style={{ width: 'auto', height: 'auto' }}
+                  style={{ width: 'auto', height: 'auto', maxWidth: '350px' }}
+                  priority
                 />
               </div>
-              <div>
-                <h3 className="text-sm font-semibold mb-2 text-gray-800">
+              {/* Address and Time */}
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold mb-3 text-gray-800 uppercase tracking-wide">
                   STORE LOCATION
                 </h3>
-                <address className="text-sm text-gray-600 not-italic leading-relaxed">
-                  Unit No. 1, 101 / 102,
+                <address className="text-sm text-gray-600 not-italic leading-relaxed mb-4">
+                  Unit No. 1, 101/102,
                   <br />
-                  Parth Regency, Shivaji
+                  Parth Regency, Shivaji Path,
                   <br />
-                  Path,
+                  Opp. Nehru Maidan Main Gate,
                   <br />
-                  Opp. Nehru Maidan Main
-                  <br />
-                  Gate,
-                  <br />
-                  Dombivli (E), Thane -
-                  <br />
-                  421201.
+                  Dombivli (E), Thane - 421201.
                 </address>
-                <div className="mt-4">
-                  <p className="text-sm text-gray-600">
-                    <strong>Monday - Saturday:</strong>
-                    <br />
-                    8:00 am - 4:00pm
+                <div className="text-sm text-gray-600 space-y-2">
+                  <p>
+                    <strong>Monday - Saturday:</strong> 8:00 am - 4:00pm
                   </p>
-                  <p className="text-sm text-gray-600 mt-2">
-                    <strong>Sunday:</strong>
-                    <br />
-                    9:00 am - 5:00pm
+                  <p>
+                    <strong>Sunday:</strong> 9:00 am - 5:00pm
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Middle Column - Privacy Policy */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3 text-gray-800">
-                Privacy Policy
-              </h3>
-              <nav className="flex flex-col gap-2">
-                {privacyLinks.map((link) => (
-                  <Link
-                    key={link.id}
-                    href={link.href}
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
+            {/* Vertical Divider */}
+            <div className="hidden lg:block w-px bg-gray-300"></div>
 
-            {/* Right Column - My Account */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3 text-gray-800">
-                MY ACCOUNT
-              </h3>
-              <nav className="flex flex-col gap-2">
-                {accountLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </nav>
+            {/* Right Column - Privacy Policy and My Account */}
+            <div className="flex flex-col md:flex-row gap-8 md:gap-12 lg:w-1/2">
+              {/* Privacy Policy Section */}
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold mb-3 text-gray-800">
+                  Privacy Policy
+                </h3>
+                <nav className="flex flex-col gap-2">
+                  {privacyLinks.map((link) => (
+                    <Link
+                      key={link.id}
+                      href={link.href}
+                      className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+
+              {/* My Account Section */}
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold mb-3 text-gray-800 uppercase tracking-wide">
+                  MY ACCOUNT
+                </h3>
+                <nav className="flex flex-col gap-2">
+                  {accountLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
             </div>
           </div>
         </div>
