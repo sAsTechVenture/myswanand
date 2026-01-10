@@ -1,0 +1,462 @@
+'use client';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
+import {
+  Menu,
+  User,
+  Heart,
+  ShoppingCart,
+  ChevronDown,
+  Phone,
+  MessageCircle,
+  Upload,
+} from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetClose,
+} from '@/components/ui/sheet';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { colors } from '@/config/theme';
+
+export function Header() {
+  const [wishlistCount] = useState(0);
+  const [cartCount] = useState(0);
+
+  const navLinks = [
+    { href: '/', label: 'Home', active: true },
+    { href: '/about', label: 'About us' },
+    { href: '/shop', label: 'Shop' },
+    { href: '/blog', label: 'Blog' },
+    { href: '/contact', label: 'Contact Us - MY SWANAND' },
+  ];
+
+  const policyLinks = [
+    { href: '/refund', label: 'Refund and Returns Policy' },
+    { href: '/privacy', label: 'Privacy Policy' },
+    { href: '/terms', label: 'Terms and Conditions' },
+  ];
+
+  return (
+    <header className="w-full" style={{ backgroundColor: colors.primary }}>
+      <div className="container mx-auto px-4">
+        {/* Desktop Header */}
+        <div className="hidden lg:flex items-center justify-between py-4">
+          {/* Logo */}
+          <Link href="/" className="flex items-center">
+            <div
+              className="rounded-full p-2 border-2 flex items-center justify-center"
+              style={{
+                backgroundColor: colors.white,
+                borderColor: colors.yellow,
+              }}
+            >
+              <Image
+                src="/logo.png"
+                alt="Swanand Pathology Laboratory"
+                width={120}
+                height={100}
+                className="object-contain"
+                style={{ width: 'auto', height: 'auto' }}
+              />
+            </div>
+          </Link>
+
+          {/* Navigation Links */}
+          <nav className="flex items-center gap-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-sm font-medium transition-colors ${
+                  link.active ? '' : 'hover:opacity-80'
+                }`}
+                style={{
+                  color: link.active ? colors.yellow : colors.white,
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className="flex items-center gap-1 text-sm font-medium transition-colors hover:opacity-80"
+                  style={{ color: colors.white }}
+                >
+                  Policies
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-2">
+                <nav className="flex flex-col">
+                  {policyLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="px-3 py-2 text-sm hover:bg-accent rounded-md transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+              </PopoverContent>
+            </Popover>
+          </nav>
+
+          {/* Right Icons */}
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              style={{
+                backgroundColor: '#f0ede4',
+              }}
+            >
+              <User className="w-5 h-5" style={{ color: colors.green }} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full relative"
+              style={{
+                backgroundColor: '#f0ede4',
+              }}
+            >
+              <Heart className="w-5 h-5" style={{ color: colors.green }} />
+              <Badge
+                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                style={{
+                  backgroundColor: colors.primary,
+                  color: colors.white,
+                }}
+              >
+                {wishlistCount}
+              </Badge>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full relative"
+              style={{
+                backgroundColor: '#f0ede4',
+              }}
+            >
+              <ShoppingCart
+                className="w-5 h-5"
+                style={{ color: colors.green }}
+              />
+              <Badge
+                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                style={{
+                  backgroundColor: colors.primary,
+                  color: colors.white,
+                }}
+              >
+                {cartCount}
+              </Badge>
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Header */}
+        <div className="flex lg:hidden items-center justify-between py-3">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-white">
+                <Menu className="w-6 h-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="left"
+              className="w-[320px] sm:w-[380px] p-0 overflow-y-auto"
+              style={{ backgroundColor: colors.white }}
+            >
+              <SheetHeader className="p-6 pb-4 border-b">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="rounded-lg p-2 border-2 flex items-center justify-center shrink-0"
+                    style={{
+                      backgroundColor: colors.white,
+                      borderColor: colors.yellow,
+                    }}
+                  >
+                    <Image
+                      src="/logo.png"
+                      alt="Swanand Pathology Laboratory"
+                      width={50}
+                      height={50}
+                      className="object-contain"
+                      style={{ width: 'auto', height: 'auto' }}
+                    />
+                  </div>
+                </div>
+              </SheetHeader>
+
+              <div className="flex flex-col">
+                {/* Book lab test section */}
+                <div className="p-6 border-b bg-gray-50">
+                  <h3 className="text-sm font-semibold mb-3 text-gray-800">
+                    Book lab test via
+                  </h3>
+                  <div className="flex gap-2 mb-3">
+                    <Button
+                      className="flex-1"
+                      style={{
+                        backgroundColor: '#dc2626',
+                        color: colors.white,
+                      }}
+                    >
+                      <Phone className="w-4 h-4 mr-2" />
+                      Call
+                    </Button>
+                    <Button
+                      className="flex-1"
+                      style={{
+                        backgroundColor: colors.green,
+                        color: colors.white,
+                      }}
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      WhatsApp
+                    </Button>
+                  </div>
+                  <Link
+                    href="/upload-prescription"
+                    className="flex items-center gap-2 text-sm text-gray-700 hover:text-primary transition-colors"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload Prescription
+                  </Link>
+                </div>
+
+                {/* Navigation Links */}
+                <div className="p-6 space-y-4">
+                  {navLinks.map((link) => (
+                    <SheetClose key={link.href} asChild>
+                      <Link
+                        href={link.href}
+                        className={`block text-base font-medium py-2 transition-colors ${
+                          link.active ? '' : 'text-gray-700 hover:text-primary'
+                        }`}
+                        style={
+                          link.active
+                            ? { color: colors.primary, fontWeight: 600 }
+                            : {}
+                        }
+                      >
+                        {link.label}
+                      </Link>
+                    </SheetClose>
+                  ))}
+                </div>
+
+                {/* Policies Section */}
+                <div className="p-6 pt-0 space-y-3 border-t">
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">
+                    Policies
+                  </h3>
+                  {policyLinks.map((link) => (
+                    <SheetClose key={link.href} asChild>
+                      <Link
+                        href={link.href}
+                        className="block text-sm text-gray-600 hover:text-primary transition-colors py-1"
+                      >
+                        {link.label}
+                      </Link>
+                    </SheetClose>
+                  ))}
+                </div>
+
+                {/* User Account Section */}
+                <div className="p-6 pt-0 space-y-3 border-t">
+                  <SheetClose asChild>
+                    <Link
+                      href="/account"
+                      className="flex items-center gap-3 text-base font-medium text-gray-700 hover:text-primary transition-colors py-2"
+                    >
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: '#f0ede4' }}
+                      >
+                        <User
+                          className="w-5 h-5"
+                          style={{ color: colors.green }}
+                        />
+                      </div>
+                      <span>My Account</span>
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link
+                      href="/wishlist"
+                      className="flex items-center gap-3 text-base font-medium text-gray-700 hover:text-primary transition-colors py-2 relative"
+                    >
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: '#f0ede4' }}
+                      >
+                        <Heart
+                          className="w-5 h-5"
+                          style={{ color: colors.green }}
+                        />
+                        <Badge
+                          className="absolute top-0 right-0 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                          style={{
+                            backgroundColor: colors.primary,
+                            color: colors.white,
+                          }}
+                        >
+                          {wishlistCount}
+                        </Badge>
+                      </div>
+                      <span>Wishlist</span>
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link
+                      href="/cart"
+                      className="flex items-center gap-3 text-base font-medium text-gray-700 hover:text-primary transition-colors py-2 relative"
+                    >
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: '#f0ede4' }}
+                      >
+                        <ShoppingCart
+                          className="w-5 h-5"
+                          style={{ color: colors.green }}
+                        />
+                        <Badge
+                          className="absolute top-0 right-0 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                          style={{
+                            backgroundColor: colors.primary,
+                            color: colors.white,
+                          }}
+                        >
+                          {cartCount}
+                        </Badge>
+                      </div>
+                      <span>Shopping Cart</span>
+                    </Link>
+                  </SheetClose>
+                </div>
+
+                {/* Contact Section */}
+                <div
+                  className="p-6 mt-auto border-t"
+                  style={{ backgroundColor: colors.primaryLight }}
+                >
+                  <h3
+                    className="text-sm font-semibold mb-3"
+                    style={{ color: colors.primary }}
+                  >
+                    Need Help?
+                  </h3>
+                  <div className="space-y-2">
+                    <a
+                      href="tel:+919022800100"
+                      className="flex items-center gap-2 text-sm"
+                      style={{ color: colors.primary }}
+                    >
+                      <Phone className="w-4 h-4" />
+                      +91 9022800100
+                    </a>
+                    <a
+                      href="mailto:hello@myswanand.com"
+                      className="flex items-center gap-2 text-sm"
+                      style={{ color: colors.primary }}
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      hello@myswanand.com
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          {/* Logo - Centered */}
+          <div className="flex-1 flex justify-center">
+            <Link href="/" className="flex items-center">
+              <div
+                className="rounded-lg p-2 border-2 flex items-center justify-center"
+                style={{
+                  backgroundColor: colors.white,
+                  borderColor: colors.yellow,
+                }}
+              >
+                <Image
+                  src="/logo.png"
+                  alt="Swanand Pathology Laboratory"
+                  width={50}
+                  height={50}
+                  className="object-contain"
+                  style={{ width: 'auto', height: 'auto' }}
+                />
+              </div>
+            </Link>
+          </div>
+
+          {/* Right Icons */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full relative"
+              style={{
+                backgroundColor: '#f0ede4',
+              }}
+            >
+              <Heart className="w-4 h-4" style={{ color: colors.green }} />
+              <Badge
+                className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                style={{
+                  backgroundColor: colors.primary,
+                  color: colors.white,
+                }}
+              >
+                {wishlistCount}
+              </Badge>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full relative"
+              style={{
+                backgroundColor: '#f0ede4',
+              }}
+            >
+              <ShoppingCart
+                className="w-4 h-4"
+                style={{ color: colors.green }}
+              />
+              <Badge
+                className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                style={{
+                  backgroundColor: colors.primary,
+                  color: colors.white,
+                }}
+              >
+                {cartCount}
+              </Badge>
+            </Button>
+          </div>
+        </div>
+      </div>
+      <div className="h-px bg-gray-300"></div>
+    </header>
+  );
+}
