@@ -59,7 +59,7 @@ export function DiagnosticTestCard({
         boxShadow: `0 4px 20px rgba(94, 46, 133, 0.15)`,
       }}
     >
-      <CardHeader className="relative pb-2">
+      <CardHeader className="relative p-0">
         {/* Top Left - Age Badge */}
         {ageRange && (
           <div className="absolute left-3 top-3 z-10">
@@ -97,73 +97,75 @@ export function DiagnosticTestCard({
           />
         </button>
 
-        {/* Main Graphic */}
-        <div className="mt-6 flex items-center justify-center py-2">
-          {imageUrl ? (
+        {/* Main Image - Full Width */}
+        {imageUrl ? (
+          <div className="relative h-48 w-full overflow-hidden">
             <Image
               src={imageUrl}
               alt={imageAlt}
-              width={80}
-              height={80}
-              className="object-contain"
+              fill
+              className="object-cover"
+              unoptimized
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             />
-          ) : (
-            <div className="flex h-20 w-20 items-center justify-center">
-              {/* Default graphic: Hands cupping heart with cross */}
-              <svg
-                viewBox="0 0 120 120"
-                className="h-full w-full"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Hands */}
-                <path
-                  d="M20 60 Q20 40 30 35 Q40 30 50 40 L50 50 Q45 55 40 60 Q35 65 30 70 Q25 75 20 70 Z"
-                  fill="#F5E6D3"
-                  stroke="#D4A574"
-                  strokeWidth="2"
-                />
-                <path
-                  d="M100 60 Q100 40 90 35 Q80 30 70 40 L70 50 Q75 55 80 60 Q85 65 90 70 Q95 75 100 70 Z"
-                  fill="#F5E6D3"
-                  stroke="#D4A574"
-                  strokeWidth="2"
-                />
-                {/* Heart */}
-                <path
-                  d="M60 45 C60 35 50 30 45 35 C40 30 30 35 30 45 C30 55 45 70 60 80 C75 70 90 55 90 45 C90 35 80 30 75 35 C70 30 60 35 60 45 Z"
-                  fill="#DC2626"
-                />
-                {/* Cross */}
-                <line
-                  x1="60"
-                  y1="55"
-                  x2="60"
-                  y2="70"
-                  stroke="white"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                />
-                <line
-                  x1="52"
-                  y1="62.5"
-                  x2="68"
-                  y2="62.5"
-                  stroke="white"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="relative h-48 w-full overflow-hidden bg-gray-100 flex items-center justify-center">
+            {/* Default graphic: Hands cupping heart with cross */}
+            <svg
+              viewBox="0 0 120 120"
+              className="h-32 w-32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Hands */}
+              <path
+                d="M20 60 Q20 40 30 35 Q40 30 50 40 L50 50 Q45 55 40 60 Q35 65 30 70 Q25 75 20 70 Z"
+                fill="#F5E6D3"
+                stroke="#D4A574"
+                strokeWidth="2"
+              />
+              <path
+                d="M100 60 Q100 40 90 35 Q80 30 70 40 L70 50 Q75 55 80 60 Q85 65 90 70 Q95 75 100 70 Z"
+                fill="#F5E6D3"
+                stroke="#D4A574"
+                strokeWidth="2"
+              />
+              {/* Heart */}
+              <path
+                d="M60 45 C60 35 50 30 45 35 C40 30 30 35 30 45 C30 55 45 70 60 80 C75 70 90 55 90 45 C90 35 80 30 75 35 C70 30 60 35 60 45 Z"
+                fill="#DC2626"
+              />
+              {/* Cross */}
+              <line
+                x1="60"
+                y1="55"
+                x2="60"
+                y2="70"
+                stroke="white"
+                strokeWidth="4"
+                strokeLinecap="round"
+              />
+              <line
+                x1="52"
+                y1="62.5"
+                x2="68"
+                y2="62.5"
+                stroke="white"
+                strokeWidth="4"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="space-y-2 px-4 pb-4">
         {/* Title */}
         <h3
-          className="text-lg font-bold leading-tight"
+          className="line-clamp-1 text-lg font-bold leading-tight"
           style={{ color: colors.black }}
+          title={title}
         >
           {title}
         </h3>

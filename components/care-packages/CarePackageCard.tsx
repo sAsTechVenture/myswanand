@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Info, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +19,8 @@ export interface CarePackageCardProps {
   price: number;
   // List of features/benefits (typically 3 items)
   features?: string[];
+  // Image URL for the package
+  imageUrl?: string;
   // Callback when book package is clicked
   onBookPackage?: () => void;
   // Additional className for the card
@@ -30,11 +33,8 @@ export function CarePackageCard({
   title,
   testCount,
   price,
-  features = [
-    'Free Home Sample Collection',
-    'Digital Reports in 24-48 Hours',
-    'Doctor Consultation Included',
-  ],
+  features,
+  imageUrl,
   onBookPackage,
   className,
 }: CarePackageCardProps) {
@@ -76,13 +76,28 @@ export function CarePackageCard({
         >
           <Info className="h-3.5 w-3.5 text-white" strokeWidth={3} />
         </button>
+
+        {/* Package Image */}
+        {imageUrl && (
+          <div className="relative -mx-6 -mt-6 mb-4 h-48 w-full overflow-hidden">
+            <Image
+              src={imageUrl}
+              alt={title}
+              fill
+              className="object-cover"
+              unoptimized
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            />
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="space-y-2.5 px-4 pb-4 pt-0">
         {/* Title */}
         <h3
-          className="text-left text-lg font-bold leading-tight"
+          className="line-clamp-2 text-left text-lg font-bold leading-tight"
           style={{ color: colors.black }}
+          title={title}
         >
           {title}
         </h3>
@@ -101,7 +116,7 @@ export function CarePackageCard({
         </p>
 
         {/* Features List */}
-        {features.length > 0 && (
+        {features && features.length > 0 && (
           <ul className="space-y-1">
             {features.map((feature, featureIndex) => (
               <li
