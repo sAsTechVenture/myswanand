@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Menu,
   User,
@@ -34,6 +34,47 @@ import { colors } from '@/config/theme';
 export function Header() {
   const [wishlistCount] = useState(0);
   const [cartCount] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const checkAuth = () => {
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('patient_token');
+        setIsLoggedIn(!!token);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for storage changes (e.g., when user logs in/out in another tab)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'patient_token') {
+        checkAuth();
+      }
+    };
+
+    // Listen for custom login/logout events
+    const handleAuthChange = () => {
+      checkAuth();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('auth-change', handleAuthChange);
+
+    // Also check on focus (in case user logged in/out in same tab)
+    window.addEventListener('focus', checkAuth);
+
+    // Poll for changes (fallback for same-tab login)
+    const interval = setInterval(checkAuth, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth-change', handleAuthChange);
+      window.removeEventListener('focus', checkAuth);
+      clearInterval(interval);
+    };
+  }, []);
 
   const navLinks = [
     { href: '/', label: 'Home', active: true },
@@ -116,59 +157,97 @@ export function Header() {
             </Popover>
           </nav>
 
-          {/* Right Icons */}
+          {/* Right Icons / Auth Buttons */}
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full"
-              style={{
-                backgroundColor: '#f0ede4',
-              }}
-            >
-              <User className="w-5 h-5" style={{ color: colors.green }} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full relative"
-              style={{
-                backgroundColor: '#f0ede4',
-              }}
-            >
-              <Heart className="w-5 h-5" style={{ color: colors.green }} />
-              <Badge
-                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                style={{
-                  backgroundColor: colors.primary,
-                  color: colors.white,
-                }}
-              >
-                {wishlistCount}
-              </Badge>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full relative"
-              style={{
-                backgroundColor: '#f0ede4',
-              }}
-            >
-              <ShoppingCart
-                className="w-5 h-5"
-                style={{ color: colors.green }}
-              />
-              <Badge
-                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                style={{
-                  backgroundColor: colors.primary,
-                  color: colors.white,
-                }}
-              >
-                {cartCount}
-              </Badge>
-            </Button>
+            {isLoggedIn ? (
+              <>
+                <Link href="/profile">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full"
+                    style={{
+                      backgroundColor: '#f0ede4',
+                    }}
+                  >
+                    <User className="w-5 h-5" style={{ color: colors.green }} />
+                  </Button>
+                </Link>
+                <Link href="/wishlist">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full relative"
+                    style={{
+                      backgroundColor: '#f0ede4',
+                    }}
+                  >
+                    <Heart
+                      className="w-5 h-5"
+                      style={{ color: colors.green }}
+                    />
+                    <Badge
+                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                      style={{
+                        backgroundColor: colors.primary,
+                        color: colors.white,
+                      }}
+                    >
+                      {wishlistCount}
+                    </Badge>
+                  </Button>
+                </Link>
+                <Link href="/cart">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full relative"
+                    style={{
+                      backgroundColor: '#f0ede4',
+                    }}
+                  >
+                    <ShoppingCart
+                      className="w-5 h-5"
+                      style={{ color: colors.green }}
+                    />
+                    <Badge
+                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                      style={{
+                        backgroundColor: colors.primary,
+                        color: colors.white,
+                      }}
+                    >
+                      {cartCount}
+                    </Badge>
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/register">
+                  <Button
+                    className="px-4"
+                    style={{
+                      backgroundColor: colors.white,
+                      color: colors.primary,
+                    }}
+                  >
+                    Signup
+                  </Button>
+                </Link>
+                <Link href="/auth/login">
+                  <Button
+                    className="px-4"
+                    style={{
+                      backgroundColor: colors.yellow,
+                      color: colors.black,
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -282,77 +361,109 @@ export function Header() {
                 </div>
 
                 {/* User Account Section */}
-                <div className="p-6 pt-0 space-y-3 border-t">
-                  <SheetClose asChild>
-                    <Link
-                      href="/account"
-                      className="flex items-center gap-3 text-base font-medium text-gray-700 hover:text-primary transition-colors py-2"
-                    >
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: '#f0ede4' }}
+                {isLoggedIn ? (
+                  <div className="p-6 pt-0 space-y-3 border-t">
+                    <SheetClose asChild>
+                      <Link
+                        href="/profile"
+                        className="flex items-center gap-3 text-base font-medium text-gray-700 hover:text-primary transition-colors py-2"
                       >
-                        <User
-                          className="w-5 h-5"
-                          style={{ color: colors.green }}
-                        />
-                      </div>
-                      <span>My Account</span>
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link
-                      href="/wishlist"
-                      className="flex items-center gap-3 text-base font-medium text-gray-700 hover:text-primary transition-colors py-2 relative"
-                    >
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: '#f0ede4' }}
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: '#f0ede4' }}
+                        >
+                          <User
+                            className="w-5 h-5"
+                            style={{ color: colors.green }}
+                          />
+                        </div>
+                        <span>My Profile</span>
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="/wishlist"
+                        className="flex items-center gap-3 text-base font-medium text-gray-700 hover:text-primary transition-colors py-2 relative"
                       >
-                        <Heart
-                          className="w-5 h-5"
-                          style={{ color: colors.green }}
-                        />
-                        <Badge
-                          className="absolute top-0 right-0 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: '#f0ede4' }}
+                        >
+                          <Heart
+                            className="w-5 h-5"
+                            style={{ color: colors.green }}
+                          />
+                          <Badge
+                            className="absolute top-0 right-0 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                            style={{
+                              backgroundColor: colors.primary,
+                              color: colors.white,
+                            }}
+                          >
+                            {wishlistCount}
+                          </Badge>
+                        </div>
+                        <span>Wishlist</span>
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="/cart"
+                        className="flex items-center gap-3 text-base font-medium text-gray-700 hover:text-primary transition-colors py-2 relative"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: '#f0ede4' }}
+                        >
+                          <ShoppingCart
+                            className="w-5 h-5"
+                            style={{ color: colors.green }}
+                          />
+                          <Badge
+                            className="absolute top-0 right-0 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                            style={{
+                              backgroundColor: colors.primary,
+                              color: colors.white,
+                            }}
+                          >
+                            {cartCount}
+                          </Badge>
+                        </div>
+                        <span>Shopping Cart</span>
+                      </Link>
+                    </SheetClose>
+                  </div>
+                ) : (
+                  <div className="p-6 pt-0 space-y-3 border-t">
+                    <SheetClose asChild>
+                      <Link href="/auth/register" className="block w-full">
+                        <Button
+                          className="w-full"
                           style={{
                             backgroundColor: colors.primary,
                             color: colors.white,
                           }}
                         >
-                          {wishlistCount}
-                        </Badge>
-                      </div>
-                      <span>Wishlist</span>
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link
-                      href="/cart"
-                      className="flex items-center gap-3 text-base font-medium text-gray-700 hover:text-primary transition-colors py-2 relative"
-                    >
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: '#f0ede4' }}
-                      >
-                        <ShoppingCart
-                          className="w-5 h-5"
-                          style={{ color: colors.green }}
-                        />
-                        <Badge
-                          className="absolute top-0 right-0 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                          Signup
+                        </Button>
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link href="/auth/login" className="block w-full">
+                        <Button
+                          className="w-full"
+                          variant="outline"
                           style={{
-                            backgroundColor: colors.primary,
-                            color: colors.white,
+                            borderColor: colors.primary,
+                            color: colors.primary,
                           }}
                         >
-                          {cartCount}
-                        </Badge>
-                      </div>
-                      <span>Shopping Cart</span>
-                    </Link>
-                  </SheetClose>
-                </div>
+                          Sign In
+                        </Button>
+                      </Link>
+                    </SheetClose>
+                  </div>
+                )}
 
                 {/* Contact Section */}
                 <div
@@ -410,49 +521,99 @@ export function Header() {
             </Link>
           </div>
 
-          {/* Right Icons */}
+          {/* Right Icons / Auth Buttons */}
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full relative"
-              style={{
-                backgroundColor: '#f0ede4',
-              }}
-            >
-              <Heart className="w-4 h-4" style={{ color: colors.green }} />
-              <Badge
-                className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
-                style={{
-                  backgroundColor: colors.primary,
-                  color: colors.white,
-                }}
-              >
-                {wishlistCount}
-              </Badge>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full relative"
-              style={{
-                backgroundColor: '#f0ede4',
-              }}
-            >
-              <ShoppingCart
-                className="w-4 h-4"
-                style={{ color: colors.green }}
-              />
-              <Badge
-                className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
-                style={{
-                  backgroundColor: colors.primary,
-                  color: colors.white,
-                }}
-              >
-                {cartCount}
-              </Badge>
-            </Button>
+            {isLoggedIn ? (
+              <>
+                <Link href="/profile">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full"
+                    style={{
+                      backgroundColor: '#f0ede4',
+                    }}
+                  >
+                    <User className="w-4 h-4" style={{ color: colors.green }} />
+                  </Button>
+                </Link>
+                <Link href="/wishlist">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full relative"
+                    style={{
+                      backgroundColor: '#f0ede4',
+                    }}
+                  >
+                    <Heart
+                      className="w-4 h-4"
+                      style={{ color: colors.green }}
+                    />
+                    <Badge
+                      className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                      style={{
+                        backgroundColor: colors.primary,
+                        color: colors.white,
+                      }}
+                    >
+                      {wishlistCount}
+                    </Badge>
+                  </Button>
+                </Link>
+                <Link href="/cart">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full relative"
+                    style={{
+                      backgroundColor: '#f0ede4',
+                    }}
+                  >
+                    <ShoppingCart
+                      className="w-4 h-4"
+                      style={{ color: colors.green }}
+                    />
+                    <Badge
+                      className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                      style={{
+                        backgroundColor: colors.primary,
+                        color: colors.white,
+                      }}
+                    >
+                      {cartCount}
+                    </Badge>
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/register">
+                  <Button
+                    size="sm"
+                    className="px-3 text-xs"
+                    style={{
+                      backgroundColor: colors.white,
+                      color: colors.primary,
+                    }}
+                  >
+                    Signup
+                  </Button>
+                </Link>
+                <Link href="/auth/login">
+                  <Button
+                    size="sm"
+                    className="px-3 text-xs"
+                    style={{
+                      backgroundColor: colors.yellow,
+                      color: colors.black,
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { apiClient } from '@/lib/api';
@@ -19,7 +19,7 @@ interface VerificationResponse {
   message?: string;
 }
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isVerifying, setIsVerifying] = useState(true);
@@ -275,5 +275,39 @@ export default function VerifyEmailPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="min-h-screen py-12 px-4 flex items-center justify-center"
+          style={{ backgroundColor: '#f5f0e8' }}
+        >
+          <div className="container mx-auto max-w-2xl">
+            <Card className="p-8 shadow-lg">
+              <div className="text-center">
+                <div className="flex justify-center mb-6">
+                  <Loader2
+                    className="h-12 w-12 animate-spin"
+                    style={{ color: colors.primary }}
+                  />
+                </div>
+                <h1
+                  className="text-3xl font-bold mb-4"
+                  style={{ color: colors.primary }}
+                >
+                  Loading...
+                </h1>
+              </div>
+            </Card>
+          </div>
+        </div>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

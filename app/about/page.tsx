@@ -8,18 +8,18 @@ const founders = [
     experience: "8 years of experience",
     image: "/founder-1.jpg",
   },
-  {
-    name: "Dr. Poorva Raghunath Rane",
-    degree: "MBBS, M.D. (Pathology)",
-    experience: "8 years of experience",
-    image: "/founder-2.jpg",
-  },
-  {
-    name: "Dr. Poorva Raghunath Rane",
-    degree: "MBBS, M.D. (Pathology)",
-    experience: "8 years of experience",
-    image: "/founder-3.jpg",
-  },
+  // {
+  //   name: "Dr. Poorva Raghunath Rane",
+  //   degree: "MBBS, M.D. (Pathology)",
+  //   experience: "8 years of experience",
+  //   image: "/founder-2.jpg",
+  // },
+  // {
+  //   name: "Dr. Poorva Raghunath Rane",
+  //   degree: "MBBS, M.D. (Pathology)",
+  //   experience: "8 years of experience",
+  //   image: "/founder-3.jpg",
+  // },
 ];
 
 export default function AboutPage() {
