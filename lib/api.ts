@@ -3,7 +3,7 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 interface ApiRequestOptions extends Omit<RequestInit, 'body' | 'method'> {
   method?: HttpMethod;
   token?: string | null;
-  body?: unknown;
+  body?: unknown | FormData;
   headers?: Record<string, string>;
 }
 
@@ -47,12 +47,19 @@ export async function api<T = unknown>(
     ...fetchOptions
   } = options;
 
+  // Check if body is FormData
+  const isFormData = body instanceof FormData;
+
   // Build headers
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     Accept: 'application/json',
     ...(customHeaders || {}),
   };
+
+  // Only set Content-Type for JSON, not for FormData (browser will set it with boundary)
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   // Add authorization header if token is provided
   if (token) {
@@ -68,7 +75,11 @@ export async function api<T = unknown>(
 
   // Add body if provided (and not GET)
   if (body && method !== 'GET') {
-    config.body = JSON.stringify(body);
+    if (isFormData) {
+      config.body = body;
+    } else {
+      config.body = JSON.stringify(body);
+    }
   }
 
   try {

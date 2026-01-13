@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { apiClient } from '@/lib/api';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { colors } from '@/config/theme';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 
 /**
  * MascotDisplay Component
@@ -38,8 +38,9 @@ function MascotDisplay() {
   );
 }
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -121,10 +122,14 @@ export default function LoginPage() {
         if (typeof window !== 'undefined') {
           localStorage.setItem('patient_token', token);
           localStorage.setItem('patient_user', JSON.stringify(user));
+
+          // Dispatch custom event to update header
+          window.dispatchEvent(new Event('auth-change'));
         }
 
-        // Redirect to home page or dashboard
-        router.push('/');
+        // Redirect to the original page or home page
+        const redirectUrl = searchParams.get('redirect') || '/';
+        router.push(redirectUrl);
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -306,5 +311,26 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen py-8 flex items-center justify-center">
+          <div className="container mx-auto max-w-6xl px-8">
+            <div className="flex justify-center">
+              <Loader2
+                className="h-12 w-12 animate-spin"
+                style={{ color: colors.primary }}
+              />
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }
