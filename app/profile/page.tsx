@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiClient } from '@/lib/api';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -36,11 +36,29 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('history');
   const [editModalOpen, setEditModalOpen] = useState(false);
+
+  // Handle tab query parameter
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (
+      tabParam &&
+      [
+        'history',
+        'transactions',
+        'coins',
+        'vouchers',
+        'prescriptions',
+      ].includes(tabParam)
+    ) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -144,8 +162,7 @@ export default function ProfilePage() {
   };
 
   const handleUploadPrescription = () => {
-    // TODO: Implement upload prescription
-    console.log('Upload prescription');
+    router.push('/upload-prescription');
   };
 
   if (loading) {
