@@ -131,3 +131,7 @@
   font-weight: 400;
   font-style: normal;
 }
+.input {
+  @apply w-full border border-[#F4C430] rounded-lg px-4 py-3
+         focus:outline-none focus:ring-2 focus:ring-[#F4C430];
+}

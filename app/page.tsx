@@ -28,6 +28,7 @@ import type { Banner } from '@/components/common/BannerCarousel';
 import { useLikedItems } from '@/lib/hooks/useLikedItems';
 import { getAuthToken } from '@/lib/utils/auth';
 import { toast } from '@/lib/toast';
+import Link from 'next/link';
 
 interface CarePackage {
   id: string | number;
@@ -482,13 +483,19 @@ export default function Home() {
                   features={test.features}
                   imageUrl={test.imageUrl}
                   isFavorite={isLiked(String(test.id), 'test')}
-                  onFavoriteToggle={() => toggleLike(String(test.id), 'test', redirectToLogin)}
+                  onFavoriteToggle={() =>
+                    toggleLike(String(test.id), 'test', redirectToLogin)
+                  }
                   onAddToCart={async () => {
                     // Check if user is logged in
                     const token = getAuthToken();
                     if (!token) {
                       const currentPath = window.location.pathname;
-                      router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+                      router.push(
+                        `/auth/login?redirect=${encodeURIComponent(
+                          currentPath
+                        )}`
+                      );
                       return;
                     }
 
@@ -513,7 +520,9 @@ export default function Home() {
                         toast.info('Test is already in your cart');
                         router.push('/cart');
                       } else {
-                        toast.error('Failed to add test to cart. Please try again.');
+                        toast.error(
+                          'Failed to add test to cart. Please try again.'
+                        );
                       }
                     }
                   }}
@@ -612,13 +621,22 @@ export default function Home() {
                   features={pkg.features as string[]}
                   imageUrl={pkg.imageUrl as string | undefined}
                   isLiked={isLiked(String(pkg.id), 'package')}
-                  onLikeToggle={() => toggleLike(String(pkg.id), 'package', redirectToLogin)}
+                  onLikeToggle={() =>
+                    toggleLike(String(pkg.id), 'package', redirectToLogin)
+                  }
                   onBookPackage={() => {
                     // Check if user is logged in
-                    const token = typeof window !== 'undefined' ? localStorage.getItem('patient_token') : null;
+                    const token =
+                      typeof window !== 'undefined'
+                        ? localStorage.getItem('patient_token')
+                        : null;
                     if (!token) {
                       const currentPath = window.location.pathname;
-                      router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+                      router.push(
+                        `/auth/login?redirect=${encodeURIComponent(
+                          currentPath
+                        )}`
+                      );
                       return;
                     }
                     router.push(`/care-packages/${pkg.id}`);
@@ -1037,16 +1055,14 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <Button
-                className="rounded-lg bg-white px-8 py-4 text-base font-semibold transition-all hover:opacity-90"
-                style={{
-                  backgroundColor: colors.white,
-                  color: colors.primary,
-                }}
-                onClick={() => console.log('Apply Swanand Card')}
-              >
-                Apply Swanand Card
-              </Button>
+              <Link href="/swanand-card/apply">
+                <Button
+                  className="rounded-lg bg-white px-8 py-4 font-semibold"
+                  style={{ color: colors.primary }}
+                >
+                  Apply Swanand Card
+                </Button>
+              </Link>
             </div>
 
             {/* Right Side - Health Card Image (1/3 width) */}
