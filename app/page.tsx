@@ -24,7 +24,9 @@ import { Leaf } from 'lucide-react';
 
 import { BannerCarousel } from '@/components/common/BannerCarousel';
 import type { Banner } from '@/components/common/BannerCarousel';
-import ApplySwanandCardForm from '@/components/ApplySwanandCardForm';
+import ApplySwanandCardForm from '@/app/swanand-card/apply/ApplySwanandCardForm';
+import Link from "next/link";
+
 
 interface CarePackage {
   id: string | number;
@@ -69,14 +71,6 @@ export default function Home() {
 
   const [error, setError] = useState<string | null>(null);
 
-  const [showForm, setShowForm] = useState(false);
-  const [success, setSuccess] = useState(false);
-  useEffect(() => {
-  if (success) {
-    const timer = setTimeout(() => setSuccess(false), 5000);
-    return () => clearTimeout(timer);
-  }
-}, [success]);
 
   // Fetch banners
   useEffect(() => {
@@ -976,30 +970,16 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              {!showForm && !success && (
-  <Button
-    className="rounded-lg bg-white px-8 py-4 font-semibold"
-    style={{ color: colors.primary }}
-    onClick={() => setShowForm(true)}
-  >
-    Apply Swanand Card
-  </Button>
-)}
+              <Link href="/swanand-card/apply">
+                <Button
+                  className="rounded-lg bg-white px-8 py-4 font-semibold"
+                  style={{ color: colors.primary }}
+                >
+                  Apply Swanand Card
+                </Button>
+              </Link>
 
-{success && (
-  <p className="mt-6 text-lg font-semibold text-green-400">
-    ✅ Application submitted successfully
-  </p>
-)}
 
-{showForm && !success && (
-  <ApplySwanandCardForm
-    onSuccess={() => {
-      setShowForm(false);
-      setSuccess(true);
-    }}
-  />
-)}
 
             </div>
 

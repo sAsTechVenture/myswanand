@@ -1,4 +1,4 @@
-import { ClipboardList, Target, Compass, Check } from "lucide-react";
+import { ClipboardList, Target, Compass, Check,Eye } from "lucide-react";
 import Image from "next/image";
 
 const founders = [
@@ -6,55 +6,47 @@ const founders = [
     name: "Dr. Poorva Raghunath Rane",
     degree: "MBBS, M.D. (Pathology)",
     experience: "8 years of experience",
-    image: "/founder-1.jpg",
+    image: "/founder.JPG",
   },
-  // {
-  //   name: "Dr. Poorva Raghunath Rane",
-  //   degree: "MBBS, M.D. (Pathology)",
-  //   experience: "8 years of experience",
-  //   image: "/founder-2.jpg",
-  // },
-  // {
-  //   name: "Dr. Poorva Raghunath Rane",
-  //   degree: "MBBS, M.D. (Pathology)",
-  //   experience: "8 years of experience",
-  //   image: "/founder-3.jpg",
-  // },
 ];
 
 export default function AboutPage() {
   return (
     <main className="w-full overflow-x-hidden">
 
-      {/* ================= HERO ================= */}
-      <section className="bg-[#F7EDE2] py-14 sm:py-20 text-center px-4">
-        <h1 className="text-2xl sm:text-3xl font-semibold">
-          About us
-        </h1>
-        <p className="text-sm text-gray-500 mt-2">
-          Home / About us
-        </p>
+      {/* ================= HERO SECTION ================= */}
+      <section className="relative bg-[#F9EFE5] py-14">
+        <div className="mx-auto max-w-7xl px-6 text-center">
+          <h1 className="text-[22px] font-semibold text-[#2D2D2D]">
+            About us
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Home / About us
+          </p>
+        </div>
       </section>
 
       {/* ================= ABOUT CONTENT ================= */}
-      <section className="max-w-6xl mx-auto px-4 -mt-10 sm:-mt-14">
-        <div className="bg-white rounded-2xl shadow-sm p-6 sm:p-10">
-          <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6">
+      <section className="py-16">
+        <div className="mx-auto max-w-6xl px-6">
+          <h2 className="text-[20px] font-semibold text-[#111]">
             About SWANAND
           </h2>
 
-          <div className="space-y-4 text-gray-600 text-sm leading-relaxed">
+          <div className="mt-6 space-y-4 text-[14px] leading-[26px] text-gray-600 max-w-4xl">
             <p>
               At MY SWANAND Pathology Laboratory, we are dedicated to delivering
               accurate, reliable, and timely diagnostic services that form the
               foundation of better healthcare decisions.
             </p>
+
             <p>
               Pathology is the science of understanding diseases — and it plays
               a vital role in modern medicine. At MY SWANAND, we combine
               advanced technology, scientific expertise, and a compassionate
-              approach.
+              approach to ensure every patient receives the best care possible.
             </p>
+
             <p>
               We simplify complex medical data, making every report easy to
               understand and patient-friendly.
@@ -65,10 +57,8 @@ export default function AboutPage() {
 
       {/* ================= SERVICES ================= */}
       <section className="max-w-6xl mx-auto px-6 py-20">
-
-      {/* ================= SERVICES ================= */}
       <div className="mb-20">
-        <h2 className="flex items-center gap-3 text-lg font-semibold mb-10">
+        <h2 className="flex items-center gap-3 text-lg font-bold mb-10">
           <span className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center">
             <ClipboardList className="text-white" size={20} />
           </span>
@@ -96,42 +86,44 @@ export default function AboutPage() {
       </div>
 
       {/* ================= VISION / MISSION ================= */}
-      <div className="grid md:grid-cols-2 gap-10">
-        {/* Vision */}
-        <div className="relative border border-[#56276C] rounded-2xl p-10 shadow-sm">
-          <div className="absolute -top-5 left-8 w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center">
-            <Target className="text-white" size={18} />
+      
+        <div className="mx-auto max-w-6xl px-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+          {/* Vision */}
+          <div className="rounded-2xl border border-[#A855F7] bg-white p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#34D399]">
+                <Eye className="h-4 w-4 text-white" />
+              </div>
+              <h4 className="text-[16px] font-bold text-[#C026D3]">
+                Our Vision
+              </h4>
+            </div>
+            <p className="text-[13px] leading-[22px] text-[#C026D3] italic">
+              We aspire to redefine healthcare through precision, innovation,
+              and compassion — ensuring that every interaction, from diagnosis
+              to care, becomes a transformative experience that improves lives.
+            </p>
           </div>
 
-          <h3 className="text-lg font-semibold text-[#56276C] mb-4 mt-4">
-            Our Vision
-          </h3>
-          <p className="text-sm text-[#56276C] leading-relaxed">
-            We are here to redefine healthcare through precision, innovation,
-            and compassion — ensuring that every interaction, from diagnosis
-            to care, becomes a transformative experience that improves lives.
-          </p>
-        </div>
-
-        {/* Mission */}
-        <div className="relative border border-[#56276C] rounded-2xl p-10 shadow-sm">
-          <div className="absolute -top-5 left-8 w-10 h-10 rounded-lg bg-fuchsia-600 flex items-center justify-center">
-            <Compass className="text-white" size={18} />
+          {/* Mission */}
+          <div className="rounded-2xl border font-bold border-[#C026D3] bg-white p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C026D3]">
+                <Target className="h-4 w-4 text-white" />
+              </div>
+              <h4 className="text-[16px] font-bold text-lg text-[#C026D3]">
+                Our Mission
+              </h4>
+            </div>
+            <p className="text-[13px] leading-[22px] text-[#C026D3] italic">
+              Our heartfelt mission for the coming years (till the end of 2027)
+              is to amplify our diagnostic impact, aiming to conduct precise
+              and timely tests for over 30,000 patients annually, thereby
+              enhancing the overall well-being of the community.
+            </p>
           </div>
-
-          <h3 className="text-lg font-semibold text-[#56276C] mb-4 mt-4">
-            Our Mission
-          </h3>
-          <p className="text-sm text-[#56276C] leading-relaxed">
-            Our heartfelt mission for the coming years (till the end of 2027)
-            is to amplify our diagnostic impact, aiming to conduct precise and
-            timely tests for over 30,000 patients annually, thereby enhancing
-            the overall well-being of the community.
-          </p>
         </div>
-      </div>
-
-    </section>
+      </section>
 
 
       {/* ================= JOURNEY ================= */}

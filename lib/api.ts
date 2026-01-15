@@ -70,6 +70,7 @@ export async function api<T = unknown>(
   const config: RequestInit = {
     method,
     headers,
+    credentials: 'include',
     ...fetchOptions,
   };
 
