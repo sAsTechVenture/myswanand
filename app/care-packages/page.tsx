@@ -26,6 +26,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { colors } from '@/config/theme';
 import { apiClient } from '@/lib/api';
+import { useLikedItems } from '@/lib/hooks/useLikedItems';
 
 interface CarePackage {
   id: string | number;
@@ -49,6 +50,11 @@ interface Category {
 export default function CarePackagesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const redirectToLogin = () => {
+    const currentPath = window.location.pathname + window.location.search;
+    router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+  };
   const [packages, setPackages] = useState<CarePackage[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -60,6 +66,7 @@ export default function CarePackagesPage() {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('created_desc');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const { isLiked, toggleLike } = useLikedItems();
 
   // Get query params
   const page = parseInt(searchParams.get('page') || '1', 10);
@@ -647,9 +654,26 @@ export default function CarePackagesPage() {
                 price={pkg.price as number}
                 features={pkg.features as string[]}
                 imageUrl={pkg.imageUrl as string | undefined}
-                onBookPackage={() =>
-                  console.log(`Booked: ${(pkg.title || pkg.name) as string}`)
+                isLiked={isLiked(String(pkg.id), 'package')}
+                onLikeToggle={() =>
+                  toggleLike(String(pkg.id), 'package', redirectToLogin)
                 }
+                onBookPackage={() => {
+                  // Check if user is logged in
+                  const token =
+                    typeof window !== 'undefined'
+                      ? localStorage.getItem('patient_token')
+                      : null;
+                  if (!token) {
+                    const currentPath =
+                      window.location.pathname + window.location.search;
+                    router.push(
+                      `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+                    );
+                    return;
+                  }
+                  router.push(`/care-packages/${pkg.id}`);
+                }}
               />
             ))}
           </div>

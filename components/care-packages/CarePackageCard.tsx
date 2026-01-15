@@ -1,6 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import { Info, Star } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Info, Star, Heart } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,6 +31,10 @@ export interface CarePackageCardProps {
   className?: string;
   // Package ID for linking to detail page
   packageId?: string | number;
+  // Whether the package is liked
+  isLiked?: boolean;
+  // Callback when like is toggled
+  onLikeToggle?: () => void;
 }
 
 export function CarePackageCard({
@@ -41,7 +48,26 @@ export function CarePackageCard({
   onBookPackage,
   className,
   packageId,
+  isLiked = false,
+  onLikeToggle,
 }: CarePackageCardProps) {
+  const router = useRouter();
+
+  const handleBookPackage = () => {
+    // Check if user is logged in
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('patient_token')
+        : null;
+    if (!token) {
+      const currentPath = window.location.pathname;
+      router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+    if (onBookPackage) {
+      onBookPackage();
+    }
+  };
   // Determine color scheme: odd index = primary, even index = blue
   const isPrimary = index % 2 === 1;
   const accentColor = isPrimary ? colors.primary : colors.blue;
@@ -72,14 +98,46 @@ export function CarePackageCard({
           </Badge>
         </div>
 
-        {/* Top Right - Info Icon */}
-        <button
-          className="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:opacity-80"
-          style={{ backgroundColor: accentColor }}
-          aria-label="Package information"
-        >
-          <Info className="h-3.5 w-3.5 text-white" strokeWidth={3} />
-        </button>
+        {/* Top Right - Like and Info Icons */}
+        <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
+          {/* Like Button */}
+          {onLikeToggle && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onLikeToggle();
+              }}
+              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:opacity-80"
+              style={{
+                backgroundColor: isLiked
+                  ? colors.primary
+                  : 'rgba(255, 255, 255, 0.8)',
+              }}
+              aria-label={
+                isLiked ? 'Remove from favorites' : 'Add to favorites'
+              }
+            >
+              <Heart
+                className={cn(
+                  'h-4 w-4 transition-colors',
+                  isLiked ? 'fill-current' : ''
+                )}
+                style={{
+                  color: isLiked ? colors.white : colors.primary,
+                }}
+              />
+            </button>
+          )}
+          {/* Info Icon */}
+          <button
+            className="flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:opacity-80"
+            style={{ backgroundColor: accentColor }}
+            aria-label="Package information"
+          >
+            <Info className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+          </button>
+        </div>
 
         {/* Package Image */}
         {imageUrl && (
@@ -160,7 +218,7 @@ export function CarePackageCard({
 
           {/* Book Package Button */}
           <Button
-            onClick={onBookPackage}
+            onClick={handleBookPackage}
             className="w-full rounded-lg py-2.5 text-xs font-bold uppercase tracking-wide transition-all hover:opacity-90"
             style={{
               backgroundColor: accentColor,

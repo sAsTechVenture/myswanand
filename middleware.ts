@@ -67,12 +67,34 @@ const publicRoutes = [
   '/refund',
   '/shop',
   '/blog',
+  '/diagnostic-tests',
+  '/care-packages',
+];
+
+/**
+ * Protected routes that explicitly require authentication
+ * Note: Any route NOT in publicRoutes is automatically protected
+ */
+const protectedRoutes = [
+  '/upload-prescription',
+  '/liked-items',
+  '/profile',
+  '/cart',
 ];
 
 /**
  * Check if a path is a public route
  */
 function isPublicRoute(pathname: string): boolean {
+  // First check if it's explicitly a protected route
+  const isProtected = protectedRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  );
+
+  if (isProtected) {
+    return false; // Protected routes are never public
+  }
+
   // Exact match
   if (publicRoutes.includes(pathname)) {
     return true;

@@ -31,19 +31,34 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { colors } from '@/config/theme';
+import { useLikedItems } from '@/lib/hooks/useLikedItems';
 
 export function Header() {
   const pathname = usePathname();
-  const [wishlistCount] = useState(0);
   const [cartCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { likedItems, refreshLikedItems } = useLikedItems();
+  const [wishlistCount, setWishlistCount] = useState(0);
+
+  // Update wishlist count when likedItems changes
+  useEffect(() => {
+    setWishlistCount(likedItems.length);
+  }, [likedItems]);
 
   useEffect(() => {
     // Check if user is logged in
     const checkAuth = () => {
       if (typeof window !== 'undefined') {
         const token = localStorage.getItem('patient_token');
+        const wasLoggedIn = isLoggedIn;
         setIsLoggedIn(!!token);
+
+        // Only refresh liked items if user just logged in (wasn't logged in before)
+        if (token && !wasLoggedIn) {
+          refreshLikedItems();
+        } else if (!token) {
+          setWishlistCount(0);
+        }
       }
     };
 
@@ -67,8 +82,16 @@ export function Header() {
     // Also check on focus (in case user logged in/out in same tab)
     window.addEventListener('focus', checkAuth);
 
-    // Poll for changes (fallback for same-tab login)
-    const interval = setInterval(checkAuth, 1000);
+    // Poll for changes (fallback for same-tab login) - but don't refresh liked items on every poll
+    const interval = setInterval(() => {
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('patient_token');
+        setIsLoggedIn(!!token);
+        if (!token) {
+          setWishlistCount(0);
+        }
+      }
+    }, 1000);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
@@ -76,7 +99,7 @@ export function Header() {
       window.removeEventListener('focus', checkAuth);
       clearInterval(interval);
     };
-  }, []);
+  }, [isLoggedIn, refreshLikedItems]);
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -217,7 +240,7 @@ export function Header() {
                     <User className="w-5 h-5" style={{ color: colors.green }} />
                   </Button>
                 </Link>
-                <Link href="/wishlist">
+                <Link href="/liked-items">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -628,7 +651,7 @@ export function Header() {
                     <User className="w-4 h-4" style={{ color: colors.green }} />
                   </Button>
                 </Link>
-                <Link href="/wishlist">
+                <Link href="/liked-items">
                   <Button
                     variant="ghost"
                     size="icon"

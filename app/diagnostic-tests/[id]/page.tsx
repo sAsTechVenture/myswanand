@@ -30,6 +30,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { colors } from '@/config/theme';
 import { apiClient } from '@/lib/api';
+import { useLikedItems } from '@/lib/hooks/useLikedItems';
 
 interface DiagnosticTest {
   id: string;
@@ -172,7 +173,12 @@ export default function DiagnosticTestDetailPage() {
   const testId = params.id as string;
   const [test, setTest] = useState<DiagnosticTest | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isLiked, toggleLike } = useLikedItems();
+
+  const redirectToLogin = () => {
+    const currentPath = window.location.pathname;
+    router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+  };
 
   useEffect(() => {
     async function fetchTest() {
@@ -234,9 +240,10 @@ export default function DiagnosticTestDetailPage() {
     console.log('Add to cart:', test?.id);
   };
 
-  const handleToggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    // TODO: Implement favorite functionality
+  const handleToggleFavorite = async () => {
+    if (test?.id) {
+      await toggleLike(String(test.id), 'test', redirectToLogin);
+    }
   };
 
   // Split instructions by full stops
@@ -339,13 +346,13 @@ export default function DiagnosticTestDetailPage() {
                   onClick={handleToggleFavorite}
                   className="rounded-full p-2 transition-colors hover:bg-gray-100"
                   aria-label={
-                    isFavorite ? 'Remove from favorites' : 'Add to favorites'
+                    isLiked(String(test?.id), 'test') ? 'Remove from favorites' : 'Add to favorites'
                   }
                 >
                   <Heart
-                    className={`h-6 w-6 ${isFavorite ? 'fill-current' : ''}`}
+                    className={`h-6 w-6 ${isLiked(String(test?.id), 'test') ? 'fill-current' : ''}`}
                     style={{
-                      color: isFavorite ? colors.primary : colors.primary,
+                      color: isLiked(String(test?.id), 'test') ? colors.primary : colors.primary,
                     }}
                   />
                 </button>

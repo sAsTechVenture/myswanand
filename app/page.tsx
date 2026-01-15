@@ -25,6 +25,7 @@ import { Leaf } from 'lucide-react';
 
 import { BannerCarousel } from '@/components/common/BannerCarousel';
 import type { Banner } from '@/components/common/BannerCarousel';
+import { useLikedItems } from '@/lib/hooks/useLikedItems';
 
 interface CarePackage {
   id: string | number;
@@ -62,6 +63,12 @@ export default function Home() {
   const [allCarePackages, setAllCarePackages] = useState<CarePackage[]>([]);
   const [popularTests, setPopularTests] = useState<PopularTest[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { isLiked, toggleLike } = useLikedItems();
+
+  const redirectToLogin = () => {
+    const currentPath = window.location.pathname;
+    router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+  };
 
   // Loading states for each section
   const [bannersLoading, setBannersLoading] = useState(true);
@@ -472,8 +479,18 @@ export default function Home() {
                   ageRange={test.ageRange}
                   features={test.features}
                   imageUrl={test.imageUrl}
-                  isFavorite={false}
-                  onAddToCart={() => console.log(`Added to cart: ${test.name}`)}
+                  isFavorite={isLiked(String(test.id), 'test')}
+                  onFavoriteToggle={() => toggleLike(String(test.id), 'test', redirectToLogin)}
+                  onAddToCart={() => {
+                    // Check if user is logged in
+                    const token = typeof window !== 'undefined' ? localStorage.getItem('patient_token') : null;
+                    if (!token) {
+                      const currentPath = window.location.pathname;
+                      router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+                      return;
+                    }
+                    console.log(`Added to cart: ${test.name}`);
+                  }}
                 />
               ))}
             </div>
@@ -558,6 +575,7 @@ export default function Home() {
               {filteredCarePackages.map((pkg, index) => (
                 <CarePackageCard
                   key={pkg.id || index}
+                  packageId={pkg.id}
                   category={(pkg.category as string) || 'HEALTH'}
                   index={index}
                   title={
@@ -567,9 +585,18 @@ export default function Home() {
                   price={pkg.price as number}
                   features={pkg.features as string[]}
                   imageUrl={pkg.imageUrl as string | undefined}
-                  onBookPackage={() =>
-                    console.log(`Booked: ${(pkg.title || pkg.name) as string}`)
-                  }
+                  isLiked={isLiked(String(pkg.id), 'package')}
+                  onLikeToggle={() => toggleLike(String(pkg.id), 'package', redirectToLogin)}
+                  onBookPackage={() => {
+                    // Check if user is logged in
+                    const token = typeof window !== 'undefined' ? localStorage.getItem('patient_token') : null;
+                    if (!token) {
+                      const currentPath = window.location.pathname;
+                      router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+                      return;
+                    }
+                    router.push(`/care-packages/${pkg.id}`);
+                  }}
                 />
               ))}
             </div>

@@ -26,6 +26,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { colors } from '@/config/theme';
 import { apiClient } from '@/lib/api';
+import { useLikedItems } from '@/lib/hooks/useLikedItems';
 
 interface DiagnosticTest {
   id: string | number;
@@ -50,6 +51,12 @@ interface Category {
 export default function DiagnosticTestsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isLiked, toggleLike } = useLikedItems();
+
+  const redirectToLogin = () => {
+    const currentPath = window.location.pathname + window.location.search;
+    router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+  };
   const [tests, setTests] = useState<DiagnosticTest[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);

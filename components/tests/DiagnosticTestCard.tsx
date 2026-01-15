@@ -1,5 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Heart, ShoppingCart, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +54,20 @@ export function DiagnosticTestCard({
   className,
   testId,
 }: DiagnosticTestCardProps) {
+  const router = useRouter();
+
+  const handleAddToCart = () => {
+    // Check if user is logged in
+    const token = typeof window !== 'undefined' ? localStorage.getItem('patient_token') : null;
+    if (!token) {
+      const currentPath = window.location.pathname;
+      router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+    if (onAddToCart) {
+      onAddToCart();
+    }
+  };
   return (
     <Card
       className={cn(
@@ -82,24 +99,30 @@ export function DiagnosticTestCard({
         )}
 
         {/* Top Right - Favorite Heart */}
-        <button
-          onClick={onFavoriteToggle}
-          className="absolute right-3 top-3 z-10 rounded-full p-1.5 transition-colors"
-          style={{
-            backgroundColor: isFavorite ? colors.primaryLight : 'transparent',
-          }}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-        >
-          <Heart
-            className={cn(
-              'h-4 w-4 transition-colors',
-              isFavorite ? 'fill-current' : 'stroke-2'
-            )}
-            style={{
-              color: isFavorite ? colors.primary : colors.primary,
+        {onFavoriteToggle && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onFavoriteToggle();
             }}
-          />
-        </button>
+            className="absolute right-3 top-3 z-10 rounded-full p-1.5 transition-colors"
+            style={{
+              backgroundColor: isFavorite ? colors.primaryLight : 'transparent',
+            }}
+            aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <Heart
+              className={cn(
+                'h-4 w-4 transition-colors',
+                isFavorite ? 'fill-current' : 'stroke-2'
+              )}
+              style={{
+                color: isFavorite ? colors.primary : colors.primary,
+              }}
+            />
+          </button>
+        )}
 
         {/* Main Image - Full Width */}
         {imageUrl ? (
@@ -235,7 +258,7 @@ export function DiagnosticTestCard({
 
           {/* Add to Cart Button */}
           <Button
-            onClick={onAddToCart}
+            onClick={handleAddToCart}
             className="w-full rounded-lg py-2.5 text-sm font-semibold transition-all hover:opacity-90"
             style={{
               backgroundColor: colors.primary,

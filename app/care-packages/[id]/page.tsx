@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { colors } from '@/config/theme';
 import { apiClient } from '@/lib/api';
+import { useLikedItems } from '@/lib/hooks/useLikedItems';
 
 interface CarePackage {
   id: string;
@@ -53,7 +54,7 @@ export default function CarePackageDetailPage() {
   const packageId = params.id as string;
   const [packageData, setPackageData] = useState<CarePackage | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isLiked, toggleLike } = useLikedItems();
 
   useEffect(() => {
     async function fetchPackage() {
@@ -111,14 +112,28 @@ export default function CarePackageDetailPage() {
   }, [packageId]);
 
   const handleBookPackage = () => {
-    // TODO: Implement book package functionality
-    console.log('Book package:', packageData?.id);
+    // Check if user is logged in
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('patient_token')
+        : null;
+    if (!token) {
+      const currentPath = window.location.pathname;
+      router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
     router.push('/upload-prescription');
   };
 
-  const handleToggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    // TODO: Implement favorite functionality
+  const redirectToLogin = () => {
+    const currentPath = window.location.pathname;
+    router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+  };
+
+  const handleToggleFavorite = async () => {
+    if (packageData?.id) {
+      await toggleLike(packageData.id, 'package', redirectToLogin);
+    }
   };
 
   // Get test count and tests array
@@ -250,13 +265,19 @@ export default function CarePackageDetailPage() {
                     onClick={handleToggleFavorite}
                     className="ml-4 rounded-full p-2 transition-colors hover:bg-gray-100"
                     aria-label={
-                      isFavorite ? 'Remove from favorites' : 'Add to favorites'
+                      isLiked(packageData.id, 'package')
+                        ? 'Remove from favorites'
+                        : 'Add to favorites'
                     }
                   >
                     <Heart
-                      className={`h-6 w-6 ${isFavorite ? 'fill-current' : ''}`}
+                      className={`h-6 w-6 ${
+                        isLiked(packageData.id, 'package') ? 'fill-current' : ''
+                      }`}
                       style={{
-                        color: isFavorite ? colors.primary : colors.primary,
+                        color: isLiked(packageData.id, 'package')
+                          ? colors.primary
+                          : colors.primary,
                       }}
                     />
                   </button>
