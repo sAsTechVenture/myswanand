@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, Grid, List, ChevronDown, Filter, X } from 'lucide-react';
 import { CarePackageCard } from '@/components/care-packages';
@@ -47,7 +47,7 @@ interface Category {
   [key: string]: unknown;
 }
 
-export default function CarePackagesPage() {
+function CarePackagesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -721,5 +721,34 @@ export default function CarePackagesPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function CarePackagesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="container mx-auto px-4">
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-48" />
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {[...Array(8)].map((_, i) => (
+                  <Card key={i} className="p-4">
+                    <Skeleton className="mb-4 h-48 w-full" />
+                    <Skeleton className="mb-2 h-6 w-3/4" />
+                    <Skeleton className="mb-2 h-4 w-1/2" />
+                    <Skeleton className="mb-4 h-8 w-1/3" />
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <CarePackagesContent />
+    </Suspense>
   );
 }

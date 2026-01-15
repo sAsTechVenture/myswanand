@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api';
 import { colors } from '@/config/theme';
@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/lib/toast';
+import { syncAuthTokenToCookie, isAuthenticated } from '@/lib/utils/auth';
 import {
   ImageIcon,
   Camera,
@@ -28,11 +29,33 @@ const ALLOWED_TYPES = [
 
 export default function UploadPrescriptionPage() {
   const router = useRouter();
+
+  // Sync token to cookie on mount (for existing sessions)
+  useEffect(() => {
+    syncAuthTokenToCookie();
+
+    // If not authenticated, redirect to login
+    if (!isAuthenticated()) {
+      const currentPath = window.location.pathname;
+      router.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+    }
+  }, [router]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync token to cookie on mount (for existing sessions)
+  useEffect(() => {
+    syncAuthTokenToCookie();
+
+    // If not authenticated, redirect to login
+    if (!isAuthenticated()) {
+      const currentPath = window.location.pathname;
+      router.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+    }
+  }, [router]);
 
   const validateFile = (file: File): string | null => {
     // Check file type

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiClient } from '@/lib/api';
@@ -34,7 +34,7 @@ interface UserProfile {
   updatedAt?: string;
 }
 
-export default function ProfilePage() {
+function ProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -340,5 +340,26 @@ export default function ProfilePage() {
         </Tabs>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="container mx-auto px-4">
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-48" />
+              <Card className="p-6">
+                <Skeleton className="h-64 w-full" />
+              </Card>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <ProfileContent />
+    </Suspense>
   );
 }

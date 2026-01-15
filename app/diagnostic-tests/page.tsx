@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, Grid, List, ChevronDown, Filter, X } from 'lucide-react';
 import { DiagnosticTestCard } from '@/components/tests';
@@ -27,6 +27,8 @@ import { Badge } from '@/components/ui/badge';
 import { colors } from '@/config/theme';
 import { apiClient } from '@/lib/api';
 import { useLikedItems } from '@/lib/hooks/useLikedItems';
+import { getAuthToken } from '@/lib/utils/auth';
+import { toast } from '@/lib/toast';
 
 interface DiagnosticTest {
   id: string | number;
@@ -48,7 +50,7 @@ interface Category {
   [key: string]: unknown;
 }
 
-export default function DiagnosticTestsPage() {
+function DiagnosticTestsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isLiked, toggleLike } = useLikedItems();
@@ -733,7 +735,39 @@ export default function DiagnosticTestsPage() {
                 features={test.features}
                 imageUrl={test.imageUrl}
                 isFavorite={false}
-                onAddToCart={() => console.log(`Added to cart: ${test.title}`)}
+                onAddToCart={async () => {
+                  const token = getAuthToken();
+                  if (!token) {
+                    redirectToLogin();
+                    return;
+                  }
+
+                  try {
+                    await apiClient.post(
+                      '/patient/cart',
+                      { testId: String(test.id) },
+                      { token }
+                    );
+                    toast.success('Test added to cart successfully!');
+                    // Dispatch event to update cart count in header
+                    if (typeof window !== 'undefined') {
+                      window.dispatchEvent(new Event('cart-change'));
+                    }
+                    setTimeout(() => {
+                      router.push('/cart');
+                    }, 1000);
+                  } catch (error: any) {
+                    console.error('Error adding to cart:', error);
+                    if (error?.message?.includes('already in your cart')) {
+                      toast.info('Test is already in your cart');
+                      router.push('/cart');
+                    } else {
+                      toast.error(
+                        'Failed to add test to cart. Please try again.'
+                      );
+                    }
+                  }
+                }}
               />
             ))}
           </div>
@@ -781,5 +815,34 @@ export default function DiagnosticTestsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function DiagnosticTestsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="container mx-auto px-4">
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-48" />
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {[...Array(8)].map((_, i) => (
+                  <Card key={i} className="p-4">
+                    <Skeleton className="mb-4 h-48 w-full" />
+                    <Skeleton className="mb-2 h-6 w-3/4" />
+                    <Skeleton className="mb-2 h-4 w-1/2" />
+                    <Skeleton className="mb-4 h-8 w-1/3" />
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <DiagnosticTestsContent />
+    </Suspense>
   );
 }

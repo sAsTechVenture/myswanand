@@ -123,13 +123,23 @@ function LoginContent() {
           localStorage.setItem('patient_token', token);
           localStorage.setItem('patient_user', JSON.stringify(user));
 
+          // Also set cookie for middleware access (expires in 7 days)
+          const expires = new Date();
+          expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000);
+          document.cookie = `patient_token=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+
           // Dispatch custom event to update header
           window.dispatchEvent(new Event('auth-change'));
         }
 
-        // Redirect to the original page or home page
-        const redirectUrl = searchParams.get('redirect') || '/';
-        router.push(redirectUrl);
+        // Get redirect URL and decode it if needed
+        const redirectParam = searchParams.get('redirect');
+        const redirectUrl = redirectParam
+          ? decodeURIComponent(redirectParam)
+          : '/';
+
+        // Use router.replace to avoid adding to history
+        router.replace(redirectUrl);
       }
     } catch (error: any) {
       console.error('Login error:', error);

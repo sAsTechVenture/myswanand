@@ -13,12 +13,24 @@ import { colors } from '@/config/theme';
 import { useLikedItems, LikedItem } from '@/lib/hooks/useLikedItems';
 import { apiClient } from '@/lib/api';
 import { toast } from '@/lib/toast';
+import { syncAuthTokenToCookie, isAuthenticated } from '@/lib/utils/auth';
 
 export default function LikedItemsPage() {
   const router = useRouter();
   const { likedItems, loading, removeFromLikedItems, refreshLikedItems } =
     useLikedItems();
   const [removingId, setRemovingId] = useState<string | null>(null);
+
+  // Sync token to cookie on mount (for existing sessions)
+  useEffect(() => {
+    syncAuthTokenToCookie();
+
+    // If not authenticated, redirect to login
+    if (!isAuthenticated()) {
+      const currentPath = window.location.pathname;
+      router.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+    }
+  }, [router]);
 
   // Process image URLs
   const getImageUrl = (imageUrl: string | null | undefined): string => {

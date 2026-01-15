@@ -125,13 +125,16 @@ export function middleware(request: NextRequest) {
   }
 
   // Get token from cookie (set by API) or Authorization header
+  // Note: localStorage is not accessible in middleware, so we rely on cookies
+  // The login API should set a cookie, or we need to handle auth on client-side
   const token =
     request.cookies.get('patient_token')?.value ||
     request.headers.get('authorization')?.replace('Bearer ', '');
 
   // Check if token is valid
   if (!isValidToken(token)) {
-    // Redirect to login with return URL
+    // For protected routes, redirect to login with return URL
+    // The client-side will handle localStorage-based auth as a fallback
     const loginUrl = new URL('/auth/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);

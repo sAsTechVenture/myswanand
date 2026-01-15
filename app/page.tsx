@@ -26,6 +26,8 @@ import { Leaf } from 'lucide-react';
 import { BannerCarousel } from '@/components/common/BannerCarousel';
 import type { Banner } from '@/components/common/BannerCarousel';
 import { useLikedItems } from '@/lib/hooks/useLikedItems';
+import { getAuthToken } from '@/lib/utils/auth';
+import { toast } from '@/lib/toast';
 
 interface CarePackage {
   id: string | number;
@@ -481,15 +483,39 @@ export default function Home() {
                   imageUrl={test.imageUrl}
                   isFavorite={isLiked(String(test.id), 'test')}
                   onFavoriteToggle={() => toggleLike(String(test.id), 'test', redirectToLogin)}
-                  onAddToCart={() => {
+                  onAddToCart={async () => {
                     // Check if user is logged in
-                    const token = typeof window !== 'undefined' ? localStorage.getItem('patient_token') : null;
+                    const token = getAuthToken();
                     if (!token) {
                       const currentPath = window.location.pathname;
                       router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
                       return;
                     }
-                    console.log(`Added to cart: ${test.name}`);
+
+                    try {
+                      await apiClient.post(
+                        '/patient/cart',
+                        { testId: String(test.id) },
+                        { token }
+                      );
+                      toast.success('Test added to cart successfully!');
+                      // Dispatch event to update cart count in header
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new Event('cart-change'));
+                      }
+                      // Optionally redirect to cart
+                      setTimeout(() => {
+                        router.push('/cart');
+                      }, 1000);
+                    } catch (error: any) {
+                      console.error('Error adding to cart:', error);
+                      if (error?.message?.includes('already in your cart')) {
+                        toast.info('Test is already in your cart');
+                        router.push('/cart');
+                      } else {
+                        toast.error('Failed to add test to cart. Please try again.');
+                      }
+                    }
                   }}
                 />
               ))}

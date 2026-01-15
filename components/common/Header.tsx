@@ -32,12 +32,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { colors } from '@/config/theme';
 import { useLikedItems } from '@/lib/hooks/useLikedItems';
+import { useCartCount } from '@/lib/hooks/useCartCount';
 
 export function Header() {
   const pathname = usePathname();
-  const [cartCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { likedItems, refreshLikedItems } = useLikedItems();
+  const { cartCount } = useCartCount();
   const [wishlistCount, setWishlistCount] = useState(0);
 
   // Update wishlist count when likedItems changes

@@ -31,6 +31,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { colors } from '@/config/theme';
 import { apiClient } from '@/lib/api';
 import { useLikedItems } from '@/lib/hooks/useLikedItems';
+import { getAuthToken } from '@/lib/utils/auth';
+import { toast } from '@/lib/toast';
 
 interface DiagnosticTest {
   id: string;
@@ -235,9 +237,39 @@ export default function DiagnosticTestDetailPage() {
     }
   }, [testId]);
 
-  const handleAddToCart = () => {
-    // TODO: Implement add to cart functionality
-    console.log('Add to cart:', test?.id);
+  const handleAddToCart = async () => {
+    if (!test?.id) return;
+
+    const token = getAuthToken();
+    if (!token) {
+      redirectToLogin();
+      return;
+    }
+
+    try {
+      await apiClient.post(
+        '/patient/cart',
+        { testId: test.id },
+        { token }
+      );
+      toast.success('Test added to cart successfully!');
+      // Dispatch event to update cart count in header
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('cart-change'));
+      }
+      // Redirect to cart after a short delay
+      setTimeout(() => {
+        router.push('/cart');
+      }, 1000);
+    } catch (error: any) {
+      console.error('Error adding to cart:', error);
+      if (error?.message?.includes('already in your cart')) {
+        toast.info('Test is already in your cart');
+        router.push('/cart');
+      } else {
+        toast.error('Failed to add test to cart. Please try again.');
+      }
+    }
   };
 
   const handleToggleFavorite = async () => {
