@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Heart, ShoppingCart, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +32,8 @@ export interface DiagnosticTestCardProps {
   onAddToCart?: () => void;
   // Additional className for the card
   className?: string;
+  // Test ID for linking to detail page
+  testId?: string | number;
 }
 
 export function DiagnosticTestCard({
@@ -46,12 +49,13 @@ export function DiagnosticTestCard({
   features = [],
   onAddToCart,
   className,
+  testId,
 }: DiagnosticTestCardProps) {
   return (
     <Card
       className={cn(
-        'relative overflow-hidden bg-white shadow-lg transition-all hover:shadow-xl',
-        'border-2',
+        'relative flex flex-col overflow-hidden bg-white shadow-lg transition-all hover:shadow-xl',
+        'border-2 h-full',
         className
       )}
       style={{
@@ -59,7 +63,7 @@ export function DiagnosticTestCard({
         boxShadow: `0 4px 20px rgba(94, 46, 133, 0.15)`,
       }}
     >
-      <CardHeader className="relative p-0">
+      <CardHeader className="relative p-0 flex-shrink-0">
         {/* Top Left - Age Badge */}
         {ageRange && (
           <div className="absolute left-3 top-3 z-10">
@@ -160,20 +164,34 @@ export function DiagnosticTestCard({
         )}
       </CardHeader>
 
-      <CardContent className="space-y-2 px-4 pb-4">
+      <CardContent className="flex flex-col flex-1 px-4 pb-4 space-y-2">
         {/* Title */}
-        <h3
-          className="line-clamp-1 text-lg font-bold leading-tight"
-          style={{ color: colors.black }}
-          title={title}
-        >
-          {title}
-        </h3>
+        <div className="flex-shrink-0">
+          {testId ? (
+            <Link href={`/diagnostic-tests/${testId}`}>
+              <h3
+                className="line-clamp-1 text-lg font-bold leading-tight hover:opacity-80 transition-opacity cursor-pointer"
+                style={{ color: colors.black }}
+                title={title}
+              >
+                {title}
+              </h3>
+            </Link>
+          ) : (
+            <h3
+              className="line-clamp-1 text-lg font-bold leading-tight"
+              style={{ color: colors.black }}
+              title={title}
+            >
+              {title}
+            </h3>
+          )}
+        </div>
 
         {/* Description with truncate */}
         {description && (
           <p
-            className="line-clamp-2 text-xs leading-snug"
+            className="line-clamp-2 text-xs leading-snug flex-shrink-0"
             style={{ color: colors.black }}
             title={description}
           >
@@ -183,19 +201,14 @@ export function DiagnosticTestCard({
 
         {/* Test Count */}
         {testCount !== undefined && (
-          <p className="text-xs" style={{ color: colors.black }}>
+          <p className="text-xs flex-shrink-0" style={{ color: colors.black }}>
             {testCount} Tests Included
           </p>
         )}
 
-        {/* Price */}
-        <p className="text-xl font-bold" style={{ color: colors.black }}>
-          ₹ {price.toLocaleString('en-IN')}
-        </p>
-
-        {/* Features List */}
+        {/* Features List - Flexible section */}
         {features.length > 0 && (
-          <ul className="space-y-1">
+          <ul className="space-y-1 flex-1 min-h-0">
             {features.map((feature, index) => (
               <li
                 key={index}
@@ -207,24 +220,32 @@ export function DiagnosticTestCard({
                   style={{ color: colors.primary }}
                   fill={colors.primary}
                 />
-                <span className="flex-1">{feature}</span>
+                <span className="flex-1 line-clamp-2">{feature}</span>
               </li>
             ))}
           </ul>
         )}
 
-        {/* Add to Cart Button */}
-        <Button
-          onClick={onAddToCart}
-          className="w-full rounded-lg py-2.5 text-sm font-semibold transition-all hover:opacity-90"
-          style={{
-            backgroundColor: colors.primary,
-            color: colors.white,
-          }}
-        >
-          <ShoppingCart className="h-4 w-4" />
-          Add to cart
-        </Button>
+        {/* Price and Button - Always at bottom */}
+        <div className="flex-shrink-0 space-y-2 mt-auto">
+          {/* Price */}
+          <p className="text-xl font-bold" style={{ color: colors.black }}>
+            ₹ {price.toLocaleString('en-IN')}
+          </p>
+
+          {/* Add to Cart Button */}
+          <Button
+            onClick={onAddToCart}
+            className="w-full rounded-lg py-2.5 text-sm font-semibold transition-all hover:opacity-90"
+            style={{
+              backgroundColor: colors.primary,
+              color: colors.white,
+            }}
+          >
+            <ShoppingCart className="h-4 w-4" />
+            Add to cart
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

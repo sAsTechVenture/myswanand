@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
   Phone,
@@ -55,6 +56,7 @@ interface PopularTest {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [banners, setBanners] = useState<Banner[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [allCarePackages, setAllCarePackages] = useState<CarePackage[]>([]);
@@ -237,15 +239,11 @@ export default function Home() {
           categoriesArray = careCategoriesData;
         }
 
-        setCategories(categoriesArray);
-        console.log('categories', categoriesArray);
-
-        // Flatten all care packages from all categories and fix image URLs
+        // Process image URLs in categories array before setting it
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
-        const allPackages: CarePackage[] = [];
-        categoriesArray.forEach((category) => {
+        const processedCategories = categoriesArray.map((category) => {
           if (category.carePackages && Array.isArray(category.carePackages)) {
-            category.carePackages.forEach((pkg: any) => {
+            const processedPackages = category.carePackages.map((pkg: any) => {
               let imageUrl = pkg.imageUrl;
               // Only process if it's a relative URL and not already a full URL
               if (imageUrl) {
@@ -271,11 +269,31 @@ export default function Home() {
                   );
                 }
               }
+              return {
+                ...pkg,
+                imageUrl,
+              };
+            });
+            return {
+              ...category,
+              carePackages: processedPackages,
+            };
+          }
+          return category;
+        });
+
+        setCategories(processedCategories);
+        console.log('categories', processedCategories);
+
+        // Flatten all care packages from all categories
+        const allPackages: CarePackage[] = [];
+        processedCategories.forEach((category) => {
+          if (category.carePackages && Array.isArray(category.carePackages)) {
+            category.carePackages.forEach((pkg: any) => {
               allPackages.push({
                 ...pkg,
                 category: category.name,
                 title: pkg.name || pkg.title,
-                imageUrl,
                 // Set default testCount if not present
                 testCount: pkg.testCount || 0,
               });
@@ -357,7 +375,7 @@ export default function Home() {
                     borderColor: colors.primaryLight,
                     color: colors.primary,
                   }}
-                  onClick={() => console.log('Upload prescription')}
+                  onClick={() => router.push('/upload-prescription')}
                 >
                   <Upload
                     className="mr-2 h-5 w-5"

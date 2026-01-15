@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Info, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,8 @@ export interface CarePackageCardProps {
   onBookPackage?: () => void;
   // Additional className for the card
   className?: string;
+  // Package ID for linking to detail page
+  packageId?: string | number;
 }
 
 export function CarePackageCard({
@@ -37,22 +40,23 @@ export function CarePackageCard({
   imageUrl,
   onBookPackage,
   className,
+  packageId,
 }: CarePackageCardProps) {
-  // Determine color scheme: odd index = yellow, even index = blue
-  const isYellow = index % 2 === 1;
-  const accentColor = isYellow ? colors.yellow : colors.blue;
-  const badgeBgColor = isYellow ? colors.yellow : colors.blue;
-  const badgeTextColor = isYellow ? colors.black : colors.white;
+  // Determine color scheme: odd index = primary, even index = blue
+  const isPrimary = index % 2 === 1;
+  const accentColor = isPrimary ? colors.primary : colors.blue;
+  const badgeBgColor = isPrimary ? colors.primary : colors.blue;
+  const badgeTextColor = isPrimary ? colors.white : colors.white;
 
   return (
     <Card
       className={cn(
-        'relative overflow-hidden bg-white shadow-sm transition-all hover:shadow-md',
-        'border',
+        'relative flex flex-col overflow-hidden bg-white shadow-sm transition-all hover:shadow-md',
+        'border h-full',
         className
       )}
     >
-      <CardHeader className="relative min-h-[60px] pb-3">
+      <CardHeader className="relative min-h-[60px] pb-3 flex-shrink-0">
         {/* Top Left - Category Badge */}
         <div className="absolute left-3 top-3 z-10">
           <Badge
@@ -92,32 +96,41 @@ export function CarePackageCard({
         )}
       </CardHeader>
 
-      <CardContent className="space-y-2.5 px-4 pb-4 pt-0">
+      <CardContent className="flex flex-col flex-1 px-4 pb-4 pt-0 space-y-2.5">
         {/* Title */}
-        <h3
-          className="line-clamp-2 text-left text-lg font-bold leading-tight"
-          style={{ color: colors.black }}
-          title={title}
-        >
-          {title}
-        </h3>
+        <div className="flex-shrink-0">
+          {packageId ? (
+            <Link href={`/care-packages/${packageId}`}>
+              <h3
+                className="line-clamp-2 text-left text-lg font-bold leading-tight hover:opacity-80 transition-opacity cursor-pointer"
+                style={{ color: colors.black }}
+                title={title}
+              >
+                {title}
+              </h3>
+            </Link>
+          ) : (
+            <h3
+              className="line-clamp-2 text-left text-lg font-bold leading-tight"
+              style={{ color: colors.black }}
+              title={title}
+            >
+              {title}
+            </h3>
+          )}
+        </div>
 
         {/* Test Count */}
-        <p className="text-left text-xs" style={{ color: colors.black }}>
+        <p
+          className="text-left text-xs flex-shrink-0"
+          style={{ color: colors.black }}
+        >
           {testCount} Tests Included
         </p>
 
-        {/* Price */}
-        <p
-          className="text-left text-xl font-bold"
-          style={{ color: colors.black }}
-        >
-          ₹ {price.toLocaleString('en-IN')}
-        </p>
-
-        {/* Features List */}
+        {/* Features List - Flexible section */}
         {features && features.length > 0 && (
-          <ul className="space-y-1">
+          <ul className="space-y-1 flex-1 min-h-0">
             {features.map((feature, featureIndex) => (
               <li
                 key={featureIndex}
@@ -129,23 +142,34 @@ export function CarePackageCard({
                   style={{ color: colors.primary }}
                   fill={colors.primary}
                 />
-                <span className="flex-1">{feature}</span>
+                <span className="flex-1 line-clamp-2">{feature}</span>
               </li>
             ))}
           </ul>
         )}
 
-        {/* Book Package Button */}
-        <Button
-          onClick={onBookPackage}
-          className="w-full rounded-lg py-2.5 text-xs font-bold uppercase tracking-wide transition-all hover:opacity-90"
-          style={{
-            backgroundColor: accentColor,
-            color: colors.white,
-          }}
-        >
-          Book Package
-        </Button>
+        {/* Price and Button - Always at bottom */}
+        <div className="flex-shrink-0 space-y-2.5 mt-auto">
+          {/* Price */}
+          <p
+            className="text-left text-xl font-bold"
+            style={{ color: colors.black }}
+          >
+            ₹ {price.toLocaleString('en-IN')}
+          </p>
+
+          {/* Book Package Button */}
+          <Button
+            onClick={onBookPackage}
+            className="w-full rounded-lg py-2.5 text-xs font-bold uppercase tracking-wide transition-all hover:opacity-90"
+            style={{
+              backgroundColor: accentColor,
+              color: colors.white,
+            }}
+          >
+            Book Package
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import {
   Menu,
   User,
@@ -32,6 +33,7 @@ import { Badge } from '@/components/ui/badge';
 import { colors } from '@/config/theme';
 
 export function Header() {
+  const pathname = usePathname();
   const [wishlistCount] = useState(0);
   const [cartCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -77,11 +79,15 @@ export function Header() {
   }, []);
 
   const navLinks = [
-    { href: '/', label: 'Home', active: true },
+    { href: '/', label: 'Home' },
     { href: '/about', label: 'About us' },
-    { href: '/shop', label: 'Shop' },
     { href: '/blog', label: 'Blog' },
     { href: '/contact', label: 'Contact Us - MY SWANAND' },
+  ];
+
+  const serviceLinks = [
+    { href: '/diagnostic-tests', label: 'Diagnostic Tests' },
+    { href: '/care-packages', label: 'Care Packages' },
   ];
 
   const policyLinks = [
@@ -117,20 +123,58 @@ export function Header() {
 
           {/* Navigation Links */}
           <nav className="flex items-center gap-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-sm font-medium transition-colors ${
-                  link.active ? '' : 'hover:opacity-80'
-                }`}
-                style={{
-                  color: link.active ? colors.yellow : colors.white,
-                }}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`text-sm font-medium transition-colors ${
+                    isActive ? '' : 'hover:opacity-80'
+                  }`}
+                  style={{
+                    color: isActive ? colors.yellow : colors.white,
+                  }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className={`flex items-center gap-1 text-sm font-medium transition-colors hover:opacity-80 ${
+                    pathname === '/diagnostic-tests' ||
+                    pathname === '/care-packages'
+                      ? ''
+                      : ''
+                  }`}
+                  style={{
+                    color:
+                      pathname === '/diagnostic-tests' ||
+                      pathname === '/care-packages'
+                        ? colors.yellow
+                        : colors.white,
+                  }}
+                >
+                  Services
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-2">
+                <nav className="flex flex-col">
+                  {serviceLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="px-3 py-2 text-sm hover:bg-accent rounded-md transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+              </PopoverContent>
+            </Popover>
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -324,23 +368,70 @@ export function Header() {
 
                 {/* Navigation Links */}
                 <div className="p-6 space-y-4">
-                  {navLinks.map((link) => (
-                    <SheetClose key={link.href} asChild>
-                      <Link
-                        href={link.href}
-                        className={`block text-base font-medium py-2 transition-colors ${
-                          link.active ? '' : 'text-gray-700 hover:text-primary'
-                        }`}
-                        style={
-                          link.active
-                            ? { color: colors.primary, fontWeight: 600 }
-                            : {}
-                        }
-                      >
-                        {link.label}
-                      </Link>
-                    </SheetClose>
-                  ))}
+                  {navLinks.map((link) => {
+                    const isActive = pathname === link.href;
+                    return (
+                      <SheetClose key={link.href} asChild>
+                        <Link
+                          href={link.href}
+                          className={`block text-base font-medium py-2 transition-colors ${
+                            isActive ? '' : 'text-gray-700 hover:text-primary'
+                          }`}
+                          style={
+                            isActive
+                              ? { color: colors.yellow, fontWeight: 600 }
+                              : {}
+                          }
+                        >
+                          {link.label}
+                        </Link>
+                      </SheetClose>
+                    );
+                  })}
+
+                  {/* Services Section */}
+                  <div className="space-y-2">
+                    <div
+                      className={`text-base font-medium py-2 ${
+                        pathname === '/diagnostic-tests' ||
+                        pathname === '/care-packages'
+                          ? ''
+                          : 'text-gray-700'
+                      }`}
+                      style={
+                        pathname === '/diagnostic-tests' ||
+                        pathname === '/care-packages'
+                          ? { color: colors.yellow, fontWeight: 600 }
+                          : {}
+                      }
+                    >
+                      Services
+                    </div>
+                    <div className="pl-4 space-y-2">
+                      {serviceLinks.map((link) => {
+                        const isActive = pathname === link.href;
+                        return (
+                          <SheetClose key={link.href} asChild>
+                            <Link
+                              href={link.href}
+                              className={`block text-sm py-1 transition-colors ${
+                                isActive
+                                  ? ''
+                                  : 'text-gray-600 hover:text-primary'
+                              }`}
+                              style={
+                                isActive
+                                  ? { color: colors.yellow, fontWeight: 600 }
+                                  : {}
+                              }
+                            >
+                              {link.label}
+                            </Link>
+                          </SheetClose>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Policies Section */}
