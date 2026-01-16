@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { CalendarIcon } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { Input } from '@/components/ui/input';
@@ -23,31 +22,23 @@ import { cn } from '@/lib/utils';
 
 /**
  * MascotDisplay Component
- * Scalable component for displaying mascot/character.
- * Can be easily replaced with an animated mascot component in the future.
- * For example: Replace this with <AnimatedMascot /> when ready
- *
- * To use an animated mascot in the future:
- * 1. Create a new component (e.g., AnimatedMascot.tsx)
- * 2. Replace <MascotDisplay /> with <AnimatedMascot />
- * 3. Or update this component to conditionally render based on a prop
+ * Displays animated mascot video entry animation.
  */
 function MascotDisplay() {
   return (
     <div className="relative w-full max-w-md h-[600px] flex items-center justify-center">
       <div className="relative w-full h-full">
-        <Image
-          src="/auth/avatar.jpg"
-          alt="Doctor Character"
-          fill
-          className="object-contain"
-          priority
-          unoptimized
-          sizes="(max-width: 768px) 0vw, 500px"
-          onError={(e) => {
-            console.error('Failed to load mascot image:', e);
-          }}
-        />
+        <video
+          src="/mascot-entry.mp4"
+          className="w-full h-full object-contain"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+        >
+          Your browser does not support the video tag.
+        </video>
       </div>
     </div>
   );

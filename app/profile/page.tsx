@@ -168,15 +168,15 @@ function ProfileContent() {
   if (loading) {
     return (
       <div
-        className="min-h-screen py-8 px-4"
+        className="min-h-screen py-4 sm:py-6 md:py-8 px-4 sm:px-6"
         style={{ backgroundColor: '#f5f0e8' }}
       >
         <div className="container mx-auto max-w-6xl">
-          <Skeleton className="h-12 w-48 mb-6" />
-          <Card className="p-6 mb-6">
-            <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-8 sm:h-12 w-32 sm:w-48 mb-4 sm:mb-6" />
+          <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
+            <Skeleton className="h-20 sm:h-24 w-full" />
           </Card>
-          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-48 sm:h-64 w-full" />
         </div>
       </div>
     );
@@ -185,12 +185,15 @@ function ProfileContent() {
   if (error && !user) {
     return (
       <div
-        className="min-h-screen py-8 px-4 flex items-center justify-center"
+        className="min-h-screen py-4 sm:py-6 md:py-8 px-4 sm:px-6 flex items-center justify-center"
         style={{ backgroundColor: '#f5f0e8' }}
       >
-        <Card className="p-8 max-w-md">
-          <p className="text-red-600 mb-4">{error}</p>
-          <Link href="/auth/login" className="text-blue-600 hover:underline">
+        <Card className="p-6 sm:p-8 max-w-md w-full mx-4">
+          <p className="text-red-600 mb-4 text-sm sm:text-base">{error}</p>
+          <Link
+            href="/auth/login"
+            className="text-blue-600 hover:underline text-sm sm:text-base"
+          >
             Go to Login
           </Link>
         </Card>
@@ -204,24 +207,25 @@ function ProfileContent() {
 
   return (
     <div
-      className="min-h-screen py-8 px-4"
+      className="min-h-screen py-4 sm:py-6 md:py-8 px-4 sm:px-6"
       style={{ backgroundColor: '#f5f0e8' }}
     >
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
           <Link
             href="/"
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-1 sm:gap-2 hover:opacity-80 transition-opacity text-sm sm:text-base"
             style={{ color: colors.primary }}
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Home</span>
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Back to Home</span>
+            <span className="sm:hidden">Back</span>
           </Link>
         </div>
 
         <h1
-          className="text-3xl font-bold mb-6"
+          className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6"
           style={{ color: colors.primary }}
         >
           My Profile
@@ -262,58 +266,62 @@ function ProfileContent() {
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <TabsList className="w-full justify-start mb-6 bg-transparent p-0 h-auto border-b">
-            <TabsTrigger
-              value="history"
-              className="flex items-center gap-2 px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold"
-              style={{
-                color: colors.black,
-              }}
-            >
-              <FileText className="w-4 h-4" />
-              History
-            </TabsTrigger>
-            <TabsTrigger
-              value="transactions"
-              className="flex items-center gap-2 px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold"
-              style={{
-                color: colors.black,
-              }}
-            >
-              <Wallet className="w-4 h-4" />
-              Transaction History
-            </TabsTrigger>
-            <TabsTrigger
-              value="coins"
-              className="flex items-center gap-2 px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold"
-              style={{
-                color: colors.black,
-              }}
-            >
-              <Coins className="w-4 h-4" />
-              Coins
-            </TabsTrigger>
-            <TabsTrigger
-              value="vouchers"
-              className="flex items-center gap-2 px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold"
-              style={{
-                color: colors.black,
-              }}
-            >
-              <Gift className="w-4 h-4" />
-              Vouchers
-            </TabsTrigger>
-            <TabsTrigger
-              value="prescriptions"
-              className="flex items-center gap-2 px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold"
-              style={{
-                color: colors.black,
-              }}
-            >
-              <Upload className="w-4 h-4" />
-              Prescriptions
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 mb-4 sm:mb-6 scrollbar-hide">
+            <TabsList className="w-full min-w-max justify-start mb-0 bg-transparent p-0 h-auto border-b inline-flex">
+              <TabsTrigger
+                value="history"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold whitespace-nowrap text-sm sm:text-base"
+                style={{
+                  color: colors.black,
+                }}
+              >
+                <FileText className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+                <span>History</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="transactions"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold whitespace-nowrap text-sm sm:text-base"
+                style={{
+                  color: colors.black,
+                }}
+              >
+                <Wallet className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+                <span className="hidden sm:inline">Transaction History</span>
+                <span className="sm:hidden">Transactions</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="coins"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold whitespace-nowrap text-sm sm:text-base"
+                style={{
+                  color: colors.black,
+                }}
+              >
+                <Coins className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+                <span>Coins</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="vouchers"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold whitespace-nowrap text-sm sm:text-base"
+                style={{
+                  color: colors.black,
+                }}
+              >
+                <Gift className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+                <span>Vouchers</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="prescriptions"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold whitespace-nowrap text-sm sm:text-base"
+                style={{
+                  color: colors.black,
+                }}
+              >
+                <Upload className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+                <span className="hidden sm:inline">Prescriptions</span>
+                <span className="sm:hidden">Prescriptions</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="history">
             <HistoryTab isActive={activeTab === 'history'} />

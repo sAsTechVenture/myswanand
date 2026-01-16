@@ -18,9 +18,19 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { colors } from '@/config/theme';
 import { apiClient } from '@/lib/api';
 import { getAuthToken } from '@/lib/utils/auth';
+import { toast } from '@/lib/toast';
 
 // Types based on API responses
 interface Address {
@@ -118,6 +128,9 @@ export function CheckoutForm({
   );
   const [loading, setLoading] = useState(true);
   const [placingOrder, setPlacingOrder] = useState(false);
+  const [editAddressModalOpen, setEditAddressModalOpen] = useState(false);
+  const [editAddressValue, setEditAddressValue] = useState('');
+  const [updatingAddress, setUpdatingAddress] = useState(false);
 
   // Fetch address and available slots from server
   useEffect(() => {
@@ -146,6 +159,7 @@ export function CheckoutForm({
               address: user.address,
               phone: user.phone || '',
             });
+            setEditAddressValue(user.address);
           }
         }
 
@@ -273,12 +287,76 @@ export function CheckoutForm({
     return `${hours12}:${String(minutes).padStart(2, '0')} ${period}`;
   };
 
-  const gst = subtotal * 0.18; // 18% GST
   const total =
     subtotal +
-    gst +
     (homeSampleCollection === 'home' ? 200 : 0) +
     (hardcopyReport === 'yes' ? 100 : 0);
+
+  const handleEditAddress = () => {
+    if (address) {
+      setEditAddressValue(address.address);
+      setEditAddressModalOpen(true);
+    }
+  };
+
+  const handleUpdateAddress = async () => {
+    if (!editAddressValue.trim()) {
+      toast.error('Address cannot be empty');
+      return;
+    }
+
+    try {
+      setUpdatingAddress(true);
+      const token = getAuthToken();
+
+      if (!token) {
+        toast.error('Please login to update address');
+        return;
+      }
+
+      // Create FormData for multipart/form-data
+      const formData = new FormData();
+      formData.append('address', editAddressValue.trim());
+
+      const response = await apiClient.put<{
+        success: boolean;
+        data: {
+          user: {
+            id: string;
+            name: string;
+            email: string;
+            phone: string | null;
+            address: string | null;
+          };
+          message: string;
+        };
+      }>('/patient/profile', formData, {
+        token,
+      });
+
+      if (response.data.success && response.data.data?.user) {
+        const updatedUser = response.data.data.user;
+        setAddress({
+          id: updatedUser.id,
+          label: 'Home',
+          name: updatedUser.name,
+          address: updatedUser.address || '',
+          phone: updatedUser.phone || '',
+        });
+        setEditAddressModalOpen(false);
+        toast.success('Address updated successfully');
+      } else {
+        toast.error('Failed to update address');
+      }
+    } catch (error: any) {
+      console.error('Error updating address:', error);
+      toast.error(
+        error?.message || 'Failed to update address. Please try again.'
+      );
+    } finally {
+      setUpdatingAddress(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -337,9 +415,7 @@ export function CheckoutForm({
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => {
-                            // TODO: Open edit address modal
-                          }}
+                          onClick={handleEditAddress}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -648,8 +724,7 @@ export function CheckoutForm({
                         <div>
                           <p className="font-medium">Pay at Lab Center</p>
                           <p className="text-sm text-gray-600">
-                            Pay in cash when you visit the lab for sample
-                            collection
+                            Cash pay to phlebotomist at the time of visit
                           </p>
                         </div>
                       </Label>
@@ -692,12 +767,6 @@ export function CheckoutForm({
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium">
                       ₹{subtotal.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">GST (18%)</span>
-                    <span className="font-medium">
-                      ₹{gst.toLocaleString('en-IN')}
                     </span>
                   </div>
                 </div>
@@ -745,6 +814,55 @@ export function CheckoutForm({
           </div>
         </div>
       </div>
+
+      {/* Edit Address Modal */}
+      <Dialog
+        open={editAddressModalOpen}
+        onOpenChange={setEditAddressModalOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Address</DialogTitle>
+            <DialogDescription>
+              Update your address for sample collection
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="address" className="mb-2 block">
+                Address <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="address"
+                value={editAddressValue}
+                onChange={(e) => setEditAddressValue(e.target.value)}
+                placeholder="Enter your complete address"
+                rows={4}
+                className="w-full"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditAddressModalOpen(false)}
+              disabled={updatingAddress}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdateAddress}
+              disabled={updatingAddress || !editAddressValue.trim()}
+              style={{
+                backgroundColor: colors.primary,
+                color: colors.white,
+              }}
+            >
+              {updatingAddress ? 'Updating...' : 'Update Address'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

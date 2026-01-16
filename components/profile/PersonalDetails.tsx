@@ -49,19 +49,20 @@ export function PersonalDetails({
   const displayAddress = user.address ? truncateAddress(user.address) : null;
 
   return (
-    <Card className="p-6 mb-6" style={{ backgroundColor: colors.primary }}>
-      <div className="flex items-start gap-6">
+    <Card
+      className="p-4 sm:p-6 mb-4 sm:mb-6"
+      style={{ backgroundColor: colors.primary }}
+    >
+      <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
         {/* Profile Picture with Avatar */}
         <div className="relative shrink-0">
           <div
-            className="rounded-full overflow-hidden border-4"
+            className="rounded-full overflow-hidden border-2 sm:border-4 w-16 h-16 sm:w-24 sm:h-24"
             style={{
               borderColor: colors.white,
-              width: '96px',
-              height: '96px',
             }}
           >
-            <Avatar className="w-24 h-24">
+            <Avatar className="w-full h-full">
               {user.profileImage ? (
                 <AvatarImage
                   src={
@@ -72,7 +73,7 @@ export function PersonalDetails({
                 />
               ) : null}
               <AvatarFallback
-                className="text-2xl font-semibold"
+                className="text-lg sm:text-2xl font-semibold"
                 style={{
                   backgroundColor: colors.primaryLight,
                   color: colors.white,
@@ -85,34 +86,73 @@ export function PersonalDetails({
         </div>
 
         {/* User Info */}
-        <div className="flex-1">
-          <h2
-            className="text-2xl font-bold mb-4"
-            style={{ color: colors.white }}
-          >
-            Personal Details
-          </h2>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <span style={{ color: colors.white }}>{user.name}</span>
+        <div className="flex-1 min-w-0 w-full sm:w-auto">
+          <div className="flex items-start justify-between gap-4 mb-3 sm:mb-4">
+            <h2
+              className="text-xl sm:text-2xl font-bold"
+              style={{ color: colors.white }}
+            >
+              Personal Details
+            </h2>
+            {/* Edit Button - Icon Only */}
+            {onEdit && (
+              <Button
+                onClick={onEdit}
+                size="icon"
+                className="shrink-0 h-8 w-8 sm:h-10 sm:w-10"
+                style={{
+                  backgroundColor: colors.black,
+                  color: colors.white,
+                }}
+                aria-label="Edit Personal Details"
+              >
+                <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Button>
+            )}
+          </div>
+          <div className="space-y-2 sm:space-y-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span
+                className="text-sm sm:text-base break-words"
+                style={{ color: colors.white }}
+              >
+                {user.name}
+              </span>
             </div>
-            <div className="flex items-center gap-3">
-              <Mail className="w-5 h-5" style={{ color: colors.white }} />
-              <span style={{ color: colors.white }}>{user.email}</span>
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <Mail
+                className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
+                style={{ color: colors.white }}
+              />
+              <span
+                className="text-sm sm:text-base break-all"
+                style={{ color: colors.white }}
+              >
+                {user.email}
+              </span>
             </div>
             {user.phone && (
-              <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5" style={{ color: colors.white }} />
-                <span style={{ color: colors.white }}>{user.phone}</span>
-              </div>
-            )}
-            {displayAddress && (
-              <div className="flex items-center gap-3">
-                <MapPin
-                  className="w-5 h-5 shrink-0"
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Phone
+                  className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
                   style={{ color: colors.white }}
                 />
                 <span
+                  className="text-sm sm:text-base break-words"
+                  style={{ color: colors.white }}
+                >
+                  {user.phone}
+                </span>
+              </div>
+            )}
+            {displayAddress && (
+              <div className="flex items-start gap-2 sm:gap-3 min-w-0">
+                <MapPin
+                  className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 mt-0.5"
+                  style={{ color: colors.white }}
+                />
+                <span
+                  className="text-sm sm:text-base break-words"
                   style={{ color: colors.white }}
                   title={user.address || undefined}
                 >
@@ -122,21 +162,6 @@ export function PersonalDetails({
             )}
           </div>
         </div>
-
-        {/* Edit Button */}
-        {onEdit && (
-          <Button
-            onClick={onEdit}
-            className="shrink-0"
-            style={{
-              backgroundColor: colors.black,
-              color: colors.white,
-            }}
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Edit Personal Details
-          </Button>
-        )}
       </div>
     </Card>
   );

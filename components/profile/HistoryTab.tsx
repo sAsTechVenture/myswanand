@@ -409,23 +409,74 @@ export function HistoryTab({ isActive = false }: HistoryTabProps) {
                                 {formatTime(order.slot.endTime)}
                               </p>
                             )}
-                            {order.payment && (
-                              <p className="text-sm text-gray-600">
+                            {order.payment ? (
+                              <div className="space-y-1">
+                                <p className="text-sm text-gray-600 font-bold">
+                                  <CreditCard className="inline h-3 w-3 mr-1" />
+                                  Total Test Prices: ₹
+                                  {order.tests
+                                    .reduce(
+                                      (sum, test) => sum + (test.price || 0),
+                                      0
+                                    )
+                                    .toLocaleString('en-IN')}
+                                </p>
+                                {/* Payment Breakdown */}
+                                <div className="ml-4 space-y-0.5 text-xs text-gray-500">
+                                  {order.additionalService ===
+                                    'HOME_SAMPLE_COLLECTION' && (
+                                    <p>
+                                      Home Sample Collection: +₹
+                                      {200}
+                                    </p>
+                                  )}
+                                  {order.hardCopyReport && (
+                                    <p>
+                                      Hard Copy Report: +₹
+                                      {100}
+                                    </p>
+                                  )}
+                                </div>
+                                <p className="text-xs text-gray-500">
+                                  Payment Status: {order.payment.status}
+                                </p>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-gray-600 font-bold">
                                 <CreditCard className="inline h-3 w-3 mr-1" />
-                                Payment: ₹
-                                {order.payment.amount.toLocaleString('en-IN')} (
-                                {order.payment.status})
+                                Total: ₹
+                                {order.tests
+                                  .reduce(
+                                    (sum, test) => sum + (test.price || 0),
+                                    0
+                                  )
+                                  .toLocaleString('en-IN')}
                               </p>
                             )}
                           </div>
                         </div>
                         <div className="text-right">
-                          <p
-                            className="text-lg font-bold mb-1"
-                            style={{ color: colors.black }}
-                          >
-                            ₹{order.totalAmount.toLocaleString('en-IN')}
-                          </p>
+                          {order.payment ? (
+                            <p
+                              className="text-lg font-bold mb-1"
+                              style={{ color: colors.black }}
+                            >
+                              ₹{order.payment.amount.toLocaleString('en-IN')}
+                            </p>
+                          ) : (
+                            <p
+                              className="text-lg font-bold mb-1"
+                              style={{ color: colors.black }}
+                            >
+                              ₹
+                              {order.tests
+                                .reduce(
+                                  (sum, test) => sum + (test.price || 0),
+                                  0
+                                )
+                                .toLocaleString('en-IN')}
+                            </p>
+                          )}
                           <p className="text-xs text-gray-500">
                             {order.testCount}{' '}
                             {order.testCount === 1 ? 'test' : 'tests'}
@@ -513,7 +564,7 @@ export function HistoryTab({ isActive = false }: HistoryTabProps) {
                             </span>
                           )}
                         </div>
-                        <Button
+                        {/* <Button
                           variant="ghost"
                           size="sm"
                           className="h-8"
@@ -521,7 +572,7 @@ export function HistoryTab({ isActive = false }: HistoryTabProps) {
                         >
                           <Eye className="w-4 h-4 mr-1" />
                           View Details
-                        </Button>
+                        </Button> */}
                       </div>
                     </div>
                   </CardContent>

@@ -99,7 +99,27 @@ export async function api<T = unknown>(
 
     // Check if response is ok
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      // Try to extract error message from response
+      let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+
+      // If response is JSON, try to get the message
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          const errorData = data as any;
+          if (errorData?.message) {
+            errorMessage = errorData.message;
+          } else if (errorData?.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          // If parsing fails, use default message
+        }
+      }
+
+      const error = new Error(errorMessage);
+      (error as any).status = response.status;
+      (error as any).data = data;
+      throw error;
     }
 
     return {

@@ -3,7 +3,6 @@
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { apiClient } from '@/lib/api';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,25 +13,23 @@ import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 
 /**
  * MascotDisplay Component
- * Scalable component for displaying mascot/character.
- * Can be easily replaced with an animated mascot component in the future.
+ * Displays animated mascot video entry animation.
  */
 function MascotDisplay() {
   return (
     <div className="relative w-full max-w-md h-[600px] flex items-center justify-center">
       <div className="relative w-full h-full">
-        <Image
-          src="/auth/avatar.jpg"
-          alt="Doctor Character"
-          fill
-          className="object-contain"
-          priority
-          unoptimized
-          sizes="(max-width: 768px) 0vw, 500px"
-          onError={(e) => {
-            console.error('Failed to load mascot image:', e);
-          }}
-        />
+        <video
+          src="/mascot-entry.mp4"
+          className="w-full h-full object-contain"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+        >
+          Your browser does not support the video tag.
+        </video>
       </div>
     </div>
   );
@@ -145,10 +142,11 @@ function LoginContent() {
       console.error('Login error:', error);
       let errorMessage = 'Login failed. Please try again.';
 
-      // Try to extract error message from various possible formats
+      // Extract error message from API response
+      // The API returns error messages in the format: { message: "..." }
       if (error?.message) {
         errorMessage = error.message;
-        // Remove "API Error:" or "API Request Failed:" prefixes
+        // Remove "API Error:" or "API Request Failed:" prefixes if present
         errorMessage = errorMessage.replace(
           /^API (Error|Request Failed):\s*/i,
           ''
@@ -159,10 +157,13 @@ function LoginContent() {
         errorMessage = error;
       }
 
-      // Check if it's an API error response
-      if (error?.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
+      // The error message should now match exactly what the API sends:
+      // - "Email and password are required"
+      // - "Invalid credentials"
+      // - "Access denied. Patient account required."
+      // - "Account is not active"
+      // - "Please verify your email address before logging in. Check your inbox for the verification link."
+      // - "Internal server error"
 
       setSubmitError(errorMessage);
     } finally {
