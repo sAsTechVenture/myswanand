@@ -28,6 +28,10 @@ import type { Banner } from '@/components/common/BannerCarousel';
 import { useLikedItems } from '@/lib/hooks/useLikedItems';
 import { getAuthToken } from '@/lib/utils/auth';
 import { toast } from '@/lib/toast';
+import {
+  getContactPhoneNumberRaw,
+  getContactPhoneNumberWhatsApp,
+} from '@/lib/constants';
 import Link from 'next/link';
 
 interface CarePackage {
@@ -362,7 +366,7 @@ export default function Home() {
                   <Button
                     className="flex-1 rounded-lg py-3 text-white transition-all hover:opacity-90"
                     style={{ backgroundColor: '#E91E63' }}
-                    onClick={() => window.open('tel:+919022800100')}
+                    onClick={() => window.open(`tel:${getContactPhoneNumberRaw()}`)}
                   >
                     <Phone className="mr-2 h-5 w-5" />
                     Call
@@ -371,7 +375,10 @@ export default function Home() {
                     className="flex-1 rounded-lg py-3 text-white transition-all hover:opacity-90"
                     style={{ backgroundColor: '#25D366' }}
                     onClick={() =>
-                      window.open('https://wa.me/919022800100', '_blank')
+                      window.open(
+                        `https://wa.me/${getContactPhoneNumberWhatsApp()}`,
+                        '_blank'
+                      )
                     }
                   >
                     <MessageCircle className="mr-2 h-5 w-5" />
@@ -414,7 +421,7 @@ export default function Home() {
                 <Button
                   className="flex-1 rounded-lg py-3 text-white transition-all hover:opacity-90"
                   style={{ backgroundColor: '#E91E63' }}
-                  onClick={() => window.open('tel:+919022800100')}
+                  onClick={() => window.open(`tel:${getContactPhoneNumberRaw()}`)}
                 >
                   <Phone className="mr-2 h-5 w-5" />
                   Call
@@ -423,7 +430,10 @@ export default function Home() {
                   className="flex-1 rounded-lg py-3 text-white transition-all hover:opacity-90"
                   style={{ backgroundColor: '#25D366' }}
                   onClick={() =>
-                    window.open('https://wa.me/919022800100', '_blank')
+                    window.open(
+                      `https://wa.me/${getContactPhoneNumberWhatsApp()}`,
+                      '_blank'
+                    )
                   }
                 >
                   <MessageCircle className="mr-2 h-5 w-5" />
@@ -476,6 +486,7 @@ export default function Home() {
                 <DiagnosticTestCard
                   key={test.id || index}
                   title={test.name as string}
+                  testId={test.id}
                   description={test.description}
                   testCount={test.testCount}
                   price={test.price}

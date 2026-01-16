@@ -9,6 +9,10 @@ import {
   Instagram,
 } from 'lucide-react';
 import { colors } from '@/config/theme';
+import {
+  getContactPhoneNumber,
+  getContactPhoneNumberRaw,
+} from '@/lib/constants';
 
 export function Footer() {
   const socialLinks = [
@@ -50,12 +54,12 @@ export function Footer() {
                 CALL US 24/7
               </h3>
               <a
-                href="tel:+919022800100"
+                href={`tel:${getContactPhoneNumberRaw()}`}
                 className="text-lg font-medium flex items-center justify-center md:justify-start gap-2"
                 style={{ color: colors.yellow }}
               >
                 <Phone className="w-4 h-4" />
-                +91 9022800100
+                {getContactPhoneNumber()}
               </a>
             </div>
 

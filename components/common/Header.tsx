@@ -33,6 +33,10 @@ import { Badge } from '@/components/ui/badge';
 import { colors } from '@/config/theme';
 import { useLikedItems } from '@/lib/hooks/useLikedItems';
 import { useCartCount } from '@/lib/hooks/useCartCount';
+import {
+  getContactPhoneNumber,
+  getContactPhoneNumberRaw,
+} from '@/lib/constants';
 
 export function Header() {
   const pathname = usePathname();
@@ -593,12 +597,12 @@ export function Header() {
                   </h3>
                   <div className="space-y-2">
                     <a
-                      href="tel:+919022800100"
+                      href={`tel:${getContactPhoneNumberRaw()}`}
                       className="flex items-center gap-2 text-sm"
                       style={{ color: colors.primary }}
                     >
                       <Phone className="w-4 h-4" />
-                      +91 9022800100
+                      {getContactPhoneNumber()}
                     </a>
                     <a
                       href="mailto:hello@myswanand.com"

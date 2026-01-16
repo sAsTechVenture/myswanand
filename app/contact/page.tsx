@@ -8,9 +8,14 @@ import {
   MessageSquare,
   Send,
 } from "lucide-react";
+import {
+  getContactPhoneNumber,
+  getContactPhoneNumberRaw,
+  getContactPhoneNumberWhatsApp,
+} from "@/lib/constants";
 
 export default function ContactPage() {
-  const WHATSAPP_NUMBER = "919987158611"; // ✅ hardcoded WhatsApp number
+  const WHATSAPP_NUMBER = getContactPhoneNumberWhatsApp();
 
   const handleWhatsApp = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -80,7 +85,7 @@ Message: ${formData.get("message")}
 
             <p className="mt-4 text-sm flex items-center gap-2">
               <Phone size={16} />
-              +91-9022800100 / Toll Free No.: 1800-890-7270
+              {getContactPhoneNumber()} / Toll Free No.: 1800-890-7270
             </p>
           </div>
 

@@ -160,6 +160,9 @@ export function CheckoutForm({
               phone: user.phone || '',
             });
             setEditAddressValue(user.address);
+          } else {
+            // Initialize editAddressValue even when address is empty
+            setEditAddressValue('');
           }
         }
 
@@ -293,10 +296,9 @@ export function CheckoutForm({
     (hardcopyReport === 'yes' ? 100 : 0);
 
   const handleEditAddress = () => {
-    if (address) {
-      setEditAddressValue(address.address);
-      setEditAddressModalOpen(true);
-    }
+    // Set current address value or empty string if no address exists
+    setEditAddressValue(address?.address || '');
+    setEditAddressModalOpen(true);
   };
 
   const handleUpdateAddress = async () => {
@@ -344,7 +346,11 @@ export function CheckoutForm({
           phone: updatedUser.phone || '',
         });
         setEditAddressModalOpen(false);
-        toast.success('Address updated successfully');
+        toast.success(
+          address
+            ? 'Address updated successfully'
+            : 'Address added successfully'
+        );
       } else {
         toast.error('Failed to update address');
       }
@@ -431,10 +437,20 @@ export function CheckoutForm({
                     )}
                   </div>
                 ) : (
-                  <p className="text-gray-600">
-                    No address found. Please update your profile with an
-                    address.
-                  </p>
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-dashed border-gray-300">
+                    <p className="text-gray-600">
+                      No address found. Please add your address.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleEditAddress}
+                      className="flex items-center gap-2"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Add Address
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -722,9 +738,9 @@ export function CheckoutForm({
                         className="flex-1 cursor-pointer"
                       >
                         <div>
-                          <p className="font-medium">Pay at Lab Center</p>
+                          <p className="font-medium text-base mb-1">Cash Payment to Phlebotomist</p>
                           <p className="text-sm text-gray-600">
-                            Cash pay to phlebotomist at the time of visit
+                          Pay cash to phlebotomist at the time of visit
                           </p>
                         </div>
                       </Label>
@@ -822,9 +838,13 @@ export function CheckoutForm({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Address</DialogTitle>
+            <DialogTitle>
+              {address ? 'Edit Address' : 'Add Address'}
+            </DialogTitle>
             <DialogDescription>
-              Update your address for sample collection
+              {address
+                ? 'Update your address for sample collection'
+                : 'Add your address for sample collection'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -858,7 +878,13 @@ export function CheckoutForm({
                 color: colors.white,
               }}
             >
-              {updatingAddress ? 'Updating...' : 'Update Address'}
+              {updatingAddress
+                ? address
+                  ? 'Updating...'
+                  : 'Adding...'
+                : address
+                  ? 'Update Address'
+                  : 'Add Address'}
             </Button>
           </DialogFooter>
         </DialogContent>
