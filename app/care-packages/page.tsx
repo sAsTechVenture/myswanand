@@ -63,7 +63,6 @@ function CarePackagesContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('created_desc');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { isLiked, toggleLike } = useLikedItems();
@@ -76,7 +75,6 @@ function CarePackagesContent() {
 
   useEffect(() => {
     setCurrentPage(page);
-    setDebouncedSearchQuery(search);
     setSearchQuery(search);
     setSortBy(sort);
 
@@ -88,14 +86,20 @@ function CarePackagesContent() {
     }
   }, [page, search, sort, categoriesParam]);
 
-  // Debounce search query
+  // Debounce: when user stops typing, sync search to URL (only if different to avoid overwriting URL→state sync)
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 500); // Wait 500ms after user stops typing
-
+      const urlSearch = searchParams.get('search') || '';
+      if (searchQuery !== urlSearch) {
+        const params = new URLSearchParams(searchParams.toString());
+        if (searchQuery.trim()) params.set('search', searchQuery.trim());
+        else params.delete('search');
+        params.set('page', '1');
+        router.push(`/care-packages?${params.toString()}`);
+      }
+    }, 500);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, searchParams, router]);
 
   // Fetch care packages
   useEffect(() => {
@@ -107,9 +111,9 @@ function CarePackagesContent() {
           limit: 12,
         };
 
-        // Add search if provided
-        if (debouncedSearchQuery) {
-          params.search = debouncedSearchQuery;
+        // Add search if provided (use URL as source of truth so external nav e.g. from home works)
+        if (search) {
+          params.search = search;
         }
 
         // Add sort
@@ -235,12 +239,11 @@ function CarePackagesContent() {
     }
 
     fetchPackages();
-  }, [currentPage, debouncedSearchQuery, sortBy, selectedCategories]);
+  }, [currentPage, search, sortBy, selectedCategories]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Search is handled by debounce, just update URL
-    updateURLParams();
+    syncSearchToUrl(searchQuery);
   };
 
   const handleSortChange = (newSort: string) => {
@@ -277,23 +280,16 @@ function CarePackagesContent() {
     router.push(`/care-packages?${params.toString()}`);
   };
 
-  const updateURLParams = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (debouncedSearchQuery) {
-      params.set('search', debouncedSearchQuery);
-    } else {
-      params.delete('search');
-    }
-
-    params.set('page', '1');
-    router.push(`/care-packages?${params.toString()}`);
-  }, [debouncedSearchQuery, searchParams, router]);
-
-  // Update URL when debounced search changes
-  useEffect(() => {
-    updateURLParams();
-  }, [debouncedSearchQuery]);
+  const syncSearchToUrl = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value.trim()) params.set('search', value.trim());
+      else params.delete('search');
+      params.set('page', '1');
+      router.push(`/care-packages?${params.toString()}`);
+    },
+    [searchParams, router]
+  );
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());

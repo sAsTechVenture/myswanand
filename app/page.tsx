@@ -11,13 +11,15 @@ import {
   FlaskConical,
   AlertCircle,
   HeartPulse,
+  Search,
+  ChevronDown,
 } from 'lucide-react';
 import { CarePackageCard } from '@/components/care-packages';
 import { DiagnosticTestCard } from '@/components/tests';
 import { apiClient } from '@/lib/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { colors } from '@/config/theme';
@@ -44,13 +46,6 @@ interface CarePackage {
   [key: string]: unknown;
 }
 
-interface Category {
-  id: string | number;
-  name: string;
-  carePackages: CarePackage[];
-  [key: string]: unknown;
-}
-
 interface PopularTest {
   id: string | number;
   title: string;
@@ -66,10 +61,10 @@ interface PopularTest {
 export default function Home() {
   const router = useRouter();
   const [banners, setBanners] = useState<Banner[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [allCarePackages, setAllCarePackages] = useState<CarePackage[]>([]);
+  const [popularCarePackages, setPopularCarePackages] = useState<
+    CarePackage[]
+  >([]);
   const [popularTests, setPopularTests] = useState<PopularTest[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { isLiked, toggleLike } = useLikedItems();
 
   const redirectToLogin = () => {
@@ -83,6 +78,20 @@ export default function Home() {
   const [carePackagesLoading, setCarePackagesLoading] = useState(true);
 
   const [error, setError] = useState<string | null>(null);
+
+  // Home search bar
+  const [homeSearchQuery, setHomeSearchQuery] = useState('');
+  const [homeSearchType, setHomeSearchType] = useState<'tests' | 'packages'>(
+    'tests'
+  );
+
+  const handleHomeSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = homeSearchQuery.trim();
+    const path =
+      homeSearchType === 'tests' ? '/diagnostic-tests' : '/care-packages';
+    router.push(q ? `${path}?search=${encodeURIComponent(q)}` : path);
+  };
 
   // Fetch banners
   useEffect(() => {
@@ -220,129 +229,139 @@ export default function Home() {
     fetchPopularTests();
   }, []);
 
-  // Fetch care categories
+  // Fetch popular care packages
   useEffect(() => {
-    async function fetchCareCategories() {
+    async function fetchPopularCarePackages() {
       try {
         setCarePackagesLoading(true);
-        const careCategoriesRes = await apiClient.get<{
-          data?: { data?: { categories?: Category[] } };
-          categories?: Category[];
-        }>('/patient/care-categories');
+        const res = await apiClient.get<{
+          data?: { packages?: CarePackage[] };
+          packages?: CarePackage[];
+        }>('/patient/care-packages/popular');
 
-        const careCategoriesData = careCategoriesRes.data as any;
-        let categoriesArray: Category[] = [];
+        const data = res.data as any;
+        let list: CarePackage[] = [];
 
-        // Handle nested structure: data.data.categories
-        if (
-          careCategoriesData?.data?.data?.categories &&
-          Array.isArray(careCategoriesData.data.data.categories)
-        ) {
-          categoriesArray = careCategoriesData.data.data.categories;
-        } else if (
-          careCategoriesData?.data?.categories &&
-          Array.isArray(careCategoriesData.data.categories)
-        ) {
-          categoriesArray = careCategoriesData.data.categories;
-        } else if (
-          careCategoriesData?.categories &&
-          Array.isArray(careCategoriesData.categories)
-        ) {
-          categoriesArray = careCategoriesData.categories;
-        } else if (Array.isArray(careCategoriesData)) {
-          categoriesArray = careCategoriesData;
+        if (data?.data?.packages && Array.isArray(data.data.packages)) {
+          list = data.data.packages;
+        } else if (data?.packages && Array.isArray(data.packages)) {
+          list = data.packages;
+        } else if (data?.data && Array.isArray(data.data)) {
+          list = data.data;
+        } else if (Array.isArray(data)) {
+          list = data;
         }
 
-        // Process image URLs in categories array before setting it
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
-        const processedCategories = categoriesArray.map((category) => {
-          if (category.carePackages && Array.isArray(category.carePackages)) {
-            const processedPackages = category.carePackages.map((pkg: any) => {
-              let imageUrl = pkg.imageUrl;
-              // Only process if it's a relative URL and not already a full URL
-              if (imageUrl) {
-                // Check if it's already a full URL (starts with http)
-                if (!imageUrl.startsWith('http')) {
-                  // It's a relative URL, prepend base URL
-                  if (imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
-                    let urlToUse = baseUrl;
-                    if (
-                      baseUrl.endsWith('/api') &&
-                      imageUrl.startsWith('/api')
-                    ) {
-                      urlToUse = baseUrl.replace(/\/api$/, '');
-                    }
-                    imageUrl = `${urlToUse}${imageUrl}`;
-                  }
+        const processed = list.map((pkg: any) => {
+          let imageUrl = pkg.imageUrl;
+          if (imageUrl) {
+            if (!imageUrl.startsWith('http')) {
+              if (imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
+                let urlToUse = baseUrl;
+                if (baseUrl.endsWith('/api') && imageUrl.startsWith('/api')) {
+                  urlToUse = baseUrl.replace(/\/api$/, '');
                 }
-                // If it contains localhost:3000, replace with correct base URL
-                if (imageUrl.includes('localhost:3000')) {
-                  imageUrl = imageUrl.replace(
-                    /http:\/\/localhost:3000[^/]*/,
-                    baseUrl.replace(/\/api$/, '')
-                  );
-                }
+                imageUrl = `${urlToUse}${imageUrl}`;
               }
-              return {
-                ...pkg,
-                imageUrl,
-              };
-            });
-            return {
-              ...category,
-              carePackages: processedPackages,
-            };
+            }
+            if (imageUrl.includes('localhost:3000')) {
+              imageUrl = imageUrl.replace(
+                /http:\/\/localhost:3000[^/]*/,
+                baseUrl.replace(/\/api$/, '')
+              );
+            }
           }
-          return category;
+          return {
+            ...pkg,
+            imageUrl,
+            title: pkg.name || pkg.title,
+            category: pkg.category?.name || pkg.category || 'HEALTH',
+            testCount: pkg.testCount || 0,
+          };
         });
 
-        setCategories(processedCategories);
-        console.log('categories', processedCategories);
-
-        // Flatten all care packages from all categories
-        const allPackages: CarePackage[] = [];
-        processedCategories.forEach((category) => {
-          if (category.carePackages && Array.isArray(category.carePackages)) {
-            category.carePackages.forEach((pkg: any) => {
-              allPackages.push({
-                ...pkg,
-                category: category.name,
-                title: pkg.name || pkg.title,
-                // Set default testCount if not present
-                testCount: pkg.testCount || 0,
-              });
-            });
-          }
-        });
-        setAllCarePackages(allPackages);
-        console.log('allCarePackages', allPackages);
-        // Set first category as selected by default
-        if (categoriesArray.length > 0 && !selectedCategory) {
-          setSelectedCategory('all');
-        }
+        setPopularCarePackages(processed);
       } catch (err) {
-        console.error('Error fetching care categories:', err);
+        console.error('Error fetching popular care packages:', err);
       } finally {
         setCarePackagesLoading(false);
       }
     }
 
-    fetchCareCategories();
+    fetchPopularCarePackages();
   }, []);
-
-  // Get filtered care packages based on selected category
-  const getFilteredCarePackages = () => {
-    if (selectedCategory === 'all' || !selectedCategory) {
-      return allCarePackages;
-    }
-    const category = categories.find((cat) => cat.name === selectedCategory);
-    return category?.carePackages || [];
-  };
-
-  const filteredCarePackages = getFilteredCarePackages();
 
   return (
     <>
+      {/* Search Bar - top */}
+      <section
+        className="w-full border-b py-4 sm:py-5"
+        style={{ backgroundColor: colors.white }}
+      >
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <form
+            onSubmit={handleHomeSearch}
+            className="flex flex-col gap-2 sm:flex-row sm:items-center"
+          >
+            <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-stretch">
+              {/* Dropdown: what to search */}
+              <div className="relative flex-shrink-0 sm:w-[180px]">
+                <select
+                  value={homeSearchType}
+                  onChange={(e) =>
+                    setHomeSearchType(e.target.value as 'tests' | 'packages')
+                  }
+                  className="h-10 w-full appearance-none rounded-lg border border-gray-200 bg-white pl-3 pr-9 text-sm text-gray-700 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200 sm:h-11"
+                  style={{
+                    borderColor: colors.primaryLight,
+                  }}
+                  aria-label="Search in"
+                >
+                  <option value="tests">Diagnostic Tests</option>
+                  <option value="packages">Care Packages</option>
+                </select>
+                <ChevronDown
+                  className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+                  aria-hidden
+                />
+              </div>
+              {/* Search input */}
+              <div className="relative flex-1">
+                <Search
+                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                  aria-hidden
+                />
+                <Input
+                  type="search"
+                  placeholder={
+                    homeSearchType === 'tests'
+                      ? 'Search diagnostic tests...'
+                      : 'Search care packages...'
+                  }
+                  value={homeSearchQuery}
+                  onChange={(e) => setHomeSearchQuery(e.target.value)}
+                  className="h-10 border-gray-200 pl-9 focus-visible:ring-2 focus-visible:ring-gray-200 sm:h-11"
+                  style={{ borderColor: colors.primaryLight }}
+                  aria-label="Search"
+                />
+              </div>
+            </div>
+            <Button
+              type="submit"
+              className="h-10 w-full sm:h-11 sm:w-auto sm:min-w-[100px]"
+              style={{
+                backgroundColor: colors.primary,
+                color: colors.white,
+              }}
+            >
+              <Search className="mr-2 h-4 w-4" />
+              Search
+            </Button>
+          </form>
+        </div>
+      </section>
+
       {/* Contact Cards Section */}
       <section className="py-12" style={{ backgroundColor: colors.white }}>
         <div className="container mx-auto px-12">
@@ -547,58 +566,9 @@ export default function Home() {
       {/* My Swanand Care Packages Section */}
       <section className="bg-gray-50 py-12">
         <div className="container mx-auto px-4">
-          <h2 className="mb-6 text-center text-3xl font-bold">
+          <h2 className="mb-8 text-center text-3xl font-bold">
             My Swanand Care Packages
           </h2>
-
-          {/* Category Filter Badges */}
-          {categories.length > 0 && (
-            <div className="mb-8 flex flex-wrap justify-center gap-3">
-              <Badge
-                variant={selectedCategory === 'all' ? 'default' : 'outline'}
-                className="cursor-pointer px-4 py-2 text-sm font-semibold transition-all hover:opacity-80"
-                style={{
-                  backgroundColor:
-                    selectedCategory === 'all' ? colors.primary : 'transparent',
-                  color:
-                    selectedCategory === 'all' ? colors.white : colors.black,
-                  borderColor:
-                    selectedCategory === 'all'
-                      ? colors.primary
-                      : colors.primaryLight,
-                }}
-                onClick={() => setSelectedCategory('all')}
-              >
-                View All Package
-              </Badge>
-              {categories.map((category) => (
-                <Badge
-                  key={category.id}
-                  variant={
-                    selectedCategory === category.name ? 'default' : 'outline'
-                  }
-                  className="cursor-pointer px-4 py-2 text-sm font-semibold transition-all hover:opacity-80"
-                  style={{
-                    backgroundColor:
-                      selectedCategory === category.name
-                        ? colors.primary
-                        : 'transparent',
-                    color:
-                      selectedCategory === category.name
-                        ? colors.white
-                        : colors.black,
-                    borderColor:
-                      selectedCategory === category.name
-                        ? colors.primary
-                        : colors.primaryLight,
-                  }}
-                  onClick={() => setSelectedCategory(category.name)}
-                >
-                  {category.name}
-                </Badge>
-              ))}
-            </div>
-          )}
 
           {/* Care Packages Grid */}
           {carePackagesLoading ? (
@@ -616,9 +586,9 @@ export default function Home() {
                 </Card>
               ))}
             </div>
-          ) : filteredCarePackages.length > 0 ? (
+          ) : popularCarePackages.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {filteredCarePackages.map((pkg, index) => (
+              {popularCarePackages.map((pkg, index) => (
                 <CarePackageCard
                   key={pkg.id || index}
                   packageId={pkg.id}
@@ -657,9 +627,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-600">
-                No packages found for this category.
-              </p>
+              <p className="text-gray-600">No popular packages available.</p>
             </div>
           )}
         </div>
