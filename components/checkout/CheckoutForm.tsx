@@ -43,7 +43,7 @@ interface Address {
 }
 
 interface AvailableSlot {
-  slotId: string | null;
+  slotId: string | null; // Can be null for dynamically generated slots
   center: {
     id: string;
     name: string;
@@ -96,15 +96,14 @@ interface CheckoutFormProps {
   }>;
   subtotal: number;
   onPlaceOrder: (orderData: {
+    // Either slotId OR slot details (for dynamically generated slots)
     slotId?: string | null;
     centerId?: string;
     date?: string;
     startTime?: string;
     endTime?: string;
-    additionalService:
-      | 'HOME_SAMPLE_COLLECTION'
-      | 'VISIT_LAB_CENTER'
-      | 'NOT_REQUIRED';
+    paymentMethod: 'ONLINE' | 'OFFLINE'; // Required
+    homeSampleCollection: boolean;
     hardCopyReport: boolean;
   }) => Promise<void>;
   onBackToCart?: () => void;
@@ -120,11 +119,10 @@ export function CheckoutForm({
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
-  const [homeSampleCollection, setHomeSampleCollection] =
-    useState<string>('none'); // 'home', 'lab', or 'none'
+  const [homeSampleCollection, setHomeSampleCollection] = useState<boolean>(false);
   const [hardcopyReport, setHardcopyReport] = useState<string>('no'); // 'yes' or 'no'
-  const [paymentMethod, setPaymentMethod] = useState<'online' | 'pay_at_lab'>(
-    'pay_at_lab'
+  const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'OFFLINE'>(
+    'OFFLINE'
   );
   const [loading, setLoading] = useState(true);
   const [placingOrder, setPlacingOrder] = useState(false);
@@ -216,35 +214,47 @@ export function CheckoutForm({
   }, [selectedDate, availableSlots]);
 
   const handlePlaceOrder = async () => {
-    if (!address || !selectedDate || !selectedSlot) {
+    // Validate required fields
+    if (!address) {
+      toast.error('Please add your address');
+      return;
+    }
+    if (!selectedDate || !selectedSlot) {
+      toast.error('Please select a date and time slot');
       return;
     }
 
     try {
       setPlacingOrder(true);
 
-      // Map homeSampleCollection to API format
-      let additionalService:
-        | 'HOME_SAMPLE_COLLECTION'
-        | 'VISIT_LAB_CENTER'
-        | 'NOT_REQUIRED';
-      if (homeSampleCollection === 'home') {
-        additionalService = 'HOME_SAMPLE_COLLECTION';
-      } else if (homeSampleCollection === 'lab') {
-        additionalService = 'VISIT_LAB_CENTER';
+      // Prepare order data - use slotId if available, otherwise use slot details
+      const orderData: {
+        slotId?: string | null;
+        centerId?: string;
+        date?: string;
+        startTime?: string;
+        endTime?: string;
+        paymentMethod: 'ONLINE' | 'OFFLINE';
+        homeSampleCollection: boolean;
+        hardCopyReport: boolean;
+      } = {
+        paymentMethod, // 'ONLINE' or 'OFFLINE'
+        homeSampleCollection, // boolean
+        hardCopyReport: hardcopyReport === 'yes',
+      };
+
+      // If slotId exists, use it; otherwise send slot details for dynamic slot creation
+      if (selectedSlot.slotId) {
+        orderData.slotId = selectedSlot.slotId;
       } else {
-        additionalService = 'NOT_REQUIRED';
+        // Send slot details for dynamically generated slots
+        orderData.centerId = selectedSlot.center.id;
+        orderData.date = selectedSlot.date;
+        orderData.startTime = selectedSlot.startTime;
+        orderData.endTime = selectedSlot.endTime;
       }
 
-      await onPlaceOrder({
-        slotId: selectedSlot.slotId || null,
-        centerId: selectedSlot.center.id,
-        date: selectedDate,
-        startTime: selectedSlot.startTime,
-        endTime: selectedSlot.endTime,
-        additionalService,
-        hardCopyReport: hardcopyReport === 'yes',
-      });
+      await onPlaceOrder(orderData);
     } catch (error) {
       console.error('Error placing order:', error);
     } finally {
@@ -292,7 +302,7 @@ export function CheckoutForm({
 
   const total =
     subtotal +
-    (homeSampleCollection === 'home' ? 200 : 0) +
+    (homeSampleCollection ? 200 : 0) +
     (hardcopyReport === 'yes' ? 100 : 0);
 
   const handleEditAddress = () => {
@@ -579,52 +589,31 @@ export function CheckoutForm({
                 </div>
 
                 <div className="space-y-4">
-                  {/* Home Sample Collection - Optional */}
-                  <RadioGroup
-                    value={homeSampleCollection}
-                    onValueChange={(value) => setHomeSampleCollection(value)}
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3 p-4 border rounded-lg">
-                        <RadioGroupItem value="home" id="home" />
-                        <Label htmlFor="home" className="flex-1 cursor-pointer">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-medium">
-                                Home Sample Collection
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                Our phlebotomist will visit your location
-                              </p>
-                            </div>
-                            <span className="font-semibold">+₹200</span>
-                          </div>
-                        </Label>
+                  {/* Home Sample Collection - Checkbox */}
+                  <div className="flex items-start gap-3 p-4 border rounded-lg">
+                    <Checkbox
+                      id="home_sample_collection"
+                      checked={homeSampleCollection}
+                      onCheckedChange={(checked) =>
+                        setHomeSampleCollection(checked === true)
+                      }
+                      className="mt-1"
+                    />
+                    <Label
+                      htmlFor="home_sample_collection"
+                      className="flex-1 cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">Home Sample Collection</p>
+                          <p className="text-sm text-gray-600">
+                            Our phlebotomist will visit your location
+                          </p>
+                        </div>
+                        <span className="font-semibold">+₹200</span>
                       </div>
-                      <div className="flex items-start gap-3 p-4 border rounded-lg">
-                        <RadioGroupItem value="lab" id="lab" />
-                        <Label htmlFor="lab" className="flex-1 cursor-pointer">
-                          <div>
-                            <p className="font-medium">Visit Lab Center</p>
-                            <p className="text-sm text-gray-600">
-                              Visit our lab center for sample collection
-                            </p>
-                          </div>
-                        </Label>
-                      </div>
-                      <div className="flex items-start gap-3 p-4 border rounded-lg">
-                        <RadioGroupItem value="none" id="none" />
-                        <Label htmlFor="none" className="flex-1 cursor-pointer">
-                          <div>
-                            <p className="font-medium">Not Required</p>
-                            <p className="text-sm text-gray-600">
-                              Skip sample collection service
-                            </p>
-                          </div>
-                        </Label>
-                      </div>
-                    </div>
-                  </RadioGroup>
+                    </Label>
+                  </div>
 
                   {/* Hard Copy Report - Radio Group */}
                   <div className="mt-6">
@@ -697,50 +686,35 @@ export function CheckoutForm({
                 <RadioGroup
                   value={paymentMethod}
                   onValueChange={(value) =>
-                    setPaymentMethod(value as 'online' | 'pay_at_lab')
+                    setPaymentMethod(value as 'ONLINE' | 'OFFLINE')
                   }
                 >
                   <div className="space-y-4">
-                    {/* Online Payment - Commented out for now */}
-                    {/* <div className="flex items-start gap-3 p-4 border rounded-lg">
-                      <RadioGroupItem value="online" id="online" />
+                    {/* Online Payment */}
+                    <div className="flex items-start gap-3 p-4 border rounded-lg">
+                      <RadioGroupItem value="ONLINE" id="online" />
                       <Label htmlFor="online" className="flex-1 cursor-pointer">
                         <div>
                           <p className="font-medium mb-1">Online Payment</p>
-                          <p className="text-sm text-gray-600 mb-3">
-                            Pay securely using UPI, Cards, Net Banking, or Wallet
+                          <p className="text-sm text-gray-600">
+                            Pay securely using PhonePe (UPI, Cards, Net Banking, or Wallet)
                           </p>
-                          {paymentMethod === 'online' && (
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {['UPI', 'Cards', 'Net Banking', 'Wallet'].map((method) => (
-                                <Button
-                                  key={method}
-                                  variant="outline"
-                                  size="sm"
-                                  className="rounded-full"
-                                  style={{
-                                    borderColor: colors.primary,
-                                    color: colors.black,
-                                  }}
-                                >
-                                  {method}
-                                </Button>
-                              ))}
-                            </div>
-                          )}
                         </div>
                       </Label>
-                    </div> */}
+                    </div>
+                    {/* Offline Payment */}
                     <div className="flex items-start gap-3 p-4 border rounded-lg">
-                      <RadioGroupItem value="pay_at_lab" id="pay_at_lab" />
+                      <RadioGroupItem value="OFFLINE" id="offline" />
                       <Label
-                        htmlFor="pay_at_lab"
+                        htmlFor="offline"
                         className="flex-1 cursor-pointer"
                       >
                         <div>
-                          <p className="font-medium text-base mb-1">Cash Payment to Phlebotomist</p>
+                          <p className="font-medium text-base mb-1">
+                            Cash Payment to Phlebotomist
+                          </p>
                           <p className="text-sm text-gray-600">
-                          Pay cash to phlebotomist at the time of visit
+                            Pay cash to phlebotomist at the time of visit
                           </p>
                         </div>
                       </Label>
@@ -815,7 +789,14 @@ export function CheckoutForm({
                   }}
                   onClick={handlePlaceOrder}
                   disabled={
-                    placingOrder || !address || !selectedDate || !selectedSlot
+                    placingOrder ||
+                    !address ||
+                    !selectedDate ||
+                    !selectedSlot ||
+                    !selectedSlot.center?.id ||
+                    !selectedSlot.date ||
+                    !selectedSlot.startTime ||
+                    !selectedSlot.endTime
                   }
                 >
                   {placingOrder ? 'Placing Order...' : 'Place Order'}

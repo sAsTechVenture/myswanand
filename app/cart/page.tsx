@@ -160,15 +160,14 @@ export default function CartPage() {
   };
 
   const handlePlaceOrder = async (orderData: {
+    // Either slotId OR slot details (for dynamically generated slots)
     slotId?: string | null;
     centerId?: string;
     date?: string;
     startTime?: string;
     endTime?: string;
-    additionalService:
-      | 'HOME_SAMPLE_COLLECTION'
-      | 'VISIT_LAB_CENTER'
-      | 'NOT_REQUIRED';
+    paymentMethod: 'ONLINE' | 'OFFLINE'; // Required
+    homeSampleCollection: boolean;
     hardCopyReport: boolean;
   }) => {
     try {
@@ -176,6 +175,37 @@ export default function CartPage() {
       if (!token) {
         router.push('/auth/login?redirect=/cart');
         return;
+      }
+
+      // Prepare booking payload - use slotId if available, otherwise use slot details
+      const bookingPayload: {
+        slotId?: string | null;
+        centerId?: string;
+        date?: string;
+        startTime?: string;
+        endTime?: string;
+        paymentMethod: string;
+        type: string;
+        additionalService: string;
+        hardCopyReport: boolean;
+      } = {
+        paymentMethod: orderData.paymentMethod, // 'ONLINE' or 'OFFLINE'
+        type: 'DIAGNOSTIC',
+        additionalService: orderData.homeSampleCollection
+          ? 'HOME_SAMPLE_COLLECTION'
+          : 'NOT_REQUIRED',
+        hardCopyReport: orderData.hardCopyReport,
+      };
+
+      // If slotId exists, use it; otherwise use slot details for dynamic slot creation
+      if (orderData.slotId) {
+        bookingPayload.slotId = orderData.slotId;
+      } else {
+        // Use slot details for dynamically generated slots
+        bookingPayload.centerId = orderData.centerId;
+        bookingPayload.date = orderData.date;
+        bookingPayload.startTime = orderData.startTime;
+        bookingPayload.endTime = orderData.endTime;
       }
 
       // Call the booking API
@@ -217,25 +247,27 @@ export default function CartPage() {
               };
             }>;
           };
+          payment?: {
+            id: string;
+            amount: number;
+            status: string;
+            paymentMethod: string;
+          };
+          redirectUrl?: string; // Only for ONLINE payments
         };
-      }>(
-        '/patient/bookings',
-        {
-          slotId: orderData.slotId || null,
-          centerId: orderData.centerId,
-          date: orderData.date,
-          startTime: orderData.startTime,
-          endTime: orderData.endTime,
-          type: 'DIAGNOSTIC',
-          additionalService: orderData.additionalService,
-          hardCopyReport: orderData.hardCopyReport,
-        },
-        { token }
-      );
+      }>('/patient/bookings', bookingPayload, { token });
 
       if (response.data.success && response.data.data?.booking) {
         const booking = response.data.data.booking;
+        const redirectUrl = response.data.data.redirectUrl;
 
+        // If ONLINE payment and redirectUrl exists, redirect to PhonePe
+        if (orderData.paymentMethod === 'ONLINE' && redirectUrl) {
+          window.location.href = redirectUrl;
+          return;
+        }
+
+        // For OFFLINE payment or if no redirectUrl, show success
         setOrderData({
           bookingId: booking.id,
           bookingNumber: booking.id,
@@ -243,9 +275,16 @@ export default function CartPage() {
         });
 
         toast.success(
-          response.data.data.message || 'Booking created successfully!'
+          response.data.data.message ||
+            (orderData.paymentMethod === 'ONLINE'
+              ? 'Redirecting to payment gateway...'
+              : 'Booking created successfully! Payment will be collected by phlebotomist during visit.')
         );
-        setViewState('success');
+
+        // For OFFLINE payments, show success page
+        if (orderData.paymentMethod === 'OFFLINE') {
+          setViewState('success');
+        }
 
         // Clear cart after successful booking (API already clears it, but refresh UI)
         await fetchCartItems();
@@ -281,6 +320,11 @@ export default function CartPage() {
           'This time slot is full. Please select another time slot.';
       } else if (errorMessage.includes('already have a booking')) {
         errorMessage = 'You already have a booking for this time slot.';
+      } else if (
+        errorMessage.includes('slotId') ||
+        errorMessage.includes('slot')
+      ) {
+        errorMessage = 'Please select a valid time slot.';
       }
 
       setErrorMessage(errorMessage);
