@@ -86,7 +86,8 @@ interface PatientProfileResponse {
 }
 
 interface CheckoutFormProps {
-  cartItems: Array<{
+  // For cart/booking: pass cartItems + subtotal
+  cartItems?: Array<{
     id: string;
     test: {
       id: string;
@@ -94,7 +95,9 @@ interface CheckoutFormProps {
       price: number;
     };
   }>;
-  subtotal: number;
+  subtotal?: number;
+  // For package purchase: pass package (cartItems and subtotal ignored)
+  package?: { id: string; name: string; price: number };
   onPlaceOrder: (orderData: {
     // Either slotId OR slot details (for dynamically generated slots)
     slotId?: string | null;
@@ -107,14 +110,24 @@ interface CheckoutFormProps {
     hardCopyReport: boolean;
   }) => Promise<void>;
   onBackToCart?: () => void;
+  /** Label for back button. Default: "Back to Cart" */
+  backLabel?: string;
 }
 
 export function CheckoutForm({
   cartItems,
   subtotal,
+  package: pkg,
   onPlaceOrder,
   onBackToCart,
+  backLabel = 'Back to Cart',
 }: CheckoutFormProps) {
+  // Package mode: single package; cart mode: cartItems + subtotal
+  const displayItems = pkg
+    ? [{ id: pkg.id, test: { id: pkg.id, name: pkg.name, price: pkg.price } }]
+    : (cartItems ?? []);
+  const effectiveSubtotal = pkg ? pkg.price : (subtotal ?? 0);
+  const isPackagePurchase = !!pkg;
   const [address, setAddress] = useState<Address | null>(null);
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -300,8 +313,9 @@ export function CheckoutForm({
     return `${hours12}:${String(minutes).padStart(2, '0')} ${period}`;
   };
 
+  // Both cart and package: subtotal + home sample + hard copy when selected
   const total =
-    subtotal +
+    effectiveSubtotal +
     (homeSampleCollection ? 200 : 0) +
     (hardcopyReport === 'yes' ? 100 : 0);
 
@@ -379,19 +393,21 @@ export function CheckoutForm({
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <div className="mb-6">
-          <button
-            onClick={onBackToCart}
-            className="mb-4 inline-flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
-            style={{ color: colors.primary }}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Cart
-          </button>
+          {onBackToCart && (
+            <button
+              onClick={onBackToCart}
+              className="mb-4 inline-flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
+              style={{ color: colors.primary }}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {backLabel}
+            </button>
+          )}
           <h1
             className="text-3xl font-bold md:text-4xl text-center"
             style={{ color: colors.primary }}
           >
-            Checkout
+            {isPackagePurchase ? 'Package Checkout' : 'Checkout'}
           </h1>
         </div>
 
@@ -738,7 +754,7 @@ export function CheckoutForm({
 
                 {/* Items List */}
                 <div className="space-y-2 mb-4">
-                  {cartItems.map((item) => (
+                  {displayItems.map((item) => (
                     <div key={item.id} className="flex justify-between text-sm">
                       <span className="text-gray-600">{item.test.name}</span>
                       <span className="font-medium">
@@ -754,9 +770,25 @@ export function CheckoutForm({
                 {/* Summary Totals */}
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal</span>
+                    <span className="text-gray-600">
+                      {isPackagePurchase ? 'Package Price' : 'Subtotal'}
+                    </span>
                     <span className="font-medium">
-                      ₹{subtotal.toLocaleString('en-IN')}
+                      ₹{effectiveSubtotal.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">
+                      Home Sample Collection
+                    </span>
+                    <span className="font-medium">
+                      {homeSampleCollection ? '₹200' : '₹0'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Hard Copy Report</span>
+                    <span className="font-medium">
+                      {hardcopyReport === 'yes' ? '₹100' : '₹0'}
                     </span>
                   </div>
                 </div>

@@ -112,7 +112,6 @@ export default function CarePackageDetailPage() {
   }, [packageId]);
 
   const handleBookPackage = () => {
-    // Check if user is logged in
     const token =
       typeof window !== 'undefined'
         ? localStorage.getItem('patient_token')
@@ -122,7 +121,7 @@ export default function CarePackageDetailPage() {
       router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
       return;
     }
-    router.push('/upload-prescription');
+    router.push(`/care-packages/${packageId}/purchase`);
   };
 
   const redirectToLogin = () => {

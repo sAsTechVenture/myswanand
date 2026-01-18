@@ -10,12 +10,15 @@ interface CheckoutErrorProps {
   errorMessage?: string;
   onRetry?: () => void;
   onBackToCart?: () => void;
+  /** Label for the back button. Default: "Back to Cart" */
+  backLabel?: string;
 }
 
 export function CheckoutError({
   errorMessage = 'Something went wrong while placing your order. Please try again.',
   onRetry,
   onBackToCart,
+  backLabel = 'Back to Cart',
 }: CheckoutErrorProps) {
   return (
     <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
@@ -68,7 +71,7 @@ export function CheckoutError({
                   }}
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  Back to Cart
+                  {backLabel}
                 </Button>
               )}
             </div>
