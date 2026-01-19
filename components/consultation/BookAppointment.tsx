@@ -48,7 +48,7 @@ export default function BookAppointment({ dietician, serviceType }: BookAppointm
     );
   }
 
-  /** ✅ LOGIN CHECK (CLIENT SIDE) */
+  // LOGIN CHECK (CLIENT SIDE) //
   const isLoggedIn = () => {
     if (typeof document === 'undefined') return false;
     return document.cookie.includes('patient_token=');
@@ -61,7 +61,7 @@ export default function BookAppointment({ dietician, serviceType }: BookAppointm
       return;
     }
 
-    // ✅ middleware will also check
+    //  middleware will also check//
     router.push(
       `/appointments/book?type=${serviceType}&id=${dietician.id}&day=${selectedDay}&date=${selectedDate}&time=${selectedTime}`
     );
