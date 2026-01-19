@@ -10,7 +10,19 @@ import {
   Heart,
   FlaskConical,
   Package,
-  Star,
+  Microscope,
+  HeartPulse,
+  Activity,
+  Stethoscope,
+  Pill,
+  Syringe,
+  Bandage,
+  Thermometer,
+  Droplet,
+  Beaker,
+  Calendar,
+  Clock,
+  AlertCircle,
   CheckCircle2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,10 +33,122 @@ import { colors } from '@/config/theme';
 import { apiClient } from '@/lib/api';
 import { useLikedItems } from '@/lib/hooks/useLikedItems';
 
+// Map instructions to pathology-related icons (same as diagnostic-tests)
+const getInstructionIcon = (instruction: string): React.ReactNode => {
+  const lowerInstruction = instruction.toLowerCase();
+  if (
+    lowerInstruction.includes('fast') ||
+    lowerInstruction.includes('fasting') ||
+    lowerInstruction.includes('empty stomach')
+  ) {
+    return <Clock className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('blood') ||
+    lowerInstruction.includes('sample') ||
+    lowerInstruction.includes('draw')
+  ) {
+    return <Droplet className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('urine') ||
+    lowerInstruction.includes('pee') ||
+    lowerInstruction.includes('bladder')
+  ) {
+    return <Beaker className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('stool') ||
+    lowerInstruction.includes('feces') ||
+    lowerInstruction.includes('bowel')
+  ) {
+    return <FlaskConical className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('heart') ||
+    lowerInstruction.includes('cardiac') ||
+    lowerInstruction.includes('ecg')
+  ) {
+    return <HeartPulse className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('medicine') ||
+    lowerInstruction.includes('medication') ||
+    lowerInstruction.includes('drug')
+  ) {
+    return <Pill className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('injection') ||
+    lowerInstruction.includes('inject') ||
+    lowerInstruction.includes('vaccine')
+  ) {
+    return <Syringe className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('temperature') ||
+    lowerInstruction.includes('fever') ||
+    lowerInstruction.includes('thermometer')
+  ) {
+    return <Thermometer className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('wound') ||
+    lowerInstruction.includes('bandage') ||
+    lowerInstruction.includes('dressing')
+  ) {
+    return <Bandage className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('doctor') ||
+    lowerInstruction.includes('consultation') ||
+    lowerInstruction.includes('examination')
+  ) {
+    return <Stethoscope className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('test') ||
+    lowerInstruction.includes('lab') ||
+    lowerInstruction.includes('laboratory')
+  ) {
+    return <Microscope className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('activity') ||
+    lowerInstruction.includes('exercise') ||
+    lowerInstruction.includes('physical')
+  ) {
+    return <Activity className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('date') ||
+    lowerInstruction.includes('schedule') ||
+    lowerInstruction.includes('appointment')
+  ) {
+    return <Calendar className="h-5 w-5" style={{ color: colors.primary }} />;
+  }
+  if (
+    lowerInstruction.includes('important') ||
+    lowerInstruction.includes('note') ||
+    lowerInstruction.includes('warning')
+  ) {
+    return <AlertCircle className="h-5 w-5" style={{ color: colors.yellow }} />;
+  }
+  if (
+    lowerInstruction.includes('required') ||
+    lowerInstruction.includes('must') ||
+    lowerInstruction.includes('necessary')
+  ) {
+    return <CheckCircle2 className="h-5 w-5" style={{ color: colors.green }} />;
+  }
+  return <FlaskConical className="h-5 w-5" style={{ color: colors.primary }} />;
+};
+
 interface CarePackage {
   id: string;
   name: string;
   description?: string | null;
+  instruction?: string | null;
   price: number;
   imageUrl?: string;
   category?: {
@@ -146,6 +270,14 @@ export default function CarePackageDetailPage() {
     packageData?.tests ||
     packageData?.packageTests?.map((pt: any) => pt.test) ||
     [];
+
+  // Split instructions by full stops (same as diagnostic-tests)
+  const instructions = packageData?.instruction
+    ? (packageData.instruction as string)
+        .split('.')
+        .map((inst: string) => inst.trim())
+        .filter((inst: string) => inst.length > 0)
+    : [];
 
   if (loading) {
     return (
@@ -325,19 +457,47 @@ export default function CarePackageDetailPage() {
 
         {/* Main Content */}
         <div className="space-y-6">
-          {/* Description */}
+          {/* Description (same as diagnostic-tests) */}
           {packageData.description && (
-            <Card className="p-6">
+            <div>
               <h2
-                className="mb-3 text-xl font-semibold"
+                className="mb-2 text-xl font-semibold"
                 style={{ color: colors.black }}
               >
-                About This Package
+                Description
               </h2>
               <p className="text-gray-700 leading-relaxed">
                 {packageData.description}
               </p>
-            </Card>
+            </div>
+          )}
+
+          {/* Instructions (same as diagnostic-tests) */}
+          {instructions.length > 0 && (
+            <div>
+              <h2
+                className="mb-4 text-xl font-semibold"
+                style={{ color: colors.black }}
+              >
+                Instructions
+              </h2>
+              <div className="space-y-3">
+                {instructions.map((instruction, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-3 rounded-lg border p-4"
+                    style={{ borderColor: colors.primaryLight }}
+                  >
+                    <div className="mt-0.5 shrink-0">
+                      {getInstructionIcon(instruction)}
+                    </div>
+                    <p className="flex-1 text-gray-700 leading-relaxed">
+                      {instruction}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Package Highlights */}
