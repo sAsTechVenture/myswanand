@@ -1021,12 +1021,12 @@ export default function Home() {
                     Priority booking & home collection
                   </p>
                 </div>
-                <div className="flex items-start gap-3">
+                {/* <div className="flex items-start gap-3">
                   <span className="mt-1.5 text-xl text-white">•</span>
                   <p className="text-lg text-white">
                     Free annual health checkup
                   </p>
-                </div>
+                </div> */}
                 <div className="flex items-start gap-3">
                   <span className="mt-1.5 text-xl text-white">•</span>
                   <p className="text-lg text-white">
