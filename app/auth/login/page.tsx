@@ -177,10 +177,11 @@ function LoginContent() {
       <div
         className="w-full relative overflow-hidden py-8 mb-8"
         style={{
-          backgroundImage: 'url(/auth/hero-banner.jpg)',
-          backgroundSize: 'cover',
+          backgroundImage: 'url(/auth/new_login.png)',
+          backgroundSize: 'contain',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
+          height: '260px',
         }}
       >
         <div className="container mx-auto max-w-6xl px-8">
