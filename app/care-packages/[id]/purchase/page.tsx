@@ -91,6 +91,7 @@ export default function PackagePurchasePage() {
     paymentMethod: 'ONLINE' | 'OFFLINE';
     homeSampleCollection: boolean;
     hardCopyReport: boolean;
+    coinsToRedeem?: number; // Optional: coins to redeem for discount
   }) => {
     try {
       const token = getAuthToken();
@@ -108,6 +109,7 @@ export default function PackagePurchasePage() {
         paymentMethod: string;
         additionalService: string;
         hardCopyReport: boolean;
+        coinsToRedeem?: number;
       } = {
         paymentMethod: orderData.paymentMethod,
         additionalService: orderData.homeSampleCollection
@@ -123,6 +125,11 @@ export default function PackagePurchasePage() {
         payload.date = orderData.date;
         payload.startTime = orderData.startTime;
         payload.endTime = orderData.endTime;
+      }
+
+      // Add coins to redeem if provided
+      if (orderData.coinsToRedeem && orderData.coinsToRedeem > 0) {
+        payload.coinsToRedeem = orderData.coinsToRedeem;
       }
 
       const response = await apiClient.post<{

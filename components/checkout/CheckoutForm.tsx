@@ -11,6 +11,7 @@ import {
   Edit,
   Trash2,
   Home,
+  Coins,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -108,6 +109,7 @@ interface CheckoutFormProps {
     paymentMethod: 'ONLINE' | 'OFFLINE'; // Required
     homeSampleCollection: boolean;
     hardCopyReport: boolean;
+    coinsToRedeem?: number; // Optional: coins to redeem for discount
   }) => Promise<void>;
   onBackToCart?: () => void;
   /** Label for back button. Default: "Back to Cart" */
@@ -142,6 +144,25 @@ export function CheckoutForm({
   const [editAddressModalOpen, setEditAddressModalOpen] = useState(false);
   const [editAddressValue, setEditAddressValue] = useState('');
   const [updatingAddress, setUpdatingAddress] = useState(false);
+  
+  // Coin redemption state
+  const [totalCoins, setTotalCoins] = useState<number>(0);
+  const [useCoins, setUseCoins] = useState<boolean>(false);
+  const [discountAmount, setDiscountAmount] = useState<number>(0);
+  const [finalAmount, setFinalAmount] = useState<number>(0); // Will be updated when baseTotal is calculated
+  const [validatingCoins, setValidatingCoins] = useState(false);
+  const [coinsToRedeem, setCoinsToRedeem] = useState<number>(0);
+
+  // Check URL parameter for auto-enabling coin redemption
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const shouldUseCoins = searchParams.get('use_coins') === 'true';
+      if (shouldUseCoins) {
+        setUseCoins(true);
+      }
+    }
+  }, []);
 
   // Fetch address and available slots from server
   useEffect(() => {
@@ -205,6 +226,25 @@ export function CheckoutForm({
             setSelectedDate(firstDate);
           }
         }
+
+        // Fetch coins balance
+        try {
+          const coinsResponse = await apiClient.get<{
+            success: boolean;
+            data: {
+              totalCoins: number;
+              canRedeem: boolean;
+              maxRedeemable?: number;
+            };
+          }>('/patient/coins', { token });
+
+          if (coinsResponse.data.success && coinsResponse.data.data) {
+            setTotalCoins(coinsResponse.data.data.totalCoins || 0);
+          }
+        } catch (error) {
+          console.error('Error fetching coins:', error);
+          // Don't block checkout if coins fetch fails
+        }
       } catch (error) {
         console.error('Error fetching checkout data:', error);
       } finally {
@@ -225,6 +265,76 @@ export function CheckoutForm({
       setSelectedSlot(null);
     }
   }, [selectedDate, availableSlots]);
+
+  // Both cart and package: subtotal + home sample + hard copy when selected
+  const baseTotal =
+    effectiveSubtotal +
+    (homeSampleCollection ? 200 : 0) +
+    (hardcopyReport === 'yes' ? 100 : 0);
+  
+  // Apply coin discount if using coins
+  const total = useCoins && discountAmount > 0 
+    ? finalAmount 
+    : baseTotal;
+
+  // Validate coin redemption when useCoins is toggled or total changes
+  useEffect(() => {
+    const validateCoinRedemption = async () => {
+      if (!useCoins || totalCoins < 100) {
+        setDiscountAmount(0);
+        setFinalAmount(baseTotal);
+        setCoinsToRedeem(0);
+        return;
+      }
+
+      try {
+        setValidatingCoins(true);
+        const token = getAuthToken();
+        if (!token) return;
+
+        const response = await apiClient.post<{
+          success: boolean;
+          data: {
+            discountAmount: number;
+            finalAmount: number;
+            coinsToRedeem: number;
+            message?: string;
+          };
+        }>(
+          '/patient/coins/validate-redemption',
+          {
+            bookingAmount: baseTotal,
+            coinsToRedeem: totalCoins
+          },
+          { token }
+        );
+
+        if (response.data.success && response.data.data) {
+          setDiscountAmount(response.data.data.discountAmount || 0);
+          setFinalAmount(response.data.data.finalAmount || baseTotal);
+          setCoinsToRedeem(response.data.data.coinsToRedeem || 0);
+        } else {
+          setDiscountAmount(0);
+          setFinalAmount(baseTotal);
+          setCoinsToRedeem(0);
+        }
+      } catch (error: any) {
+        console.error('Error validating coin redemption:', error);
+        // If validation fails, disable coin usage
+        setUseCoins(false);
+        setDiscountAmount(0);
+        setFinalAmount(baseTotal);
+        setCoinsToRedeem(0);
+        if (error?.message) {
+          toast.error(error.message);
+        }
+      } finally {
+        setValidatingCoins(false);
+      }
+    };
+
+    validateCoinRedemption();
+  }, [useCoins, baseTotal, totalCoins]);
 
   const handlePlaceOrder = async () => {
     // Validate required fields
@@ -250,11 +360,17 @@ export function CheckoutForm({
         paymentMethod: 'ONLINE' | 'OFFLINE';
         homeSampleCollection: boolean;
         hardCopyReport: boolean;
+        coinsToRedeem?: number;
       } = {
         paymentMethod, // 'ONLINE' or 'OFFLINE'
         homeSampleCollection, // boolean
         hardCopyReport: hardcopyReport === 'yes',
       };
+
+      // Add coins to redeem if user opted in
+      if (useCoins && coinsToRedeem > 0) {
+        orderData.coinsToRedeem = coinsToRedeem;
+      }
 
       // If slotId exists, use it; otherwise send slot details for dynamic slot creation
       if (selectedSlot.slotId) {
@@ -312,12 +428,6 @@ export function CheckoutForm({
     const hours12 = hours % 12 || 12;
     return `${hours12}:${String(minutes).padStart(2, '0')} ${period}`;
   };
-
-  // Both cart and package: subtotal + home sample + hard copy when selected
-  const total =
-    effectiveSubtotal +
-    (homeSampleCollection ? 200 : 0) +
-    (hardcopyReport === 'yes' ? 100 : 0);
 
   const handleEditAddress = () => {
     // Set current address value or empty string if no address exists
@@ -683,6 +793,75 @@ export function CheckoutForm({
               </CardContent>
             </Card>
 
+            {/* Coin Redemption Section */}
+            {totalCoins >= 100 && (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Coins
+                      className="h-5 w-5"
+                      style={{ color: colors.primary }}
+                    />
+                    <h2
+                      className="text-lg font-semibold"
+                      style={{ color: colors.black }}
+                    >
+                      Redeem Coins
+                    </h2>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-4 border rounded-lg">
+                    <Checkbox
+                      id="use_coins"
+                      checked={useCoins}
+                      onCheckedChange={(checked) => {
+                        setUseCoins(checked === true);
+                      }}
+                      disabled={validatingCoins}
+                      className="mt-1"
+                    />
+                    <Label
+                      htmlFor="use_coins"
+                      className="flex-1 cursor-pointer"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="font-medium">
+                            Use coins for discount
+                          </p>
+                          {validatingCoins && (
+                            <span className="text-sm text-gray-500">
+                              Validating...
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          You have {totalCoins.toLocaleString('en-IN')} coins
+                          available
+                        </p>
+                        {useCoins && discountAmount > 0 && (
+                          <div
+                            className="mt-2 p-2 rounded"
+                            style={{ backgroundColor: colors.lightestGreen }}
+                          >
+                            <p className="text-sm font-medium text-green-700">
+                              Discount: ₹{discountAmount.toLocaleString('en-IN')} 
+                              {' '}({coinsToRedeem.toLocaleString('en-IN')} coins)
+                            </p>
+                          </div>
+                        )}
+                        {useCoins && discountAmount === 0 && !validatingCoins && (
+                          <p className="text-sm text-red-600 mt-1">
+                            Minimum 100 coins required for redemption
+                          </p>
+                        )}
+                      </div>
+                    </Label>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Payment Method Section */}
             <Card>
               <CardContent className="p-6">
@@ -791,6 +970,14 @@ export function CheckoutForm({
                       {hardcopyReport === 'yes' ? '₹100' : '₹0'}
                     </span>
                   </div>
+                  {useCoins && discountAmount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Coin Discount</span>
+                      <span className="font-medium text-green-600">
+                        -₹{discountAmount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Divider */}

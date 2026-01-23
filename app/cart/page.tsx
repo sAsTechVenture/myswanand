@@ -169,6 +169,7 @@ export default function CartPage() {
     paymentMethod: 'ONLINE' | 'OFFLINE'; // Required
     homeSampleCollection: boolean;
     hardCopyReport: boolean;
+    coinsToRedeem?: number; // Optional: coins to redeem for discount
   }) => {
     try {
       const token = getAuthToken();
@@ -188,6 +189,7 @@ export default function CartPage() {
         type: string;
         additionalService: string;
         hardCopyReport: boolean;
+        coinsToRedeem?: number;
       } = {
         paymentMethod: orderData.paymentMethod, // 'ONLINE' or 'OFFLINE'
         type: 'DIAGNOSTIC',
@@ -196,6 +198,11 @@ export default function CartPage() {
           : 'NOT_REQUIRED',
         hardCopyReport: orderData.hardCopyReport,
       };
+
+      // Add coins to redeem if provided
+      if (orderData.coinsToRedeem && orderData.coinsToRedeem > 0) {
+        bookingPayload.coinsToRedeem = orderData.coinsToRedeem;
+      }
 
       // If slotId exists, use it; otherwise use slot details for dynamic slot creation
       if (orderData.slotId) {

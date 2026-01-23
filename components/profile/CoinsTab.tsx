@@ -15,12 +15,13 @@ import {
 import { apiClient } from '@/lib/api';
 import { colors } from '@/config/theme';
 import { Coins } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface CoinTransaction {
   id: string;
   description: string;
   date: string;
-  coins: number;
+  amount: number;
   type: 'credit' | 'debit';
 }
 
@@ -50,6 +51,7 @@ export function CoinsTab({ isActive = false }: CoinsTabProps) {
     hasNext: false,
     hasPrev: false,
   });
+  const router = useRouter();
 
   useEffect(() => {
     if (isActive && history.length === 0 && !loading) {
@@ -77,6 +79,8 @@ export function CoinsTab({ isActive = false }: CoinsTabProps) {
         success: boolean;
         data: {
           totalCoins: number;
+          canRedeem?: boolean;
+          maxRedeemable?: number;
           history: CoinTransaction[];
           pagination: PaginationData;
         };
@@ -170,6 +174,7 @@ export function CoinsTab({ isActive = false }: CoinsTabProps) {
             backgroundColor: colors.primary,
             color: colors.white,
           }}
+          onClick={() => router.push('/cart?use_coins=true')}
         >
           <Coins className="w-4 h-4 mr-2" />
           Redeem Coins
@@ -182,28 +187,45 @@ export function CoinsTab({ isActive = false }: CoinsTabProps) {
           Coins History
         </h3>
         <div className="space-y-3">
-          {history.map((transaction) => (
-            <Card key={transaction.id} className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium" style={{ color: colors.black }}>
-                    {transaction.description}
-                  </p>
-                  <p className="text-sm text-gray-600">{transaction.date}</p>
+          {history.map((transaction) => {
+            // Determine transaction type from description
+            const description = transaction.description.toLowerCase();
+            const isEarned = description.includes('earned');
+            const isRedeemed = description.includes('redeemed');
+            const isReversed = description.includes('reversed');
+
+            // Determine color and sign based on transaction type
+            let colorClass = 'text-red-600'; // Default for redeemed
+            let sign = '-';
+            
+            if (isEarned) {
+              colorClass = 'text-green-600';
+              sign = '+';
+            } else if (isReversed) {
+              colorClass = 'text-yellow-600';
+              sign = '-';
+            } else if (isRedeemed) {
+              colorClass = 'text-red-600';
+              sign = '-';
+            }
+
+            return (
+              <Card key={transaction.id} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium" style={{ color: colors.black }}>
+                      {transaction.description}
+                    </p>
+                    <p className="text-sm text-gray-600">{transaction.date}</p>
+                  </div>
+                  <span className={`font-semibold ${colorClass}`}>
+                    {sign}
+                    {Math.abs(transaction.amount)} coins
+                  </span>
                 </div>
-                <span
-                  className={`font-semibold ${
-                    transaction.type === 'credit'
-                      ? 'text-green-600'
-                      : 'text-red-600'
-                  }`}
-                >
-                  {transaction.type === 'credit' ? '+' : '-'}
-                  {transaction.coins} coins
-                </span>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
           {history.length === 0 && !loading && (
             <Card className="p-8 text-center">
               <p className="text-gray-600">No coin transactions found</p>
