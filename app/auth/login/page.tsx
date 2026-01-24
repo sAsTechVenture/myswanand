@@ -8,6 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { colors } from '@/config/theme';
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 
@@ -46,6 +54,11 @@ function LoginContent() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [forgotPasswordError, setForgotPasswordError] = useState<string | null>(null);
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -171,6 +184,59 @@ function LoginContent() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    setForgotPasswordError(null);
+    setForgotPasswordSuccess(false);
+
+    // Validate email
+    if (!forgotPasswordEmail.trim()) {
+      setForgotPasswordError('Email is required');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(forgotPasswordEmail.trim())) {
+      setForgotPasswordError('Invalid email format');
+      return;
+    }
+
+    setForgotPasswordLoading(true);
+
+    try {
+      const response = await apiClient.post<{
+        success: boolean;
+        data: {
+          message: string;
+        };
+      }>('/patient/forgot-password', {
+        email: forgotPasswordEmail.trim().toLowerCase(),
+      });
+
+      if (response.data.success) {
+        setForgotPasswordSuccess(true);
+        // Reset email after a delay
+        setTimeout(() => {
+          setForgotPasswordEmail('');
+          setForgotPasswordOpen(false);
+          setForgotPasswordSuccess(false);
+        }, 3000);
+      }
+    } catch (error: any) {
+      console.error('Forgot password error:', error);
+      let errorMessage = 'Failed to send reset email. Please try again.';
+
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.data?.message) {
+        errorMessage = error.data.message;
+      }
+
+      setForgotPasswordError(errorMessage);
+    } finally {
+      setForgotPasswordLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen py-8">
       {/* Full-width Banner Section for Breadcrumb and My Account */}
@@ -287,6 +353,18 @@ function LoginContent() {
                 )}
               </div>
 
+              {/* Forgot Password Link */}
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => setForgotPasswordOpen(true)}
+                  className="text-sm font-medium hover:underline"
+                  style={{ color: colors.primary }}
+                >
+                  Forgot Password?
+                </button>
+              </div>
+
               {/* Submit Button */}
               <Button
                 type="submit"
@@ -322,6 +400,89 @@ function LoginContent() {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <Dialog open={forgotPasswordOpen} onOpenChange={setForgotPasswordOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle style={{ color: colors.primary }}>
+              Forgot Password
+            </DialogTitle>
+            <DialogDescription>
+              Enter your email address and we'll send you a link to reset your
+              password.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {forgotPasswordSuccess && (
+              <Alert className="border-green-500 bg-green-50">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">
+                  If an account with that email exists, a password reset link
+                  has been sent. Please check your inbox.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {forgotPasswordError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{forgotPasswordError}</AlertDescription>
+              </Alert>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="forgot-email">Email Address</Label>
+              <Input
+                id="forgot-email"
+                type="email"
+                placeholder="Enter your email"
+                value={forgotPasswordEmail}
+                onChange={(e) => {
+                  setForgotPasswordEmail(e.target.value);
+                  setForgotPasswordError(null);
+                }}
+                disabled={forgotPasswordLoading || forgotPasswordSuccess}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setForgotPasswordOpen(false);
+                setForgotPasswordEmail('');
+                setForgotPasswordError(null);
+                setForgotPasswordSuccess(false);
+              }}
+              disabled={forgotPasswordLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={forgotPasswordLoading || forgotPasswordSuccess}
+              style={{
+                backgroundColor: colors.primary,
+                color: colors.white,
+              }}
+            >
+              {forgotPasswordLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                'Send Reset Link'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Dialog,
   DialogContent,
@@ -85,6 +86,7 @@ export function EditPersonalDetailsModal({
         name: user.name,
         phone: user.phone || '',
         address: user.address || '',
+        gender: (user as any).gender || '',
         isCancerPatient: getIsCancerPatientBoolean(user.isCancerPatient),
       });
       setProfileImage(null);
@@ -166,6 +168,9 @@ export function EditPersonalDetailsModal({
       formDataToSend.append('name', formData.name.trim());
       formDataToSend.append('phone', formData.phone.trim() || '');
       formDataToSend.append('address', formData.address.trim() || '');
+      if (formData.gender) {
+        formDataToSend.append('gender', formData.gender);
+      }
       // Convert boolean to number (0 or 1) for database
       formDataToSend.append(
         'isCancerPatient',
@@ -341,6 +346,40 @@ export function EditPersonalDetailsModal({
               onChange={handleInputChange}
               placeholder="Enter your mobile number"
             />
+          </div>
+
+          {/* Gender Field */}
+          <div className="space-y-2">
+            <Label>Gender</Label>
+            <RadioGroup
+              value={formData.gender}
+              onValueChange={(value) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  gender: value as 'MALE' | 'FEMALE' | 'OTHERS',
+                }));
+              }}
+              className="flex gap-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="MALE" id="edit-gender-male" />
+                <Label htmlFor="edit-gender-male" className="cursor-pointer">
+                  Male
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="FEMALE" id="edit-gender-female" />
+                <Label htmlFor="edit-gender-female" className="cursor-pointer">
+                  Female
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="OTHERS" id="edit-gender-others" />
+                <Label htmlFor="edit-gender-others" className="cursor-pointer">
+                  Others
+                </Label>
+              </div>
+            </RadioGroup>
           </div>
 
           {/* Address Field */}

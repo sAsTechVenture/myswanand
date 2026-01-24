@@ -15,9 +15,12 @@ import {
 } from '@/components/profile';
 import { EditPersonalDetailsModal } from '@/components/profile/EditPersonalDetailsModal';
 import { colors } from '@/config/theme';
-import { ArrowLeft, FileText, Wallet, Coins, Gift, Upload } from 'lucide-react';
+import { ArrowLeft, FileText, Wallet, Coins, Gift, Upload, LogOut } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { getAuthToken } from '@/lib/utils/auth';
+import { toast } from '@/lib/toast';
 
 interface UserProfile {
   id: string;
@@ -42,6 +45,7 @@ function ProfileContent() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('history');
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   // Handle tab query parameter
   useEffect(() => {
@@ -165,6 +169,46 @@ function ProfileContent() {
     router.push('/upload-prescription');
   };
 
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      const token = getAuthToken();
+
+      // Call logout API
+      if (token) {
+        try {
+          await apiClient.post('/patient/logout', {}, { token });
+        } catch (error) {
+          // Continue with logout even if API call fails
+          console.error('Logout API error:', error);
+        }
+      }
+
+      // Clear localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('patient_token');
+        localStorage.removeItem('patient_user');
+
+        // Clear cookie
+        document.cookie = 'patient_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
+
+        // Dispatch auth-change event to update header
+        window.dispatchEvent(new Event('auth-change'));
+      }
+
+      // Show success message
+      toast.success('Logged out successfully');
+
+      // Redirect to login page
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Failed to logout. Please try again.');
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
   if (loading) {
     return (
       <div
@@ -212,7 +256,7 @@ function ProfileContent() {
     >
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
-        <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
+        <div className="flex items-center justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
           <Link
             href="/"
             className="flex items-center gap-1 sm:gap-2 hover:opacity-80 transition-opacity text-sm sm:text-base"
@@ -222,6 +266,20 @@ function ProfileContent() {
             <span className="hidden sm:inline">Back to Home</span>
             <span className="sm:hidden">Back</span>
           </Link>
+          <Button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            variant="outline"
+            className="flex items-center gap-2 text-sm sm:text-base"
+            style={{
+              borderColor: colors.primary,
+              color: colors.primary,
+            }}
+          >
+            <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Logout</span>
+            <span className="sm:hidden">Logout</span>
+          </Button>
         </div>
 
         <h1

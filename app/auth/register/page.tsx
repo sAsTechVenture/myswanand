@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -53,6 +54,8 @@ export default function RegisterPage() {
     mobileNumber: '',
     swanandHealthCardNo: '',
     password: '',
+    confirmPassword: '',
+    gender: '' as 'MALE' | 'FEMALE' | 'OTHERS' | '',
     isCancerPatient: false,
     agreeToTerms: false,
   });
@@ -148,6 +151,16 @@ export default function RegisterPage() {
       newErrors.password = 'Password must be at least 6 characters long';
     }
 
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (!formData.gender) {
+      newErrors.gender = 'Gender is required';
+    }
+
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'You must agree to the terms & policy';
     }
@@ -187,6 +200,7 @@ export default function RegisterPage() {
         mobileNumber: formData.mobileNumber.replace(/\D/g, ''),
         swanandHealthCardNo: formData.swanandHealthCardNo.trim() || undefined,
         password: formData.password,
+        gender: formData.gender,
         isCancerPatient: formData.isCancerPatient,
       });
 
@@ -499,6 +513,52 @@ export default function RegisterPage() {
                 )}
               </div>
 
+              {/* Gender */}
+              <div>
+                <Label className="mb-2 block text-sm font-medium">
+                  Gender <span className="text-red-500">*</span>
+                </Label>
+                <RadioGroup
+                  value={formData.gender}
+                  onValueChange={(value) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      gender: value as 'MALE' | 'FEMALE' | 'OTHERS',
+                    }));
+                    if (errors.gender) {
+                      setErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.gender;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                  className="flex gap-6"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="MALE" id="gender-male" />
+                    <Label htmlFor="gender-male" className="cursor-pointer">
+                      Male
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="FEMALE" id="gender-female" />
+                    <Label htmlFor="gender-female" className="cursor-pointer">
+                      Female
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="OTHERS" id="gender-others" />
+                    <Label htmlFor="gender-others" className="cursor-pointer">
+                      Others
+                    </Label>
+                  </div>
+                </RadioGroup>
+                {errors.gender && (
+                  <p className="mt-1 text-sm text-red-500">{errors.gender}</p>
+                )}
+              </div>
+
               {/* Swanand Health Card No */}
               <div>
                 <Label
@@ -539,6 +599,33 @@ export default function RegisterPage() {
                 />
                 {errors.password && (
                   <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <Label
+                  htmlFor="confirmPassword"
+                  className="mb-2 block text-sm font-medium"
+                >
+                  Confirm Password <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Confirm your Password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={`w-full ${
+                    errors.confirmPassword ? 'border-red-500' : ''
+                  }`}
+                  aria-invalid={!!errors.confirmPassword}
+                />
+                {errors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.confirmPassword}
+                  </p>
                 )}
               </div>
 
