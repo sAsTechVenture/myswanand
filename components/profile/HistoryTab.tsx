@@ -78,6 +78,7 @@ interface TestResult {
   reportUrl: string | null;
   locationId: string | null;
   healthId: string | null;
+  hasReport: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -263,6 +264,40 @@ export function HistoryTab({ isActive = false }: HistoryTabProps) {
     }
     return imageUrl;
   };
+
+  // Process report URL - construct full URL from relative path
+  // Report URLs from API are like: /api/files/test-result/...
+  // Base URL might be: http://server:port/api or http://server:port
+  const getReportUrl = (reportUrl: string | null | undefined): string | null => {
+    if (!reportUrl) return null;
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+    if (reportUrl.startsWith('http')) return reportUrl;
+    if (reportUrl.startsWith('/')) {
+      // If reportUrl starts with /api, we need to avoid double /api
+      if (reportUrl.startsWith('/api')) {
+        // Remove trailing slash from baseUrl if present
+        let cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+        // If baseUrl ends with /api, remove it to avoid double /api
+        if (cleanBaseUrl.endsWith('/api')) {
+          cleanBaseUrl = cleanBaseUrl.replace(/\/api$/, '');
+        }
+        return `${cleanBaseUrl}${reportUrl}`;
+      }
+      // If reportUrl doesn't start with /api, handle like image URL
+      let urlToUse = baseUrl;
+      if (baseUrl.endsWith('/api')) {
+        urlToUse = baseUrl.replace(/\/api$/, '');
+      }
+      return `${urlToUse}${reportUrl}`;
+    }
+    return reportUrl;
+  };
+
+  // Create a map of test results by test.id for quick lookup
+  const testResultsMap = new Map<string, TestResult>();
+  testResults.forEach((testResult) => {
+    testResultsMap.set(testResult.test.id, testResult);
+  });
 
   if (loading && orders.length === 0 && testResults.length === 0) {
     return (
@@ -496,10 +531,14 @@ export function HistoryTab({ isActive = false }: HistoryTabProps) {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {order.tests.map((test) => {
                               const testImageUrl = getImageUrl(test.imageUrl);
+                              const testResult = testResultsMap.get(test.id);
+                              const reportUrl = testResult ? getReportUrl(testResult.reportUrl) : null;
+                              const hasReport = testResult?.hasReport || false;
+                              
                               return (
                                 <div
                                   key={test.id}
-                                  className="flex items-center gap-3 p-2 rounded-lg border"
+                                  className="flex items-start gap-3 p-3 rounded-lg border"
                                 >
                                   {testImageUrl ? (
                                     <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
@@ -526,22 +565,44 @@ export function HistoryTab({ isActive = false }: HistoryTabProps) {
                                   )}
                                   <div className="flex-1 min-w-0">
                                     <p
-                                      className="text-sm font-medium truncate"
+                                      className="text-sm font-medium truncate mb-1"
                                       style={{ color: colors.black }}
                                     >
                                       {test.name}
                                     </p>
                                     {test.category && (
-                                      <p className="text-xs text-gray-500">
+                                      <p className="text-xs text-gray-500 mb-1">
                                         {test.category.name}
                                       </p>
                                     )}
                                     <p
-                                      className="text-xs font-semibold"
+                                      className="text-xs font-semibold mb-2"
                                       style={{ color: colors.primary }}
                                     >
                                       ₹{test.price.toLocaleString('en-IN')}
                                     </p>
+                                    {hasReport && reportUrl && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="w-full text-xs h-7"
+                                        onClick={() => {
+                                          window.open(reportUrl, '_blank', 'noopener,noreferrer');
+                                        }}
+                                        style={{
+                                          borderColor: colors.primary,
+                                          color: colors.primary,
+                                        }}
+                                      >
+                                        <FileText className="h-3 w-3 mr-1" />
+                                        View Report
+                                      </Button>
+                                    )}
+                                    {!hasReport && (
+                                      <p className="text-xs text-gray-400">
+                                        Report pending
+                                      </p>
+                                    )}
                                   </div>
                                 </div>
                               );
@@ -643,24 +704,37 @@ export function HistoryTab({ isActive = false }: HistoryTabProps) {
                               {test.description}
                             </p>
                           )}
-                          <div className="flex items-center gap-4 text-xs text-gray-600">
+                          <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
                             <span>
                               <Calendar className="inline h-3 w-3 mr-1" />
                               {formatDate(testResult.createdAt)}
                             </span>
-                            {testResult.reportUrl && (
-                              <a
-                                href={testResult.reportUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-primary hover:underline flex items-center gap-1"
-                                style={{ color: colors.primary }}
-                              >
-                                <FileText className="h-3 w-3" />
-                                View Report
-                              </a>
-                            )}
                           </div>
+                          {testResult.hasReport && testResult.reportUrl && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="mt-2"
+                              onClick={() => {
+                                const fullReportUrl = getReportUrl(testResult.reportUrl);
+                                if (fullReportUrl) {
+                                  window.open(fullReportUrl, '_blank', 'noopener,noreferrer');
+                                }
+                              }}
+                              style={{
+                                borderColor: colors.primary,
+                                color: colors.primary,
+                              }}
+                            >
+                              <FileText className="h-4 w-4 mr-2" />
+                              View/Download Report
+                            </Button>
+                          )}
+                          {!testResult.hasReport && (
+                            <p className="text-xs text-gray-500 mt-2">
+                              Report not available yet
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="text-right">
