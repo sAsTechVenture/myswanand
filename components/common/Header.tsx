@@ -109,7 +109,7 @@ export function Header() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About us' },
-    { href: '/blog', label: 'Blog' },
+    { href: '/blogs', label: 'Blogs' },
     { href: '/contact', label: 'Contact Us - MY SWANAND' },
   ];
 
