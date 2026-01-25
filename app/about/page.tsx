@@ -1,5 +1,6 @@
-import { ClipboardList, Target, Compass, Check,Eye } from "lucide-react";
+import { ClipboardList, Target, Compass, Check, Eye } from "lucide-react";
 import Image from "next/image";
+import PageBanner from "@/components/common/PageBanner";
 
 const founders = [
   {
@@ -13,18 +14,8 @@ const founders = [
 export default function AboutPage() {
   return (
     <main className="w-full overflow-x-hidden">
-
       {/* ================= HERO SECTION ================= */}
-      <section className="relative bg-[#F9EFE5] py-14">
-        <div className="mx-auto max-w-7xl px-6 text-center">
-          <h1 className="text-[22px] font-semibold text-[#2D2D2D]">
-            About us
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Home / About us
-          </p>
-        </div>
-      </section>
+      <PageBanner title="About Us" />
 
       {/* ================= ABOUT CONTENT ================= */}
       <section className="py-16">

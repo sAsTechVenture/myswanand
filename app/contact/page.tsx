@@ -8,6 +8,7 @@ import {
   MessageSquare,
   Send,
 } from "lucide-react";
+import PageBanner from "@/components/common/PageBanner";
 import {
   getContactPhoneNumber,
   getContactPhoneNumberRaw,
@@ -39,16 +40,8 @@ Message: ${formData.get("message")}
 
   return (
     <main className="w-full overflow-x-hidden">
-
       {/* ================= HERO ================= */}
-      <section className="bg-[#F7EDE2] py-14 sm:py-20 text-center px-4">
-        <h1 className="text-2xl sm:text-3xl font-semibold text-[#1F5132]">
-          Contact Us – MY SWANAND
-        </h1>
-        <p className="text-sm text-gray-500 mt-2">
-          Home / Contact Us – MY SWANAND
-        </p>
-      </section>
+      <PageBanner title="Contact Us" />
 
       {/* ================= INTRO ================= */}
       <section className="max-w-6xl mx-auto px-4 py-10 text-sm text-gray-600 leading-relaxed">
