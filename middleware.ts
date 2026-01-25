@@ -80,6 +80,11 @@ const protectedRoutes = [
   '/liked-items',
   '/profile',
   '/cart',
+  '/doctor-consultation',
+  '/dietitian-consultation',
+  '/swanand-card/*',
+  '/womens-care/*',
+  '/my-happiness-corner'
 ];
 
 /**

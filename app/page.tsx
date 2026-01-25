@@ -979,7 +979,7 @@ export default function Home() {
                   backgroundColor: colors.primary,
                   color: colors.white,
                 }}
-                onClick={() => console.log('Breast Cancer Care')}
+                onClick={() => router.push('/womens-care/breast-cancer')}
               >
                 Breast Cancer Care
               </Button>
@@ -992,6 +992,50 @@ export default function Home() {
                 onClick={() => console.log('Cervical Cancer Care')}
               >
                 Cervical Cancer Care
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* My Happiness Corner Section */}
+      <section
+        className="py-16"
+        style={{ backgroundColor: colors.lightestGreen }}
+      >
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-4xl">
+            {/* Icon */}
+            <div className="mb-6 flex justify-center">
+              <div
+                className="flex h-20 w-20 items-center justify-center rounded-full"
+                style={{ backgroundColor: colors.primary }}
+              >
+                <Heart className="h-10 w-10 text-white" />
+              </div>
+            </div>
+
+            {/* Title */}
+            <h2 className="mb-4 text-center text-3xl font-bold text-black md:text-4xl">
+              My Happiness Corner
+            </h2>
+
+            {/* Description */}
+            <p className="mb-8 text-center text-base text-gray-700 md:text-lg">
+              Nurture your well-being with daily reflections, mindfulness practices, positive affirmations, and meditation music.
+            </p>
+
+            {/* Button */}
+            <div className="flex justify-center">
+              <Button
+                className="rounded-lg px-8 py-4 text-base font-semibold transition-all hover:opacity-90"
+                style={{
+                  backgroundColor: colors.primary,
+                  color: colors.white,
+                }}
+                onClick={() => router.push('/my-happiness-corner')}
+              >
+                Explore Happiness Corner
               </Button>
             </div>
           </div>
