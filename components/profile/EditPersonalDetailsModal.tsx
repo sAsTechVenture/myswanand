@@ -33,6 +33,7 @@ interface EditPersonalDetailsModalProps {
     address?: string | null;
     profileImage?: string | null;
     isCancerPatient?: number | boolean;
+    gender?: string | null;
   };
   onSuccess?: () => void;
 }
@@ -63,10 +64,17 @@ export function EditPersonalDetailsModal({
     return false;
   };
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    phone: string;
+    address: string;
+    gender: string;
+    isCancerPatient: boolean;
+  }>({
     name: user.name,
     phone: user.phone || '',
     address: user.address || '',
+    gender: user.gender || '',
     isCancerPatient: getIsCancerPatientBoolean(user.isCancerPatient),
   });
   const [profileImage, setProfileImage] = useState<File | null>(null);
@@ -86,7 +94,7 @@ export function EditPersonalDetailsModal({
         name: user.name,
         phone: user.phone || '',
         address: user.address || '',
-        gender: (user as any).gender || '',
+        gender: user.gender || '',
         isCancerPatient: getIsCancerPatientBoolean(user.isCancerPatient),
       });
       setProfileImage(null);
