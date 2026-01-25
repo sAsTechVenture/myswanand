@@ -17,6 +17,7 @@ import { toast } from '@/lib/toast';
 import { CheckoutForm } from '@/components/checkout/CheckoutForm';
 import { CheckoutSuccess } from '@/components/checkout/CheckoutSuccess';
 import { CheckoutError } from '@/components/checkout/CheckoutError';
+import { VoucherAssignmentModal } from '@/components/checkout/VoucherAssignmentModal';
 
 interface CarePackage {
   id: string;
@@ -43,6 +44,8 @@ export default function PackagePurchasePage() {
     message?: string;
   } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [voucherModalOpen, setVoucherModalOpen] = useState(false);
+  const [assignedVoucherIds, setAssignedVoucherIds] = useState<string[]>([]);
 
   useEffect(() => {
     syncAuthTokenToCookie();
@@ -139,14 +142,30 @@ export default function PackagePurchasePage() {
           booking: { id: string; status: string; slot?: unknown; package?: unknown };
           payment?: { id: string; amount: number; status: string; paymentMethod: string };
           redirectUrl?: string;
+          assignedVouchers?: string[]; // Array of assigned voucher IDs
         };
       }>(`/patient/packages/${packageId}/purchase`, payload, { token });
 
       if (response.data.success && response.data.data) {
         const d = response.data.data;
         const redirectUrl = d.redirectUrl;
+        const assignedVouchers = d.assignedVouchers || [];
+
+        // Check if vouchers were assigned
+        if (assignedVouchers.length > 0) {
+          setAssignedVoucherIds(assignedVouchers);
+          setVoucherModalOpen(true);
+        }
 
         if (orderData.paymentMethod === 'ONLINE' && redirectUrl) {
+          // Show voucher modal before redirect if vouchers were assigned
+          if (assignedVouchers.length > 0) {
+            // Wait a bit for modal to show, then redirect
+            setTimeout(() => {
+              window.location.href = redirectUrl;
+            }, 2000);
+            return;
+          }
           window.location.href = redirectUrl;
           return;
         }
@@ -225,34 +244,41 @@ export default function PackagePurchasePage() {
     );
   }
 
-  if (viewState === 'success') {
-    return (
-      <CheckoutSuccess
-        orderId={orderData?.bookingId}
-        orderNumber={orderData?.bookingNumber}
-        message={orderData?.message}
-        onViewOrder={() => router.push('/profile?tab=history')}
-      />
-    );
-  }
-
-  if (viewState === 'error') {
-    return (
-      <CheckoutError
-        errorMessage={errorMessage}
-        onRetry={() => setViewState('checkout')}
-        onBackToCart={handleBackToPackage}
-        backLabel="Back to Package"
-      />
-    );
-  }
-
   return (
-    <CheckoutForm
-      package={{ id: packageData.id, name: packageData.name, price: packageData.price }}
-      onPlaceOrder={handlePlaceOrder}
-      onBackToCart={handleBackToPackage}
-      backLabel="Back to Package"
-    />
+    <>
+      {viewState === 'success' && (
+        <CheckoutSuccess
+          orderId={orderData?.bookingId}
+          orderNumber={orderData?.bookingNumber}
+          message={orderData?.message}
+          onViewOrder={() => router.push('/profile?tab=history')}
+        />
+      )}
+
+      {viewState === 'error' && (
+        <CheckoutError
+          errorMessage={errorMessage}
+          onRetry={() => setViewState('checkout')}
+          onBackToCart={handleBackToPackage}
+          backLabel="Back to Package"
+        />
+      )}
+
+      {viewState === 'checkout' && (
+        <CheckoutForm
+          package={{ id: packageData.id, name: packageData.name, price: packageData.price }}
+          onPlaceOrder={handlePlaceOrder}
+          onBackToCart={handleBackToPackage}
+          backLabel="Back to Package"
+        />
+      )}
+
+      {/* Voucher Assignment Modal */}
+      <VoucherAssignmentModal
+        open={voucherModalOpen}
+        onOpenChange={setVoucherModalOpen}
+        assignedVoucherIds={assignedVoucherIds}
+      />
+    </>
   );
 }

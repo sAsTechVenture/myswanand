@@ -81,7 +81,7 @@ export function VouchersTab({ isActive = false }: VouchersTabProps) {
           vouchers: Voucher[];
           pagination: PaginationData;
         };
-      }>(`/patient/vouchers?page=${page}&limit=10`, {
+      }>(`/patient/external-vouchers?page=${page}&limit=10`, {
         token,
       });
 

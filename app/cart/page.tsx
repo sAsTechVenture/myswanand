@@ -19,6 +19,7 @@ import { CartSummary } from '@/components/checkout/CartSummary';
 import { CheckoutForm } from '@/components/checkout/CheckoutForm';
 import { CheckoutSuccess } from '@/components/checkout/CheckoutSuccess';
 import { CheckoutError } from '@/components/checkout/CheckoutError';
+import { VoucherAssignmentModal } from '@/components/checkout/VoucherAssignmentModal';
 
 // Cart item type based on API response
 interface CartItem {
@@ -63,6 +64,8 @@ export default function CartPage() {
     message?: string;
   } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [voucherModalOpen, setVoucherModalOpen] = useState(false);
+  const [assignedVoucherIds, setAssignedVoucherIds] = useState<string[]>([]);
 
   // Sync token to cookie on mount
   useEffect(() => {
@@ -261,15 +264,37 @@ export default function CartPage() {
             paymentMethod: string;
           };
           redirectUrl?: string; // Only for ONLINE payments
+          assignedVouchers?: string[]; // Array of assigned voucher IDs
         };
       }>('/patient/bookings', bookingPayload, { token });
 
       if (response.data.success && response.data.data?.booking) {
         const booking = response.data.data.booking;
         const redirectUrl = response.data.data.redirectUrl;
+        const assignedVouchers = response.data.data.assignedVouchers || [];
+
+        console.log('Assigned vouchers from API:', assignedVouchers);
+
+        // Check if vouchers were assigned
+        if (assignedVouchers.length > 0) {
+          console.log('Setting voucher modal to open with IDs:', assignedVouchers);
+          setAssignedVoucherIds(assignedVouchers);
+          // Use setTimeout to ensure state updates are processed
+          setTimeout(() => {
+            setVoucherModalOpen(true);
+          }, 100);
+        }
 
         // If ONLINE payment and redirectUrl exists, redirect to PhonePe
         if (orderData.paymentMethod === 'ONLINE' && redirectUrl) {
+          // Show voucher modal before redirect if vouchers were assigned
+          if (assignedVouchers.length > 0) {
+            // Wait a bit for modal to show, then redirect
+            setTimeout(() => {
+              window.location.href = redirectUrl;
+            }, 2000);
+            return;
+          }
           window.location.href = redirectUrl;
           return;
         }
@@ -354,204 +379,208 @@ export default function CartPage() {
   const total = subtotal + hardcopyReport;
 
   // Render different components based on view state
-  if (viewState === 'checkout') {
-    return (
-      <CheckoutForm
-        cartItems={cartItems}
-        subtotal={subtotal}
-        onPlaceOrder={handlePlaceOrder}
-        onBackToCart={handleBackToCart}
-      />
-    );
-  }
-
-  if (viewState === 'success') {
-    return (
-      <CheckoutSuccess
-        orderId={orderData?.bookingId}
-        orderNumber={orderData?.bookingNumber}
-        message={orderData?.message}
-        onViewOrder={() => {
-          // Navigate to bookings page or profile with bookings tab
-          router.push('/profile?tab=bookings');
-        }}
-      />
-    );
-  }
-
-  if (viewState === 'error') {
-    return (
-      <CheckoutError
-        errorMessage={errorMessage}
-        onRetry={handleRetry}
-        onBackToCart={handleBackToCart}
-      />
-    );
-  }
-
-  // Default cart view
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
-        {/* Header */}
-        <div className="mb-6">
-          <Link
-            href="/"
-            className="mb-4 inline-flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
-            style={{ color: colors.primary }}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Link>
-          <h1
-            className="text-3xl font-bold md:text-4xl text-center"
-            style={{ color: colors.primary }}
-          >
-            Shopping Cart
-          </h1>
-        </div>
+    <>
+      {viewState === 'checkout' && (
+        <CheckoutForm
+          cartItems={cartItems}
+          subtotal={subtotal}
+          onPlaceOrder={handlePlaceOrder}
+          onBackToCart={handleBackToCart}
+        />
+      )}
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Cart Items - Left Section */}
-          <div className="lg:col-span-2 space-y-4">
-            {loading ? (
-              <div className="space-y-4">
-                {[...Array(2)].map((_, i) => (
-                  <Card key={i} className="p-4">
-                    <CardContent className="p-0">
-                      <div className="flex items-start gap-4">
-                        <Skeleton className="w-12 h-12 rounded-lg" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-6 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                        </div>
-                        <div className="flex flex-col items-end gap-3">
-                          <Skeleton className="h-6 w-20" />
-                          <Skeleton className="h-8 w-32" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : cartItems.length === 0 ? (
-              <Card className="p-12 text-center">
-                <p className="text-gray-600 mb-4">Your cart is empty</p>
-                <Link href="/diagnostic-tests">
-                  <Button
-                    style={{
-                      backgroundColor: colors.primary,
-                      color: colors.white,
-                    }}
-                  >
-                    Browse Diagnostic Tests
-                  </Button>
-                </Link>
-              </Card>
-            ) : (
-              cartItems.map((item) => (
-                <Card key={item.id} className="p-4">
-                  <CardContent className="p-0">
-                    <div className="flex items-start gap-4">
-                      {/* Icon */}
-                      <div
-                        className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: colors.primary }}
+      {viewState === 'success' && (
+        <CheckoutSuccess
+          orderId={orderData?.bookingId}
+          orderNumber={orderData?.bookingNumber}
+          message={orderData?.message}
+          onViewOrder={() => {
+            // Navigate to bookings page or profile with bookings tab
+            router.push('/profile?tab=bookings');
+          }}
+        />
+      )}
+
+      {viewState === 'error' && (
+        <CheckoutError
+          errorMessage={errorMessage}
+          onRetry={handleRetry}
+          onBackToCart={handleBackToCart}
+        />
+      )}
+
+      {viewState === 'cart' && (
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="container mx-auto px-4 max-w-7xl">
+            {/* Header */}
+            <div className="mb-6">
+              <Link
+                href="/"
+                className="mb-4 inline-flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
+                style={{ color: colors.primary }}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Link>
+              <h1
+                className="text-3xl font-bold md:text-4xl text-center"
+                style={{ color: colors.primary }}
+              >
+                Shopping Cart
+              </h1>
+            </div>
+
+            {/* Main Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Cart Items - Left Section */}
+              <div className="lg:col-span-2 space-y-4">
+                {loading ? (
+                  <div className="space-y-4">
+                    {[...Array(2)].map((_, i) => (
+                      <Card key={i} className="p-4">
+                        <CardContent className="p-0">
+                          <div className="flex items-start gap-4">
+                            <Skeleton className="w-12 h-12 rounded-lg" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-6 w-3/4" />
+                              <Skeleton className="h-4 w-1/2" />
+                            </div>
+                            <div className="flex flex-col items-end gap-3">
+                              <Skeleton className="h-6 w-20" />
+                              <Skeleton className="h-8 w-32" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : cartItems.length === 0 ? (
+                  <Card className="p-12 text-center">
+                    <p className="text-gray-600 mb-4">Your cart is empty</p>
+                    <Link href="/diagnostic-tests">
+                      <Button
+                        style={{
+                          backgroundColor: colors.primary,
+                          color: colors.white,
+                        }}
                       >
-                        <FileText className="w-6 h-6 text-white" />
-                      </div>
-
-                      {/* Item Details */}
-                      <div className="flex-1 min-w-0">
-                        <h3
-                          className="text-lg font-semibold mb-1"
-                          style={{ color: colors.black }}
-                        >
-                          {item.test.name}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          Home sample collection available
-                        </p>
-                      </div>
-
-                      {/* Price and Controls */}
-                      <div className="flex flex-col items-end gap-3">
-                        {/* Price */}
-                        <p
-                          className="text-lg font-bold"
-                          style={{ color: colors.black }}
-                        >
-                          ₹{item.test.price.toLocaleString('en-IN')}
-                        </p>
-
-                        {/* Quantity Controls and Delete */}
-                        <div className="flex items-center gap-3">
-                          {/* Quantity Controls - Disabled for now as API doesn't support quantity */}
-                          <div className="flex items-center gap-2 border rounded-lg opacity-50">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 rounded-l-lg rounded-r-none"
-                              disabled
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
-                            <span className="px-3 py-1 text-sm font-medium min-w-[2rem] text-center">
-                              1
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 rounded-r-lg rounded-l-none"
-                              disabled
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
+                        Browse Diagnostic Tests
+                      </Button>
+                    </Link>
+                  </Card>
+                ) : (
+                  cartItems.map((item) => (
+                    <Card key={item.id} className="p-4">
+                      <CardContent className="p-0">
+                        <div className="flex items-start gap-4">
+                          {/* Icon */}
+                          <div
+                            className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            <FileText className="w-6 h-6 text-white" />
                           </div>
 
-                          {/* Delete Button */}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => handleRemoveItem(item.testId)}
-                            disabled={removingId === item.testId}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {/* Item Details */}
+                          <div className="flex-1 min-w-0">
+                            <h3
+                              className="text-lg font-semibold mb-1"
+                              style={{ color: colors.black }}
+                            >
+                              {item.test.name}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              Home sample collection available
+                            </p>
+                          </div>
+
+                          {/* Price and Controls */}
+                          <div className="flex flex-col items-end gap-3">
+                            {/* Price */}
+                            <p
+                              className="text-lg font-bold"
+                              style={{ color: colors.black }}
+                            >
+                              ₹{item.test.price.toLocaleString('en-IN')}
+                            </p>
+
+                            {/* Quantity Controls and Delete */}
+                            <div className="flex items-center gap-3">
+                              {/* Quantity Controls - Disabled for now as API doesn't support quantity */}
+                              <div className="flex items-center gap-2 border rounded-lg opacity-50">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-l-lg rounded-r-none"
+                                  disabled
+                                >
+                                  <Minus className="h-4 w-4" />
+                                </Button>
+                                <span className="px-3 py-1 text-sm font-medium min-w-[2rem] text-center">
+                                  1
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-r-lg rounded-l-none"
+                                  disabled
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
+
+                              {/* Delete Button */}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => handleRemoveItem(item.testId)}
+                                disabled={removingId === item.testId}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
 
-          {/* Order Summary - Right Section */}
-          <div className="lg:col-span-1">
-            <CartSummary
-              cartItems={cartItems}
-              subtotal={subtotal}
-              hardcopyReport={hardcopyReport}
-              total={total}
-              onProceedCheckout={handleProceedCheckout}
-              disabled={loading}
-            />
+              {/* Order Summary - Right Section */}
+              <div className="lg:col-span-1">
+                <CartSummary
+                  cartItems={cartItems}
+                  subtotal={subtotal}
+                  hardcopyReport={hardcopyReport}
+                  total={total}
+                  onProceedCheckout={handleProceedCheckout}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            {/* Bottom Banner */}
+            <div
+              className="mt-8 p-4 rounded-lg"
+              style={{ backgroundColor: colors.lightestGreen }}
+            >
+              <p className="text-sm text-center" style={{ color: colors.black }}>
+                Have questions about these tests? Connect with us for guidance!
+              </p>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Bottom Banner */}
-        <div
-          className="mt-8 p-4 rounded-lg"
-          style={{ backgroundColor: colors.lightestGreen }}
-        >
-          <p className="text-sm text-center" style={{ color: colors.black }}>
-            Have questions about these tests? Connect with us for guidance!
-          </p>
-        </div>
-      </div>
-    </div>
+      {/* Voucher Assignment Modal - Always available */}
+      <VoucherAssignmentModal
+        open={voucherModalOpen}
+        onOpenChange={setVoucherModalOpen}
+        assignedVoucherIds={assignedVoucherIds}
+      />
+    </>
   );
 }
