@@ -719,7 +719,7 @@ export default function Home() {
                         priority scheduling, fastest turnaround time, and
                         dedicated support from our team.
                       </p>
-                      <Button
+                      {/* <Button
                         className="rounded-lg px-6 py-3 text-base font-semibold"
                         style={{
                           backgroundColor: colors.primary,
@@ -728,7 +728,7 @@ export default function Home() {
                         onClick={() => console.log('Schedule priority test')}
                       >
                         Schedule Priority Test
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 </Card>
@@ -762,7 +762,7 @@ export default function Home() {
                         available time slots and get your results within
                         standard turnaround times.
                       </p>
-                      <Button
+                      {/* <Button
                         className="rounded-lg px-6 py-3 text-base font-semibold"
                         style={{
                           backgroundColor: colors.primary,
@@ -771,7 +771,7 @@ export default function Home() {
                         onClick={() => console.log('Schedule normal test')}
                       >
                         Schedule Test
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 </Card>
@@ -821,16 +821,17 @@ export default function Home() {
                     health advice
                   </p>
                   {/* Button */}
-                  <Button
-                    className="w-full rounded-lg px-6 py-3 text-sm font-semibold"
-                    style={{
-                      backgroundColor: colors.black,
-                      color: colors.white,
-                    }}
-                    onClick={() => console.log('Book doctor appointment')}
-                  >
-                    Book Appointment
-                  </Button>
+                  <Link href="/doctor-consultation">
+                    <Button
+                      className="w-full rounded-lg px-6 py-3 text-sm font-semibold"
+                      style={{
+                        backgroundColor: colors.black,
+                        color: colors.white,
+                      }}
+                    >
+                      Book Appointment
+                    </Button>
+                  </Link>
                 </div>
               </Card>
 
@@ -859,16 +860,17 @@ export default function Home() {
                     Get personalized nutrition plans from certified dieticians
                   </p>
                   {/* Button */}
-                  <Button
-                    className="w-full rounded-lg px-6 py-3 text-sm font-semibold"
-                    style={{
-                      backgroundColor: colors.black,
-                      color: colors.white,
-                    }}
-                    onClick={() => console.log('Book dietician appointment')}
-                  >
-                    Book Appointment
-                  </Button>
+                  <Link href="/dietitian-consultation">
+                    <Button
+                      className="w-full rounded-lg px-6 py-3 text-sm font-semibold"
+                      style={{
+                        backgroundColor: colors.black,
+                        color: colors.white,
+                      }}
+                    >
+                      Book Appointment
+                    </Button>
+                  </Link>
                 </div>
               </Card>
             </div>
