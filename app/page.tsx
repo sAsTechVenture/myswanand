@@ -827,7 +827,7 @@ export default function Home() {
                       backgroundColor: colors.black,
                       color: colors.white,
                     }}
-                    onClick={() => console.log('Book doctor appointment')}
+                    onClick={() => router.push('/doctors')}
                   >
                     Book Appointment
                   </Button>
@@ -865,7 +865,7 @@ export default function Home() {
                       backgroundColor: colors.black,
                       color: colors.white,
                     }}
-                    onClick={() => console.log('Book dietician appointment')}
+                    onClick={() => router.push('/dieticians')}
                   >
                     Book Appointment
                   </Button>
