@@ -82,9 +82,6 @@ const protectedRoutes = [
   '/cart',
 ];
 
-const bookingRoutes = ['/doctor', '/dietician', '/appointments'];
-
-
 /**
  * Check if a path is a public route
  */
@@ -134,16 +131,6 @@ export function middleware(request: NextRequest) {
     request.cookies.get('patient_token')?.value ||
     request.headers.get('authorization')?.replace('Bearer ', '');
 
-
-    const isBookingRoute = bookingRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
-  if (isBookingRoute && !isValidToken(token)) {
-    const loginUrl = new URL('/auth/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-  
   // Check if token is valid
   if (!isValidToken(token)) {
     // For protected routes, redirect to login with return URL
