@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, Grid, List, ChevronDown, Filter, X } from 'lucide-react';
+import PageBanner from '@/components/common/PageBanner';
 import { CarePackageCard } from '@/components/care-packages';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -376,22 +377,7 @@ function CarePackagesContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Category Banner */}
-      <div
-        className="relative w-full overflow-hidden py-8 md:py-12"
-        style={{ backgroundColor: colors.primaryLightest }}
-      >
-        <div className="container mx-auto px-4">
-          <div className="mb-2">
-            <span className="text-sm text-gray-600">Home / Care Packages</span>
-          </div>
-          <h1
-            className="text-3xl font-bold md:text-4xl"
-            style={{ color: colors.primary }}
-          >
-            Care Packages
-          </h1>
-        </div>
-      </div>
+      <PageBanner title="Care Packages" />
 
       <div className="container mx-auto px-4 py-6">
         {/* Search and Filters Bar */}

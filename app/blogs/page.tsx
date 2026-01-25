@@ -4,19 +4,12 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
+import PageBanner from '@/components/common/PageBanner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
 import {
   Pagination,
   PaginationContent,
@@ -153,56 +146,7 @@ function BlogsContent() {
   return (
     <div className="min-h-screen bg-white">
       {/* Banner Section */}
-      <div
-        className="relative w-full overflow-hidden"
-        style={{
-          backgroundImage: 'url(/auth/hero-banner.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          minHeight: '260px',
-        }}
-      >
-        {/* Overlay for better text readability */}
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-          }}
-        />
-
-        {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center container mx-auto px-4 py-12 md:py-16">
-          {/* Breadcrumb */}
-          <Breadcrumb className="mb-4">
-            <BreadcrumbList style={{ color: colors.white }}>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/" style={{ color: colors.white }}>
-                    Home
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator style={{ color: colors.white }}>
-                <span style={{ color: colors.white }}>/</span>
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbPage style={{ color: colors.primary }}>
-                  Blog
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-
-          {/* Title */}
-          <h1
-            className="text-4xl md:text-5xl font-bold mb-2"
-            style={{ color: colors.primary }}
-          >
-            Blog
-          </h1>
-        </div>
-      </div>
+      <PageBanner title="Blogs" />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 md:py-12">
