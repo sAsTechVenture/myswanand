@@ -1,0 +1,753 @@
+'use client';
+
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams, usePathname } from 'next/navigation';
+import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
+import { getCurrentLocale } from '@/lib/utils/i18n';
+import { useDictionary } from '@/lib/hooks/useDictionary';
+import { Search, Grid, List, ChevronDown, Filter, X } from 'lucide-react';
+import PageBanner from '@/components/common/PageBanner';
+import { CarePackageCard } from '@/components/care-packages';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from '@/components/ui/pagination';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { colors } from '@/config/theme';
+import { apiClient } from '@/lib/api';
+import { useLikedItems } from '@/lib/hooks/useLikedItems';
+
+interface CarePackage {
+  id: string | number;
+  category?: string;
+  name?: string;
+  title?: string;
+  testCount: number;
+  price: number;
+  features?: string[];
+  imageUrl?: string;
+  [key: string]: unknown;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  parentId?: string | null;
+  [key: string]: unknown;
+}
+
+function CarePackagesContent() {
+  const pathname = usePathname();
+  const locale = getCurrentLocale(pathname);
+  const localizedRouter = useLocalizedRouter();
+  const searchParams = useSearchParams();
+  const { dictionary } = useDictionary(locale);
+
+  // Helper function to get translation
+  const t = (key: string): string => {
+    if (!dictionary) return key;
+    const keys = key.split('.');
+    let value: any = dictionary;
+    for (const k of keys) {
+      value = value?.[k];
+    }
+    return typeof value === 'string' ? value : key;
+  };
+
+  const redirectToLogin = () => {
+    const currentPath = window.location.pathname + window.location.search;
+    localizedRouter.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+  };
+  const [packages, setPackages] = useState<CarePackage[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('created_desc');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const { isLiked, toggleLike } = useLikedItems();
+
+  // Get query params
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const search = searchParams.get('search') || '';
+  const sort = searchParams.get('sort') || 'created_desc';
+  const categoriesParam = searchParams.get('categories') || '';
+
+  useEffect(() => {
+    setCurrentPage(page);
+    setSearchQuery(search);
+    setSortBy(sort);
+
+    // Parse categories from URL
+    if (categoriesParam) {
+      setSelectedCategories(categoriesParam.split(',').filter(Boolean));
+    } else {
+      setSelectedCategories([]);
+    }
+  }, [page, search, sort, categoriesParam]);
+
+  // Debounce: when user stops typing, sync search to URL (only if different to avoid overwriting URL→state sync)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const urlSearch = searchParams.get('search') || '';
+      if (searchQuery !== urlSearch) {
+        const params = new URLSearchParams(searchParams.toString());
+        if (searchQuery.trim()) params.set('search', searchQuery.trim());
+        else params.delete('search');
+        params.set('page', '1');
+        localizedRouter.push(`/care-packages?${params.toString()}`);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery, searchParams, localizedRouter]);
+
+  // Fetch care packages
+  useEffect(() => {
+    async function fetchPackages() {
+      try {
+        setLoading(true);
+        const params: Record<string, string | number | undefined> = {
+          page: currentPage,
+          limit: 12,
+        };
+
+        // Add search if provided (use URL as source of truth so external nav e.g. from home works)
+        if (search) {
+          params.search = search;
+        }
+
+        // Add sort
+        if (sortBy && sortBy !== 'default') {
+          params.sort = sortBy;
+        }
+
+        // Add categories (comma-separated)
+        if (selectedCategories.length > 0) {
+          params.categories = selectedCategories.join(',');
+        }
+
+        // Build query string
+        const queryParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            queryParams.append(key, value.toString());
+          }
+        });
+        const queryString = queryParams.toString();
+        const url = `/patient/care-packages${
+          queryString ? `?${queryString}` : ''
+        }`;
+
+        const response = await apiClient.get<{
+          success?: boolean;
+          data?: {
+            packages?: CarePackage[];
+            categories?: Category[];
+            pagination?: {
+              currentPage: number;
+              totalPages: number;
+              totalItems: number;
+            };
+          };
+        }>(url);
+
+        const responseData = response.data as any;
+        let packagesArray: CarePackage[] = [];
+        let categoriesArray: Category[] = [];
+
+        // Extract packages from response
+        if (
+          responseData?.data?.packages &&
+          Array.isArray(responseData.data.packages)
+        ) {
+          packagesArray = responseData.data.packages;
+        } else if (
+          responseData?.packages &&
+          Array.isArray(responseData.packages)
+        ) {
+          packagesArray = responseData.packages;
+        } else if (responseData?.data && Array.isArray(responseData.data)) {
+          packagesArray = responseData.data;
+        } else if (Array.isArray(responseData)) {
+          packagesArray = responseData;
+        }
+
+        // Extract categories from response
+        if (
+          responseData?.data?.categories &&
+          Array.isArray(responseData.data.categories)
+        ) {
+          categoriesArray = responseData.data.categories;
+        } else if (
+          responseData?.categories &&
+          Array.isArray(responseData.categories)
+        ) {
+          categoriesArray = responseData.categories;
+        }
+
+        // Process image URLs
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+        const processedPackages = packagesArray.map((pkg: any) => {
+          let imageUrl = pkg.imageUrl;
+          if (imageUrl) {
+            if (!imageUrl.startsWith('http')) {
+              if (imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
+                let urlToUse = baseUrl;
+                if (baseUrl.endsWith('/api') && imageUrl.startsWith('/api')) {
+                  urlToUse = baseUrl.replace(/\/api$/, '');
+                }
+                imageUrl = `${urlToUse}${imageUrl}`;
+              }
+            }
+            if (imageUrl.includes('localhost:3000')) {
+              imageUrl = imageUrl.replace(
+                /http:\/\/localhost:3000[^/]*/,
+                baseUrl.replace(/\/api$/, '')
+              );
+            }
+          }
+          return {
+            ...pkg,
+            imageUrl,
+            title: pkg.name || pkg.title,
+            category: pkg.category?.name || pkg.category || 'HEALTH',
+          };
+        });
+
+        setPackages(processedPackages);
+        setCategories(categoriesArray);
+
+        // Handle pagination
+        if (responseData?.data?.pagination) {
+          setTotalPages(responseData.data.pagination.totalPages || 1);
+          setTotalItems(responseData.data.pagination.totalItems || 0);
+        } else if (responseData?.pagination) {
+          setTotalPages(responseData.pagination.totalPages || 1);
+          setTotalItems(responseData.pagination.totalItems || 0);
+        } else {
+          // Default pagination if not provided
+          setTotalPages(Math.ceil(processedPackages.length / 12) || 1);
+          setTotalItems(processedPackages.length);
+        }
+      } catch (err) {
+        console.error('Error fetching care packages:', err);
+        setPackages([]);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPackages();
+  }, [currentPage, search, sortBy, selectedCategories]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    syncSearchToUrl(searchQuery);
+  };
+
+  const handleSortChange = (newSort: string) => {
+    setSortBy(newSort);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('sort', newSort);
+    params.set('page', '1');
+    localizedRouter.push(`/care-packages?${params.toString()}`);
+  };
+
+  const handleCategoryToggle = (categoryId: string) => {
+    const newCategories = selectedCategories.includes(categoryId)
+      ? selectedCategories.filter((id) => id !== categoryId)
+      : [...selectedCategories, categoryId];
+
+    setSelectedCategories(newCategories);
+
+    // Update URL
+    const params = new URLSearchParams(searchParams.toString());
+    if (newCategories.length > 0) {
+      params.set('categories', newCategories.join(','));
+    } else {
+      params.delete('categories');
+    }
+    params.set('page', '1');
+    localizedRouter.push(`/care-packages?${params.toString()}`);
+  };
+
+  const handleClearCategories = () => {
+    setSelectedCategories([]);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('categories');
+    params.set('page', '1');
+    localizedRouter.push(`/care-packages?${params.toString()}`);
+  };
+
+  const syncSearchToUrl = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value.trim()) params.set('search', value.trim());
+      else params.delete('search');
+      params.set('page', '1');
+      localizedRouter.push(`/care-packages?${params.toString()}`);
+    },
+    [searchParams, localizedRouter]
+  );
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', newPage.toString());
+    localizedRouter.push(`/care-packages?${params.toString()}`);
+  };
+
+  const sortOptions = [
+    { value: 'created_desc', label: t('common.newestFirst') },
+    { value: 'created_asc', label: t('common.oldestFirst') },
+    { value: 'price_asc', label: t('common.priceLowToHigh') },
+    { value: 'price_desc', label: t('common.priceHighToLow') },
+    { value: 'name_asc', label: t('common.nameAtoZ') },
+    { value: 'name_desc', label: t('common.nameZtoA') },
+  ];
+
+  // Generate pagination items
+  const getPaginationItems = () => {
+    const items = [];
+    const maxVisible = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    if (startPage > 1) {
+      items.push(
+        <PaginationItem key={1}>
+          <PaginationLink
+            onClick={() => handlePageChange(1)}
+            isActive={currentPage === 1}
+          >
+            1
+          </PaginationLink>
+        </PaginationItem>
+      );
+      if (startPage > 2) {
+        items.push(
+          <PaginationItem key="ellipsis-start">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink
+            onClick={() => handlePageChange(i)}
+            isActive={currentPage === i}
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        items.push(
+          <PaginationItem key="ellipsis-end">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+      items.push(
+        <PaginationItem key={totalPages}>
+          <PaginationLink
+            onClick={() => handlePageChange(totalPages)}
+            isActive={currentPage === totalPages}
+          >
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    return items;
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Category Banner */}
+      <PageBanner title={t('common.carePackages')} />
+
+      <div className="container mx-auto px-4 py-6">
+        {/* Search and Filters Bar */}
+        <Card className="mb-6 p-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} className="flex-1">
+              <div className="relative">
+                <Search
+                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                  style={{ color: colors.primary }}
+                />
+                <Input
+                  type="text"
+                  placeholder={t('common.searchCarePackages')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4"
+                  style={{
+                    borderColor: colors.primaryLight,
+                  }}
+                />
+              </div>
+            </form>
+
+            {/* Sort and View Controls */}
+            <div className="flex items-center gap-3">
+              {/* Sort Dropdown */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    style={{
+                      borderColor: colors.primaryLight,
+                      color: colors.black,
+                    }}
+                  >
+                    {t('common.sortBy')}
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-2" align="end">
+                  <div className="flex flex-col">
+                    {sortOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => handleSortChange(option.value)}
+                        className={`px-3 py-2 text-left text-sm rounded-md transition-colors ${
+                          sortBy === option.value
+                            ? 'font-semibold'
+                            : 'hover:bg-accent'
+                        }`}
+                        style={{
+                          backgroundColor:
+                            sortBy === option.value
+                              ? colors.primaryLight
+                              : 'transparent',
+                          color:
+                            sortBy === option.value
+                              ? colors.primary
+                              : colors.black,
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              {/* View Mode Toggle */}
+              <div
+                className="flex items-center gap-1 rounded-md border p-1"
+                style={{ borderColor: colors.primaryLight }}
+              >
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setViewMode('grid')}
+                  className={`h-8 w-8 ${
+                    viewMode === 'grid' ? 'bg-primary text-white' : ''
+                  }`}
+                  style={{
+                    backgroundColor:
+                      viewMode === 'grid' ? colors.primary : 'transparent',
+                    color: viewMode === 'grid' ? colors.white : colors.black,
+                  }}
+                >
+                  <Grid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setViewMode('list')}
+                  className={`h-8 w-8 ${
+                    viewMode === 'list' ? 'bg-primary text-white' : ''
+                  }`}
+                  style={{
+                    backgroundColor:
+                      viewMode === 'list' ? colors.primary : 'transparent',
+                    color: viewMode === 'list' ? colors.white : colors.black,
+                  }}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Filter Button with Categories Dropdown */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 relative"
+                    style={{
+                      borderColor: colors.primaryLight,
+                      color: colors.black,
+                    }}
+                  >
+                    <Filter className="h-4 w-4" />
+                    {t('common.filters')}
+                    {selectedCategories.length > 0 && (
+                      <Badge
+                        className="ml-1 h-5 w-5 flex items-center justify-center p-0 text-xs rounded-full"
+                        style={{
+                          backgroundColor: colors.primary,
+                          color: colors.white,
+                        }}
+                      >
+                        {selectedCategories.length}
+                      </Badge>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-4" align="end">
+                  <div className="space-y-4">
+                    {/* Categories Filter */}
+                    {categories.length > 0 && (
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h3
+                            className="text-sm font-semibold"
+                            style={{ color: colors.primary }}
+                          >
+                            {t('common.categories')}
+                          </h3>
+                          {selectedCategories.length > 0 && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleClearCategories}
+                              className="text-xs h-6 px-2"
+                            >
+                              {t('common.clearAll')}
+                            </Button>
+                          )}
+                        </div>
+                        <div className="max-h-60 overflow-y-auto space-y-2">
+                          {categories.map((cat) => (
+                            <label
+                              key={cat.id}
+                              className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded-md"
+                            >
+                              <Checkbox
+                                checked={selectedCategories.includes(cat.id)}
+                                onCheckedChange={() =>
+                                  handleCategoryToggle(cat.id)
+                                }
+                              />
+                              <span className="text-sm flex-1">{cat.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                        {selectedCategories.length > 0 && (
+                          <div className="mt-3 pt-3 border-t flex flex-wrap gap-2">
+                            {selectedCategories.map((catId) => {
+                              const cat = categories.find(
+                                (c) => c.id === catId
+                              );
+                              if (!cat) return null;
+                              return (
+                                <Badge
+                                  key={catId}
+                                  variant="secondary"
+                                  className="flex items-center gap-1 px-2 py-1"
+                                  style={{
+                                    backgroundColor: colors.primaryLight,
+                                    color: colors.primary,
+                                  }}
+                                >
+                                  {cat.name}
+                                  <button
+                                    onClick={() => handleCategoryToggle(catId)}
+                                    className="ml-1 hover:opacity-70"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </Badge>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+        </Card>
+
+        {/* Results Count */}
+        {!loading && (
+          <div className="mb-4 text-sm text-gray-600">
+            {t('common.showingResults').replace('{count}', String(packages.length)).replace('{total}', String(totalItems)).replace('{type}', t('common.packages'))}
+          </div>
+        )}
+
+        {/* Packages Grid/List */}
+        {loading ? (
+          <div
+            className={`grid gap-6 ${
+              viewMode === 'grid'
+                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                : 'grid-cols-1'
+            }`}
+          >
+            {[...Array(8)].map((_, i) => (
+              <Card key={i} className="p-4">
+                <Skeleton className="mb-4 h-48 w-full" />
+                <Skeleton className="mb-2 h-6 w-3/4" />
+                <Skeleton className="mb-2 h-4 w-1/2" />
+                <Skeleton className="mb-4 h-8 w-1/3" />
+                <Skeleton className="h-10 w-full rounded-lg" />
+              </Card>
+            ))}
+          </div>
+        ) : packages.length > 0 ? (
+          <div
+            className={`grid gap-6 ${
+              viewMode === 'grid'
+                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                : 'grid-cols-1'
+            }`}
+          >
+            {packages.map((pkg, index) => (
+              <CarePackageCard
+                key={pkg.id || index}
+                packageId={pkg.id}
+                category={(pkg.category as string) || 'HEALTH'}
+                index={index}
+                title={
+                  (pkg.title as string) || (pkg.name as string) || 'Package'
+                }
+                testCount={(pkg.testCount as number) || 0}
+                price={pkg.price as number}
+                features={pkg.features as string[]}
+                imageUrl={pkg.imageUrl as string | undefined}
+                isLiked={isLiked(String(pkg.id), 'package')}
+                onLikeToggle={() =>
+                  toggleLike(String(pkg.id), 'package', redirectToLogin)
+                }
+                onBookPackage={() => {
+                  // Check if user is logged in
+                  const token =
+                    typeof window !== 'undefined'
+                      ? localStorage.getItem('patient_token')
+                      : null;
+                  if (!token) {
+                    const currentPath =
+                      window.location.pathname + window.location.search;
+                    localizedRouter.push(
+                      `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+                    );
+                    return;
+                  }
+                  localizedRouter.push(`/care-packages/${pkg.id}`);
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <Card className="p-12 text-center">
+            <p className="text-lg text-gray-600">{t('common.noPackagesFound')}</p>
+            <p className="mt-2 text-sm text-gray-500">
+              {t('common.tryAdjustingSearch')}
+            </p>
+          </Card>
+        )}
+
+        {/* Pagination */}
+        {!loading && totalPages > 1 && (
+          <div className="mt-8">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() =>
+                      currentPage > 1 && handlePageChange(currentPage - 1)
+                    }
+                    className={
+                      currentPage === 1 ? 'pointer-events-none opacity-50' : ''
+                    }
+                  />
+                </PaginationItem>
+                {getPaginationItems()}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() =>
+                      currentPage < totalPages &&
+                      handlePageChange(currentPage + 1)
+                    }
+                    className={
+                      currentPage === totalPages
+                        ? 'pointer-events-none opacity-50'
+                        : ''
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function CarePackagesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="container mx-auto px-4">
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-48" />
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {[...Array(8)].map((_, i) => (
+                  <Card key={i} className="p-4">
+                    <Skeleton className="mb-4 h-48 w-full" />
+                    <Skeleton className="mb-2 h-6 w-3/4" />
+                    <Skeleton className="mb-2 h-4 w-1/2" />
+                    <Skeleton className="mb-4 h-8 w-1/3" />
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <CarePackagesContent />
+    </Suspense>
+  );
+}
