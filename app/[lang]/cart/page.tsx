@@ -190,6 +190,9 @@ export default function CartPage() {
     homeSampleCollection: boolean;
     hardCopyReport: boolean;
     coinsToRedeem?: number; // Optional: coins to redeem for discount
+    agreeToTerms?: boolean;
+    sendSMSReminder?: boolean;
+    sendEmailReminder?: boolean;
   }) => {
     try {
       const token = getAuthToken();
@@ -210,6 +213,9 @@ export default function CartPage() {
         additionalService: string;
         hardCopyReport: boolean;
         coinsToRedeem?: number;
+        agreeToTerms?: boolean;
+        sendSMSReminder?: boolean;
+        sendEmailReminder?: boolean;
       } = {
         paymentMethod: orderData.paymentMethod, // 'ONLINE' or 'OFFLINE'
         type: 'DIAGNOSTIC',
@@ -217,6 +223,9 @@ export default function CartPage() {
           ? 'HOME_SAMPLE_COLLECTION'
           : 'NOT_REQUIRED',
         hardCopyReport: orderData.hardCopyReport,
+        agreeToTerms: orderData.agreeToTerms,
+        sendSMSReminder: orderData.sendSMSReminder,
+        sendEmailReminder: orderData.sendEmailReminder,
       };
 
       // Add coins to redeem if provided

@@ -149,7 +149,8 @@ function VerifyEmailContent() {
     };
 
     verifyEmail();
-  }, [searchParams, router]);
+  }, [searchParams, localizedRouter]);
+  
 
   return (
     <div
