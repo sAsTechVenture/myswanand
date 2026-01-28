@@ -1,10 +1,5 @@
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { getCurrentLocale, createLocalizedPath } from '@/lib/utils/i18n';
-import { useDictionary } from '@/lib/hooks/useDictionary';
 import {
   Phone,
   Mail,
@@ -20,21 +15,6 @@ import {
 } from '@/lib/constants';
 
 export function Footer() {
-  const pathname = usePathname();
-  const locale = getCurrentLocale(pathname);
-  const { dictionary } = useDictionary(locale);
-
-  // Helper function to get translation
-  const t = (key: string): string => {
-    if (!dictionary) return key;
-    const keys = key.split('.');
-    let value: any = dictionary;
-    for (const k of keys) {
-      value = value?.[k];
-    }
-    return typeof value === 'string' ? value : key;
-  };
-
   const socialLinks = [
     { name: 'Facebook', Icon: Facebook, href: '#' },
     { name: 'YouTube', Icon: Youtube, href: '#' },
@@ -49,17 +29,17 @@ export function Footer() {
   ];
 
   const privacyLinks = [
-    { href: createLocalizedPath('/refund', locale), label: t('common.refundAndReturns'), id: 'refund-returns' },
-    { href: createLocalizedPath('/refund', locale), label: t('common.policy'), id: 'policy' },
-    { href: createLocalizedPath('/privacy', locale), label: t('common.privacyPolicy'), id: 'privacy' },
-    { href: createLocalizedPath('/terms', locale), label: t('common.termsConditions'), id: 'terms' },
+    { href: '/refund', label: 'Refund and Returns', id: 'refund-returns' },
+    { href: '/refund', label: 'Policy', id: 'policy' },
+    { href: '/privacy', label: 'Privacy Policy', id: 'privacy' },
+    { href: '/terms', label: 'Terms and Conditions', id: 'terms' },
   ];
 
   const accountLinks = [
-    { href: createLocalizedPath('/profile', locale), label: t('common.myAccount') },
-    { href: createLocalizedPath('/contact', locale), label: t('common.contact') },
-    { href: createLocalizedPath('/cart', locale), label: t('common.shoppingCart') },
-    { href: createLocalizedPath('/shop', locale), label: t('common.shop') },
+    { href: '/account', label: 'My Account' },
+    { href: '/contact', label: 'Contact' },
+    { href: '/cart', label: 'Shopping cart' },
+    { href: '/shop', label: 'Shop' },
   ];
 
   return (
@@ -71,7 +51,7 @@ export function Footer() {
             {/* Call Us */}
             <div className="text-center md:text-left">
               <h3 className="text-sm font-semibold mb-2 text-gray-800">
-                {t('common.callUs247')}
+                CALL US 24/7
               </h3>
               <a
                 href={`tel:${getContactPhoneNumberRaw()}`}
@@ -86,7 +66,7 @@ export function Footer() {
             {/* Email Us */}
             <div className="text-center md:text-left">
               <h3 className="text-sm font-semibold mb-2 text-gray-800">
-                {t('common.emailUs')}
+                EMAIL US
               </h3>
               <a
                 href="mailto:hello@myswanand.com"
@@ -100,7 +80,7 @@ export function Footer() {
             {/* Follow Us */}
             <div className="text-center md:text-left">
               <h3 className="text-sm font-semibold mb-2 text-gray-800">
-                {t('common.followUs')}
+                FOLLOW US
               </h3>
               <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
                 {socialLinks.map((social) => {
@@ -167,7 +147,7 @@ export function Footer() {
               {/* Address and Time */}
               <div className="flex-1">
                 <h3 className="text-sm font-semibold mb-3 text-gray-800 uppercase tracking-wide">
-                  {t('common.storeLocation')}
+                  STORE LOCATION
                 </h3>
                 <address className="text-sm text-gray-600 not-italic leading-relaxed mb-4">
                   Unit No. 1, 101/102,
@@ -197,7 +177,7 @@ export function Footer() {
               {/* Privacy Policy Section */}
               <div className="flex-1">
                 <h3 className="text-sm font-semibold mb-3 text-gray-800">
-                  {t('common.privacyPolicy')}
+                  Privacy Policy
                 </h3>
                 <nav className="flex flex-col gap-2">
                   {privacyLinks.map((link) => (
@@ -215,7 +195,7 @@ export function Footer() {
               {/* My Account Section */}
               <div className="flex-1">
                 <h3 className="text-sm font-semibold mb-3 text-gray-800 uppercase tracking-wide">
-                  {t('common.myAccount')}
+                  MY ACCOUNT
                 </h3>
                 <nav className="flex flex-col gap-2">
                   {accountLinks.map((link) => (

@@ -110,9 +110,6 @@ interface CheckoutFormProps {
     homeSampleCollection: boolean;
     hardCopyReport: boolean;
     coinsToRedeem?: number; // Optional: coins to redeem for discount
-    agreeToTerms?: boolean;
-    sendSMSReminder?: boolean;
-    sendEmailReminder?: boolean;
   }) => Promise<void>;
   onBackToCart?: () => void;
   /** Label for back button. Default: "Back to Cart" */
@@ -148,11 +145,6 @@ export function CheckoutForm({
   const [editAddressValue, setEditAddressValue] = useState('');
   const [updatingAddress, setUpdatingAddress] = useState(false);
   
-  // Checkbox state for bookings
-  const [agreeToTerms, setAgreeToTerms] = useState<boolean>(false);
-  const [sendSMSReminder, setSendSMSReminder] = useState<boolean>(true);
-  const [sendEmailReminder, setSendEmailReminder] = useState<boolean>(true);
-
   // Coin redemption state
   const [totalCoins, setTotalCoins] = useState<number>(0);
   const [useCoins, setUseCoins] = useState<boolean>(false);
@@ -354,10 +346,6 @@ export function CheckoutForm({
       toast.error('Please select a date and time slot');
       return;
     }
-    if (!agreeToTerms) {
-      toast.error('Please agree to the Terms & Conditions to place your order');
-      return;
-    }
 
     try {
       setPlacingOrder(true);
@@ -373,16 +361,10 @@ export function CheckoutForm({
         homeSampleCollection: boolean;
         hardCopyReport: boolean;
         coinsToRedeem?: number;
-        agreeToTerms?: boolean;
-        sendSMSReminder?: boolean;
-        sendEmailReminder?: boolean;
       } = {
         paymentMethod, // 'ONLINE' or 'OFFLINE'
         homeSampleCollection, // boolean
         hardCopyReport: hardcopyReport === 'yes',
-        agreeToTerms,
-        sendSMSReminder,
-        sendEmailReminder,
       };
 
       // Add coins to redeem if user opted in
@@ -1017,55 +999,6 @@ export function CheckoutForm({
                   </span>
                 </div>
 
-                {/* Checkboxes for bookings */}
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-start gap-2">
-                    <Checkbox
-                      id="agreeToTerms"
-                      checked={agreeToTerms}
-                      onCheckedChange={(checked) =>
-                        setAgreeToTerms(checked === true)
-                      }
-                    />
-                    <Label
-                      htmlFor="agreeToTerms"
-                      className="text-sm cursor-pointer leading-tight"
-                    >
-                      I agree to the Terms & Conditions and Privacy Policy
-                    </Label>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Checkbox
-                      id="sendSMSReminder"
-                      checked={sendSMSReminder}
-                      onCheckedChange={(checked) =>
-                        setSendSMSReminder(checked === true)
-                      }
-                    />
-                    <Label
-                      htmlFor="sendSMSReminder"
-                      className="text-sm cursor-pointer leading-tight"
-                    >
-                      Send me SMS reminders for my appointment
-                    </Label>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Checkbox
-                      id="sendEmailReminder"
-                      checked={sendEmailReminder}
-                      onCheckedChange={(checked) =>
-                        setSendEmailReminder(checked === true)
-                      }
-                    />
-                    <Label
-                      htmlFor="sendEmailReminder"
-                      className="text-sm cursor-pointer leading-tight"
-                    >
-                      Send me email reminders for my appointment
-                    </Label>
-                  </div>
-                </div>
-
                 {/* Place Order Button */}
                 <Button
                   className="w-full py-6 text-base font-semibold rounded-lg"
@@ -1082,12 +1015,16 @@ export function CheckoutForm({
                     !selectedSlot.center?.id ||
                     !selectedSlot.date ||
                     !selectedSlot.startTime ||
-                    !selectedSlot.endTime ||
-                    !agreeToTerms
+                    !selectedSlot.endTime
                   }
                 >
                   {placingOrder ? 'Placing Order...' : 'Place Order'}
                 </Button>
+
+                {/* Disclaimer */}
+                <p className="text-xs text-gray-500 text-center mt-4">
+                  By placing order, you agree to our Terms & Conditions
+                </p>
               </CardContent>
             </Card>
           </div>
