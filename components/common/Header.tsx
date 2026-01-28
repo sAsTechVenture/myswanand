@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   Menu,
   User,
@@ -37,46 +37,13 @@ import {
   getContactPhoneNumber,
   getContactPhoneNumberRaw,
 } from '@/lib/constants';
-import { LanguageSwitcher } from './LanguageSwitcher';
-import { getCurrentLocale, createLocalizedPath } from '@/lib/utils/i18n';
-import { useDictionary } from '@/lib/hooks/useDictionary';
-import { locales, localeNames, type Locale } from '@/lib/i18n/config';
 
 export function Header() {
   const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const currentLocale = getCurrentLocale(pathname);
-  const { dictionary } = useDictionary(currentLocale);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const { likedItems, refreshLikedItems } = useLikedItems();
   const { cartCount } = useCartCount();
   const [wishlistCount, setWishlistCount] = useState(0);
-
-  // Ensure component is mounted before rendering translations
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Helper function to get translation
-  const t = (key: string): string => {
-    if (!isMounted || !dictionary) {
-      // Return empty during SSR to avoid hydration mismatch
-      return '';
-    }
-    const keys = key.split('.');
-    let value: any = dictionary;
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
-      } else {
-        // If path doesn't exist, return empty string
-        return '';
-      }
-    }
-    return typeof value === 'string' ? value : '';
-  };
 
   // Update wishlist count when likedItems changes
   useEffect(() => {
@@ -140,23 +107,22 @@ export function Header() {
   }, [isLoggedIn, refreshLikedItems]);
 
   const navLinks = [
-    { href: createLocalizedPath('/', currentLocale), label: t('common.home') },
-    { href: createLocalizedPath('/about', currentLocale), label: t('common.about') },
-    { href: createLocalizedPath('/blogs', currentLocale), label: t('common.blogs') },
-    { href: createLocalizedPath('/contact', currentLocale), label: t('common.contact') },
+    { href: '/', label: 'Home' },
+    { href: '/about', label: 'About us' },
+    { href: '/blogs', label: 'Blogs' },
+    { href: '/contact', label: 'Contact Us - MY SWANAND' },
   ];
 
   const serviceLinks = [
-    { href: createLocalizedPath('/diagnostic-tests', currentLocale), label: t('common.diagnosticTests') },
-    { href: createLocalizedPath('/care-packages', currentLocale), label: t('common.carePackages') },
+    { href: '/diagnostic-tests', label: 'Diagnostic Tests' },
+    { href: '/care-packages', label: 'Care Packages' },
   ];
 
   const policyLinks = [
-    { href: createLocalizedPath('/refund', currentLocale), label: t('common.refundPolicy') },
-    { href: createLocalizedPath('/privacy', currentLocale), label: t('common.privacyPolicy') },
-    { href: createLocalizedPath('/terms', currentLocale), label: t('common.termsConditions') },
+    { href: '/refund', label: 'Refund and Returns Policy' },
+    { href: '/privacy', label: 'Privacy Policy' },
+    { href: '/terms', label: 'Terms and Conditions' },
   ];
-
 
   return (
     <header className="w-full" style={{ backgroundColor: colors.primary }}>
@@ -164,7 +130,7 @@ export function Header() {
         {/* Desktop Header */}
         <div className="hidden lg:flex items-center justify-between py-4">
           {/* Logo */}
-          <Link href={createLocalizedPath('/', currentLocale)} className="flex items-center">
+          <Link href="/" className="flex items-center">
             <div
               className="rounded-full p-2 border-2 flex items-center justify-center"
               style={{
@@ -218,9 +184,8 @@ export function Header() {
                         ? colors.yellow
                         : colors.white,
                   }}
-                  suppressHydrationWarning
                 >
-                  {t('common.services')}
+                  Services
                   <ChevronDown className="w-4 h-4" />
                 </button>
               </PopoverTrigger>
@@ -243,9 +208,8 @@ export function Header() {
                 <button
                   className="flex items-center gap-1 text-sm font-medium transition-colors hover:opacity-80"
                   style={{ color: colors.white }}
-                  suppressHydrationWarning
                 >
-                  {t('common.policies')}
+                  Policies
                   <ChevronDown className="w-4 h-4" />
                 </button>
               </PopoverTrigger>
@@ -266,11 +230,10 @@ export function Header() {
           </nav>
 
           {/* Right Icons / Auth Buttons */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <LanguageSwitcher />
+          <div className="flex items-center gap-3">
             {isLoggedIn ? (
               <>
-                <Link href={createLocalizedPath('/profile', currentLocale)}>
+                <Link href="/profile">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -306,7 +269,7 @@ export function Header() {
                     </Badge>
                   </Button>
                 </Link>
-                <Link href={createLocalizedPath('/cart', currentLocale)}>
+                <Link href="/cart">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -333,28 +296,26 @@ export function Header() {
               </>
             ) : (
               <>
-                <Link href={createLocalizedPath('/auth/register', currentLocale)}>
+                <Link href="/auth/register">
                   <Button
                     className="px-4"
                     style={{
                       backgroundColor: colors.white,
                       color: colors.primary,
                     }}
-                    suppressHydrationWarning
                   >
-                    {t('common.signup')}
+                    Signup
                   </Button>
                 </Link>
-                <Link href={createLocalizedPath('/auth/login', currentLocale)}>
+                <Link href="/auth/login">
                   <Button
                     className="px-4"
                     style={{
                       backgroundColor: colors.yellow,
                       color: colors.black,
                     }}
-                    suppressHydrationWarning
                   >
-                    {t('common.signIn')}
+                    Sign In
                   </Button>
                 </Link>
               </>
@@ -472,7 +433,7 @@ export function Header() {
                           : {}
                       }
                     >
-                      {t('common.services')}
+                      Services
                     </div>
                     <div className="pl-4 space-y-2">
                       {serviceLinks.map((link) => {
@@ -501,58 +462,10 @@ export function Header() {
                   </div>
                 </div>
 
-                {/* Language Switcher Section */}
-                <div className="p-6 pt-0 space-y-3 border-t">
-                  <h3 className="text-sm font-semibold text-gray-800 mb-3">
-                    Language
-                  </h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {locales.map((locale) => {
-                      const isActive = currentLocale === locale;
-                      const handleLanguageChange = (e: React.MouseEvent) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (isActive) return;
-                        
-                        let pathWithoutLocale = pathname.replace(/^\/(en|hi|mr)/, '');
-                        if (!pathWithoutLocale || pathWithoutLocale === '/') {
-                          pathWithoutLocale = '';
-                        }
-                        const queryString = searchParams.toString();
-                        const newPath = `/${locale}${pathWithoutLocale}${queryString ? `?${queryString}` : ''}`;
-                        router.replace(newPath);
-                      };
-                      
-                      return (
-                        <SheetClose key={locale} asChild>
-                          <button
-                            onClick={handleLanguageChange}
-                            className={`px-2 py-2.5 text-xs sm:text-sm rounded-md transition-all text-center font-medium ${
-                              isActive
-                                ? 'bg-primary text-white shadow-sm'
-                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700 active:bg-gray-300'
-                            }`}
-                            style={
-                              isActive
-                                ? {
-                                    backgroundColor: colors.primary,
-                                    color: colors.white,
-                                  }
-                                : {}
-                            }
-                          >
-                            {localeNames[locale]}
-                          </button>
-                        </SheetClose>
-                      );
-                    })}
-                  </div>
-                </div>
-
                 {/* Policies Section */}
                 <div className="p-6 pt-0 space-y-3 border-t">
                   <h3 className="text-sm font-semibold text-gray-800 mb-2">
-                    {t('common.policies')}
+                    Policies
                   </h3>
                   {policyLinks.map((link) => (
                     <SheetClose key={link.href} asChild>
@@ -649,9 +562,8 @@ export function Header() {
                             backgroundColor: colors.primary,
                             color: colors.white,
                           }}
-                          suppressHydrationWarning
                         >
-                          {t('common.signup')}
+                          Signup
                         </Button>
                       </Link>
                     </SheetClose>
@@ -664,9 +576,8 @@ export function Header() {
                             borderColor: colors.primary,
                             color: colors.primary,
                           }}
-                          suppressHydrationWarning
                         >
-                          {t('common.signIn')}
+                          Sign In
                         </Button>
                       </Link>
                     </SheetClose>
@@ -709,7 +620,7 @@ export function Header() {
 
           {/* Logo - Centered */}
           <div className="flex-1 flex justify-center">
-            <Link href={createLocalizedPath('/', currentLocale)} className="flex items-center">
+            <Link href="/" className="flex items-center">
               <div
                 className="rounded-lg p-2 border-2 flex items-center justify-center"
                 style={{
@@ -730,11 +641,10 @@ export function Header() {
           </div>
 
           {/* Right Icons / Auth Buttons */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <LanguageSwitcher />
+          <div className="flex items-center gap-2">
             {isLoggedIn ? (
               <>
-                <Link href={createLocalizedPath('/profile', currentLocale)}>
+                <Link href="/profile">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -770,7 +680,7 @@ export function Header() {
                     </Badge>
                   </Button>
                 </Link>
-                <Link href={createLocalizedPath('/cart', currentLocale)}>
+                <Link href="/cart">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -797,7 +707,7 @@ export function Header() {
               </>
             ) : (
               <>
-                <Link href={createLocalizedPath('/auth/register', currentLocale)}>
+                <Link href="/auth/register">
                   <Button
                     size="sm"
                     className="px-3 text-xs"
@@ -806,10 +716,10 @@ export function Header() {
                       color: colors.primary,
                     }}
                   >
-                    {t('common.signup')}
+                    Signup
                   </Button>
                 </Link>
-                <Link href={createLocalizedPath('/auth/login', currentLocale)}>
+                <Link href="/auth/login">
                   <Button
                     size="sm"
                     className="px-3 text-xs"
@@ -817,9 +727,8 @@ export function Header() {
                       backgroundColor: colors.yellow,
                       color: colors.black,
                     }}
-                    suppressHydrationWarning
                   >
-                    {t('common.signIn')}
+                    Sign In
                   </Button>
                 </Link>
               </>
