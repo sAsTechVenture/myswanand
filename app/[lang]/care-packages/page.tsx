@@ -71,7 +71,9 @@ function CarePackagesContent() {
 
   const redirectToLogin = () => {
     const currentPath = window.location.pathname + window.location.search;
-    localizedRouter.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+    localizedRouter.push(
+      `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+    );
   };
   const [packages, setPackages] = useState<CarePackage[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -609,7 +611,10 @@ function CarePackagesContent() {
         {/* Results Count */}
         {!loading && (
           <div className="mb-4 text-sm text-gray-600">
-            {t('common.showingResults').replace('{count}', String(packages.length)).replace('{total}', String(totalItems)).replace('{type}', t('common.packages'))}
+            {t('common.showingResults')
+              .replace('{count}', String(packages.length))
+              .replace('{total}', String(totalItems))
+              .replace('{type}', t('common.packages'))}
           </div>
         )}
 
@@ -678,7 +683,9 @@ function CarePackagesContent() {
           </div>
         ) : (
           <Card className="p-12 text-center">
-            <p className="text-lg text-gray-600">{t('common.noPackagesFound')}</p>
+            <p className="text-lg text-gray-600">
+              {t('common.noPackagesFound')}
+            </p>
             <p className="mt-2 text-sm text-gray-500">
               {t('common.tryAdjustingSearch')}
             </p>

@@ -91,12 +91,14 @@ export default function CartPage() {
     // If not authenticated, redirect to login
     if (!isAuthenticated()) {
       const currentPath = window.location.pathname;
-      localizedRouter.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      localizedRouter.replace(
+        `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+      );
       return;
     }
 
     fetchCartItems();
-  }, [router]);
+  }, [localizedRouter]);
 
   const fetchCartItems = async () => {
     try {
@@ -294,7 +296,10 @@ export default function CartPage() {
 
         // Check if vouchers were assigned
         if (assignedVouchers.length > 0) {
-          console.log('Setting voucher modal to open with IDs:', assignedVouchers);
+          console.log(
+            'Setting voucher modal to open with IDs:',
+            assignedVouchers
+          );
           setAssignedVoucherIds(assignedVouchers);
           // Use setTimeout to ensure state updates are processed
           setTimeout(() => {
@@ -474,8 +479,12 @@ export default function CartPage() {
                   </div>
                 ) : cartItems.length === 0 ? (
                   <Card className="p-12 text-center">
-                    <p className="text-gray-600 mb-4">{t('common.yourCartIsEmpty')}</p>
-                    <Link href={createLocalizedPath('/diagnostic-tests', locale)}>
+                    <p className="text-gray-600 mb-4">
+                      {t('common.yourCartIsEmpty')}
+                    </p>
+                    <Link
+                      href={createLocalizedPath('/diagnostic-tests', locale)}
+                    >
                       <Button
                         style={{
                           backgroundColor: colors.primary,
@@ -584,7 +593,10 @@ export default function CartPage() {
               className="mt-8 p-4 rounded-lg"
               style={{ backgroundColor: colors.lightestGreen }}
             >
-              <p className="text-sm text-center" style={{ color: colors.black }}>
+              <p
+                className="text-sm text-center"
+                style={{ color: colors.black }}
+              >
                 Have questions about these tests? Connect with us for guidance!
               </p>
             </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
-import { getCurrentLocale } from '@/lib/utils/i18n';
+import { createLocalizedPath, getCurrentLocale } from '@/lib/utils/i18n';
 import { useDictionary } from '@/lib/hooks/useDictionary';
 import Link from 'next/link';
 import { Search, ArrowLeft, GraduationCap, BookOpen } from 'lucide-react';
@@ -71,6 +71,17 @@ function DoctorConsultationContent() {
     hasNext: false,
     hasPrev: false,
   });
+  const { dictionary } = useDictionary(locale);
+
+  const t = (key: string): string => {
+    if (!dictionary) return key;
+    const keys = key.split('.');
+    let value: any = dictionary;
+    for (const k of keys) {
+      value = value?.[k];
+    }
+    return typeof value === 'string' ? value : key;
+  };
 
   // Get query params from URL
   const page = parseInt(searchParams.get('page') || '1', 10);
@@ -154,7 +165,7 @@ function DoctorConsultationContent() {
 
     async function fetchSlots() {
       if (!selectedDoctor) return;
-      
+
       try {
         setLoadingSlots(true);
         const params = new URLSearchParams({
@@ -171,7 +182,9 @@ function DoctorConsultationContent() {
         }>(`/patient/consultations/available-slots?${params.toString()}`);
 
         if (response.data.success && response.data.data) {
-          setAvailableSlots(response.data.data.slots || response.data.data.data || []);
+          setAvailableSlots(
+            response.data.data.slots || response.data.data.data || []
+          );
         }
       } catch (err) {
         console.error('Error fetching slots:', err);
@@ -190,32 +203,38 @@ function DoctorConsultationContent() {
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
-    
+
     // Check if it's today
     if (date.toDateString() === today.toDateString()) {
       return 'Today';
     }
-    
+
     // Check if it's tomorrow
     if (date.toDateString() === tomorrow.toDateString()) {
       return 'Tomorrow';
     }
-    
+
     // Otherwise format as "Mon, Jan 12"
     const dayName = date.toLocaleDateString('en-IN', { weekday: 'short' });
-    const monthDay = date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+    const monthDay = date.toLocaleDateString('en-IN', {
+      month: 'short',
+      day: 'numeric',
+    });
     return `${dayName}, ${monthDay}`;
   };
 
   // Group slots by date
-  const groupedSlots = availableSlots.reduce((acc, slot) => {
-    const dateKey = slot.date;
-    if (!acc[dateKey]) {
-      acc[dateKey] = [];
-    }
-    acc[dateKey].push(slot);
-    return acc;
-  }, {} as Record<string, AvailableSlot[]>);
+  const groupedSlots = availableSlots.reduce(
+    (acc, slot) => {
+      const dateKey = slot.date;
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(slot);
+      return acc;
+    },
+    {} as Record<string, AvailableSlot[]>
+  );
 
   // Process image URL
   const getImageUrl = (imageUrl: string | null): string | null => {
@@ -248,7 +267,7 @@ function DoctorConsultationContent() {
       setBookingError(null);
       const token = getAuthToken();
 
-      const slot = availableSlots.find(s => s.id === selectedTimeSlot);
+      const slot = availableSlots.find((s) => s.id === selectedTimeSlot);
       if (!slot) {
         throw new Error('Selected time slot not found');
       }
@@ -271,7 +290,9 @@ function DoctorConsultationContent() {
 
       if (response.data.success) {
         setBookingSuccess(true);
-        toast.success(response.data.data?.message || t('common.appointmentBookedSuccess'));
+        toast.success(
+          response.data.data?.message || t('common.appointmentBookedSuccess')
+        );
         // Reset form
         setTimeout(() => {
           setSelectedDoctor(null);
@@ -282,7 +303,10 @@ function DoctorConsultationContent() {
       }
     } catch (err: any) {
       console.error('Error booking appointment:', err);
-      const errorMsg = err?.data?.message || err?.message || t('common.failedToBookAppointment');
+      const errorMsg =
+        err?.data?.message ||
+        err?.message ||
+        t('common.failedToBookAppointment');
       setBookingError(errorMsg);
       toast.error(errorMsg);
     } finally {
@@ -365,7 +389,9 @@ function DoctorConsultationContent() {
                         isSelected ? 'ring-2' : ''
                       }`}
                       style={{
-                        borderColor: isSelected ? colors.primary : colors.primaryLight,
+                        borderColor: isSelected
+                          ? colors.primary
+                          : colors.primaryLight,
                         borderWidth: '1px',
                       }}
                       onClick={() => {
@@ -413,11 +439,10 @@ function DoctorConsultationContent() {
                           >
                             General Physician
                           </p>
-                          <p className="text-sm text-gray-600 mb-2">
-                            MBBS, MD
-                          </p>
+                          <p className="text-sm text-gray-600 mb-2">MBBS, MD</p>
                           <p className="text-sm text-gray-600 mb-3">
-                            Specialist in internal medicine with extensive experience in managing chronic diseases.
+                            Specialist in internal medicine with extensive
+                            experience in managing chronic diseases.
                           </p>
                           <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
                             <div className="flex items-center gap-1">
@@ -431,7 +456,9 @@ function DoctorConsultationContent() {
                           </div>
                           <div className="border-t pt-3 mt-3 flex items-center justify-between">
                             <div>
-                              <p className="text-sm text-gray-600">Consultation Fee</p>
+                              <p className="text-sm text-gray-600">
+                                Consultation Fee
+                              </p>
                               <p
                                 className="text-lg font-bold"
                                 style={{ color: colors.primary }}
@@ -440,7 +467,9 @@ function DoctorConsultationContent() {
                               </p>
                             </div>
                             <div>
-                              <p className="text-sm text-gray-600">Next Available</p>
+                              <p className="text-sm text-gray-600">
+                                Next Available
+                              </p>
                               <p
                                 className="text-lg font-bold"
                                 style={{ color: colors.primary }}
@@ -471,7 +500,8 @@ function DoctorConsultationContent() {
               {/* Time Slot Selection */}
               <div className="mb-6">
                 <Label className="mb-3 block" style={{ color: colors.black }}>
-                  {t('common.selectTime')} <span className="text-red-500">*</span>
+                  {t('common.selectTime')}{' '}
+                  <span className="text-red-500">*</span>
                 </Label>
                 {loadingSlots ? (
                   <div className="space-y-3">
@@ -489,14 +519,21 @@ function DoctorConsultationContent() {
                   <div className="space-y-4">
                     {Object.entries(groupedSlots).map(([date, slots]) => (
                       <div key={date}>
-                        <p className="text-sm font-medium mb-2" style={{ color: colors.black }}>
+                        <p
+                          className="text-sm font-medium mb-2"
+                          style={{ color: colors.black }}
+                        >
                           {formatDate(date)}
                         </p>
                         <div className="grid grid-cols-2 gap-2">
                           {slots.map((slot) => (
                             <Button
                               key={slot.id}
-                              variant={selectedTimeSlot === slot.id ? 'default' : 'outline'}
+                              variant={
+                                selectedTimeSlot === slot.id
+                                  ? 'default'
+                                  : 'outline'
+                              }
                               onClick={() => setSelectedTimeSlot(slot.id)}
                               style={
                                 selectedTimeSlot === slot.id
@@ -530,16 +567,22 @@ function DoctorConsultationContent() {
                   color: colors.white,
                 }}
               >
-                {booking ? t('common.bookAppointment') + '..." : t('common.bookAppointment')}
+                {booking
+                  ? `${t('common.bookAppointment')}...`
+                  : t('common.bookAppointment')}
               </Button>
 
               {/* Success Message */}
               {bookingSuccess && (
                 <div
                   className="p-3 rounded mb-3 text-sm"
-                  style={{ backgroundColor: colors.lightestGreen, color: colors.green }}
+                  style={{
+                    backgroundColor: colors.lightestGreen,
+                    color: colors.green,
+                  }}
                 >
-                  Appointment booked successfully! You will receive a confirmation via SMS.
+                  Appointment booked successfully! You will receive a
+                  confirmation via SMS.
                 </div>
               )}
 

@@ -21,6 +21,7 @@ import {
   User,
   Upload as UploadIcon,
 } from 'lucide-react';
+import router from 'next/router';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 const ALLOWED_TYPES = [
@@ -54,7 +55,9 @@ export default function UploadPrescriptionPage() {
     // If not authenticated, redirect to login
     if (!isAuthenticated()) {
       const currentPath = window.location.pathname;
-      localizedRouter.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      localizedRouter.replace(
+        `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+      );
     }
   }, [localizedRouter]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -70,9 +73,11 @@ export default function UploadPrescriptionPage() {
     // If not authenticated, redirect to login
     if (!isAuthenticated()) {
       const currentPath = window.location.pathname;
-      localizedRouter.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      localizedRouter.replace(
+        `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+      );
     }
-  }, [router]);
+  }, [localizedRouter]);
 
   const validateFile = (file: File): string | null => {
     // Check file type
@@ -191,9 +196,7 @@ export default function UploadPrescriptionPage() {
       }
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error(
-        error?.message || t('common.failedToUploadPrescription')
-      );
+      toast.error(error?.message || t('common.failedToUploadPrescription'));
     } finally {
       setUploading(false);
     }

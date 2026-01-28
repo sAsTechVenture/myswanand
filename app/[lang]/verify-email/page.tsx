@@ -71,7 +71,8 @@ function VerifyEmailContent() {
         let verified = false;
 
         if (responseData?.success && responseData?.data) {
-          message = responseData.data.message || t('common.emailVerifiedSuccess');
+          message =
+            responseData.data.message || t('common.emailVerifiedSuccess');
           verified = responseData.data.verified || false;
         } else if (responseData?.data?.message) {
           message = responseData.data.message;
@@ -123,8 +124,7 @@ function VerifyEmailContent() {
           lowerMessage.includes('expired') ||
           lowerMessage.includes('token')
         ) {
-          errorMessage =
-            t('common.invalidExpiredToken');
+          errorMessage = t('common.invalidExpiredToken');
         } else if (lowerMessage.includes('already verified')) {
           // Handle case where email is already verified
           setVerificationStatus({
@@ -149,7 +149,7 @@ function VerifyEmailContent() {
     };
 
     verifyEmail();
-  }, [searchParams, router]);
+  }, [searchParams, localizedRouter]);
 
   return (
     <div

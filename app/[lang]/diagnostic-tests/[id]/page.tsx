@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, usePathname } from 'next/navigation';
 import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
-import { getCurrentLocale } from '@/lib/utils/i18n';
+import { createLocalizedPath, getCurrentLocale } from '@/lib/utils/i18n';
 import { useDictionary } from '@/lib/hooks/useDictionary';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -196,7 +196,9 @@ export default function DiagnosticTestDetailPage() {
 
   const redirectToLogin = () => {
     const currentPath = window.location.pathname;
-    localizedRouter.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+    localizedRouter.push(
+      `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+    );
   };
 
   useEffect(() => {
@@ -264,11 +266,7 @@ export default function DiagnosticTestDetailPage() {
     }
 
     try {
-      await apiClient.post(
-        '/patient/cart',
-        { testId: test.id },
-        { token }
-      );
+      await apiClient.post('/patient/cart', { testId: test.id }, { token });
       toast.success(t('common.testAddedToCart'));
       // Dispatch event to update cart count in header
       if (typeof window !== 'undefined') {
@@ -395,13 +393,17 @@ export default function DiagnosticTestDetailPage() {
                   onClick={handleToggleFavorite}
                   className="rounded-full p-2 transition-colors hover:bg-gray-100"
                   aria-label={
-                    isLiked(String(test?.id), 'test') ? 'Remove from favorites' : 'Add to favorites'
+                    isLiked(String(test?.id), 'test')
+                      ? 'Remove from favorites'
+                      : 'Add to favorites'
                   }
                 >
                   <Heart
                     className={`h-6 w-6 ${isLiked(String(test?.id), 'test') ? 'fill-current' : ''}`}
                     style={{
-                      color: isLiked(String(test?.id), 'test') ? colors.primary : colors.primary,
+                      color: isLiked(String(test?.id), 'test')
+                        ? colors.primary
+                        : colors.primary,
                     }}
                   />
                 </button>

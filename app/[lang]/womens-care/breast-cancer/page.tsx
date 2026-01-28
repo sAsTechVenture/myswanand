@@ -13,7 +13,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { colors } from '@/config/theme';
-import { isAuthenticated, getAuthToken, syncAuthTokenToCookie } from '@/lib/utils/auth';
+import {
+  isAuthenticated,
+  getAuthToken,
+  syncAuthTokenToCookie,
+} from '@/lib/utils/auth';
 import { apiClient } from '@/lib/api';
 import { toast } from '@/lib/toast';
 import Link from 'next/link';
@@ -98,9 +102,12 @@ export default function BreastCancerCarePage() {
             notes?: string;
           }>;
         };
-      }>(`/patient/user-details?type=WOMAN_BREAST_CHECK&dateFrom=${selectedDate}&dateTo=${selectedDate}`, {
-        token,
-      });
+      }>(
+        `/patient/user-details?type=WOMAN_BREAST_CHECK&dateFrom=${selectedDate}&dateTo=${selectedDate}`,
+        {
+          token,
+        }
+      );
 
       if (response.data.success && response.data.data.data.length > 0) {
         const existingData = response.data.data.data[0];
@@ -109,7 +116,8 @@ export default function BreastCancerCarePage() {
           dimplingPuckering: existingData.dimplingPuckering ?? false,
           pullingInNipple: existingData.pullingInNipple ?? false,
           itchyScalySoreRash: existingData.itchyScalySoreRash ?? false,
-          swellingRednessDarkness: existingData.swellingRednessDarkness ?? false,
+          swellingRednessDarkness:
+            existingData.swellingRednessDarkness ?? false,
           sizeShapeDirection: existingData.sizeShapeDirection ?? false,
           nippleDischarge: existingData.nippleDischarge ?? false,
           lumpNearNeckBreasts: existingData.lumpNearNeckBreasts ?? false,
@@ -143,17 +151,19 @@ export default function BreastCancerCarePage() {
 
     if (!isAuthenticated()) {
       const currentPath = window.location.pathname;
-      localizedRouter.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      localizedRouter.replace(
+        `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+      );
       return;
     }
 
     fetchExistingData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router, selectedDate]);
+  }, [localizedRouter, selectedDate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isAuthenticated()) {
       localizedRouter.push('/auth/login?redirect=/womens-care/breast-cancer');
       return;
@@ -172,8 +182,12 @@ export default function BreastCancerCarePage() {
       // the date stays on the correct day. Sending with timezone offset helps.
       const dateObj = new Date(selectedDate + 'T12:00:00');
       const timezoneOffset = -dateObj.getTimezoneOffset(); // Offset in minutes
-      const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60).toString().padStart(2, '0');
-      const offsetMinutes = (Math.abs(timezoneOffset) % 60).toString().padStart(2, '0');
+      const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60)
+        .toString()
+        .padStart(2, '0');
+      const offsetMinutes = (Math.abs(timezoneOffset) % 60)
+        .toString()
+        .padStart(2, '0');
       const offsetSign = timezoneOffset >= 0 ? '+' : '-';
       // Send as ISO string with timezone: YYYY-MM-DDTHH:mm:ss+HH:mm
       const dateWithTimezone = `${selectedDate}T12:00:00${offsetSign}${offsetHours}:${offsetMinutes}`;
@@ -205,14 +219,20 @@ export default function BreastCancerCarePage() {
       }
     } catch (error: any) {
       console.error('Error submitting form:', error);
-      const errorMessage = error?.data?.message || error?.message || 'Failed to save checklist. Please try again.';
+      const errorMessage =
+        error?.data?.message ||
+        error?.message ||
+        'Failed to save checklist. Please try again.';
       toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleCheckboxChange = (field: keyof BreastCheckFormData, checked: boolean) => {
+  const handleCheckboxChange = (
+    field: keyof BreastCheckFormData,
+    checked: boolean
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: checked,
@@ -241,13 +261,17 @@ export default function BreastCancerCarePage() {
             Breast Cancer Self Examination Markers
           </h1>
           <p className="text-gray-600 mt-2">
-            Early detection is key to successful treatment. Follow this guide to perform regular self-examinations.
+            Early detection is key to successful treatment. Follow this guide to
+            perform regular self-examinations.
           </p>
         </div>
 
         {/* Checklist Card */}
         <Card className="p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4" style={{ color: colors.black }}>
+          <h2
+            className="text-xl font-bold mb-4"
+            style={{ color: colors.black }}
+          >
             Checklist for Self Breast Examination
           </h2>
           <ul className="space-y-2 mb-4 text-gray-700">
@@ -257,36 +281,50 @@ export default function BreastCancerCarePage() {
             </li>
             <li className="flex items-start">
               <span className="mr-2">•</span>
-              <span>Ensure – Good light, Chairs, table, Mirror, Checklist, Pen, Small pillow, Bed/couch.</span>
+              <span>
+                Ensure – Good light, Chairs, table, Mirror, Checklist, Pen,
+                Small pillow, Bed/couch.
+              </span>
             </li>
           </ul>
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-4">
             <p className="text-sm text-gray-700">
-              <strong>Important:</strong> Breast self-examination should ideally be performed 7-10 days after your menstrual periods start, which is when your breasts are least tender & lumpy.
+              <strong>Important:</strong> Breast self-examination should ideally
+              be performed 7-10 days after your menstrual periods start, which
+              is when your breasts are least tender & lumpy.
             </p>
             <p className="text-sm text-gray-700 mt-2">
-              If you are post menopausal, select same date of every month and mark on calendar or set reminders on your mobile.
+              If you are post menopausal, select same date of every month and
+              mark on calendar or set reminders on your mobile.
             </p>
           </div>
         </Card>
 
         {/* Inspection Section */}
         <Card className="p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4" style={{ color: colors.black }}>
+          <h2
+            className="text-xl font-bold mb-4"
+            style={{ color: colors.black }}
+          >
             A) INSPECTION
           </h2>
-          
+
           <div className="space-y-6">
             {/* Position 1 */}
             <div>
-              <h3 className="text-lg font-semibold mb-3" style={{ color: colors.primary }}>
+              <h3
+                className="text-lg font-semibold mb-3"
+                style={{ color: colors.primary }}
+              >
                 Position 1:
               </h3>
               <p className="text-gray-700 mb-3">
                 Undress till waist and stand in front of mirror.
               </p>
               <p className="text-sm text-gray-600 mb-3">
-                Note that left & right breasts may not exactly match in size – very few women have perfectly symmetrical breasts. Note what is normal for you.
+                Note that left & right breasts may not exactly match in size –
+                very few women have perfectly symmetrical breasts. Note what is
+                normal for you.
               </p>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="font-medium mb-2 text-gray-800">Check for:</p>
@@ -299,18 +337,24 @@ export default function BreastCancerCarePage() {
                   <li>• Size, shape & direction in which the nipples point</li>
                   <li>• Any nipple discharge</li>
                   <li>• Any lump near neck or around breasts</li>
-                  <li>• Any skin irregularities/thickening on or around breasts</li>
+                  <li>
+                    • Any skin irregularities/thickening on or around breasts
+                  </li>
                 </ul>
               </div>
             </div>
 
             {/* Position 2 */}
             <div>
-              <h3 className="text-lg font-semibold mb-3" style={{ color: colors.primary }}>
+              <h3
+                className="text-lg font-semibold mb-3"
+                style={{ color: colors.primary }}
+              >
                 Position 2:
               </h3>
               <p className="text-gray-700 mb-3">
-                Place hands on your hips, press firmly to flex your chest muscles.
+                Place hands on your hips, press firmly to flex your chest
+                muscles.
               </p>
               <p className="text-sm text-gray-600">
                 Look for all the points mentioned in Position 1.
@@ -319,11 +363,15 @@ export default function BreastCancerCarePage() {
 
             {/* Position 3 */}
             <div>
-              <h3 className="text-lg font-semibold mb-3" style={{ color: colors.primary }}>
+              <h3
+                className="text-lg font-semibold mb-3"
+                style={{ color: colors.primary }}
+              >
                 Position 3:
               </h3>
               <p className="text-gray-700 mb-3">
-                Take both the arms over head, whilst leaning forward and again check all points.
+                Take both the arms over head, whilst leaning forward and again
+                check all points.
               </p>
               <p className="text-sm text-gray-600">
                 Note down all points in checklist.
@@ -333,14 +381,21 @@ export default function BreastCancerCarePage() {
 
           {/* Inspection Form */}
           <div className="mt-8 pt-6 border-t">
-            <h3 className="text-lg font-semibold mb-4" style={{ color: colors.primary }}>
+            <h3
+              className="text-lg font-semibold mb-4"
+              style={{ color: colors.primary }}
+            >
               Record Your Inspection Results
             </h3>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Date Selection */}
               <div>
-                <Label htmlFor="examination-date" className="mb-2 block" style={{ color: colors.black }}>
+                <Label
+                  htmlFor="examination-date"
+                  className="mb-2 block"
+                  style={{ color: colors.black }}
+                >
                   Examination Date <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -357,16 +412,24 @@ export default function BreastCancerCarePage() {
 
               {/* Checkboxes */}
               <div className="space-y-3">
-                <Label className="mb-3 block font-medium" style={{ color: colors.black }}>
+                <Label
+                  className="mb-3 block font-medium"
+                  style={{ color: colors.black }}
+                >
                   Check all that apply:
                 </Label>
-                
+
                 <div className="space-y-3">
                   <div className="flex items-start space-x-3">
                     <Checkbox
                       id="changeInContourShape"
                       checked={formData.changeInContourShape}
-                      onCheckedChange={(checked) => handleCheckboxChange('changeInContourShape', checked === true)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          'changeInContourShape',
+                          checked === true
+                        )
+                      }
                       className="mt-1"
                     />
                     <label
@@ -382,7 +445,12 @@ export default function BreastCancerCarePage() {
                     <Checkbox
                       id="dimplingPuckering"
                       checked={formData.dimplingPuckering}
-                      onCheckedChange={(checked) => handleCheckboxChange('dimplingPuckering', checked === true)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          'dimplingPuckering',
+                          checked === true
+                        )
+                      }
                       className="mt-1"
                     />
                     <label
@@ -398,7 +466,12 @@ export default function BreastCancerCarePage() {
                     <Checkbox
                       id="pullingInNipple"
                       checked={formData.pullingInNipple}
-                      onCheckedChange={(checked) => handleCheckboxChange('pullingInNipple', checked === true)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          'pullingInNipple',
+                          checked === true
+                        )
+                      }
                       className="mt-1"
                     />
                     <label
@@ -414,7 +487,12 @@ export default function BreastCancerCarePage() {
                     <Checkbox
                       id="itchyScalySoreRash"
                       checked={formData.itchyScalySoreRash}
-                      onCheckedChange={(checked) => handleCheckboxChange('itchyScalySoreRash', checked === true)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          'itchyScalySoreRash',
+                          checked === true
+                        )
+                      }
                       className="mt-1"
                     />
                     <label
@@ -430,7 +508,12 @@ export default function BreastCancerCarePage() {
                     <Checkbox
                       id="swellingRednessDarkness"
                       checked={formData.swellingRednessDarkness}
-                      onCheckedChange={(checked) => handleCheckboxChange('swellingRednessDarkness', checked === true)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          'swellingRednessDarkness',
+                          checked === true
+                        )
+                      }
                       className="mt-1"
                     />
                     <label
@@ -446,7 +529,12 @@ export default function BreastCancerCarePage() {
                     <Checkbox
                       id="sizeShapeDirection"
                       checked={formData.sizeShapeDirection}
-                      onCheckedChange={(checked) => handleCheckboxChange('sizeShapeDirection', checked === true)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          'sizeShapeDirection',
+                          checked === true
+                        )
+                      }
                       className="mt-1"
                     />
                     <label
@@ -462,7 +550,12 @@ export default function BreastCancerCarePage() {
                     <Checkbox
                       id="nippleDischarge"
                       checked={formData.nippleDischarge}
-                      onCheckedChange={(checked) => handleCheckboxChange('nippleDischarge', checked === true)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          'nippleDischarge',
+                          checked === true
+                        )
+                      }
                       className="mt-1"
                     />
                     <label
@@ -478,7 +571,12 @@ export default function BreastCancerCarePage() {
                     <Checkbox
                       id="lumpNearNeckBreasts"
                       checked={formData.lumpNearNeckBreasts}
-                      onCheckedChange={(checked) => handleCheckboxChange('lumpNearNeckBreasts', checked === true)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          'lumpNearNeckBreasts',
+                          checked === true
+                        )
+                      }
                       className="mt-1"
                     />
                     <label
@@ -494,7 +592,12 @@ export default function BreastCancerCarePage() {
                     <Checkbox
                       id="skinIrregularities"
                       checked={formData.skinIrregularities}
-                      onCheckedChange={(checked) => handleCheckboxChange('skinIrregularities', checked === true)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          'skinIrregularities',
+                          checked === true
+                        )
+                      }
                       className="mt-1"
                     />
                     <label
@@ -510,13 +613,19 @@ export default function BreastCancerCarePage() {
 
               {/* Notes */}
               <div>
-                <Label htmlFor="notes" className="mb-2 block" style={{ color: colors.black }}>
+                <Label
+                  htmlFor="notes"
+                  className="mb-2 block"
+                  style={{ color: colors.black }}
+                >
                   Additional Notes (Optional)
                 </Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                  }
                   placeholder="Add any additional observations or concerns..."
                   rows={4}
                   style={{ borderColor: colors.primary }}
@@ -550,39 +659,63 @@ export default function BreastCancerCarePage() {
 
         {/* Palpation Section */}
         <Card className="p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4" style={{ color: colors.black }}>
+          <h2
+            className="text-xl font-bold mb-4"
+            style={{ color: colors.black }}
+          >
             B) PALPATION
           </h2>
-          
+
           <div className="space-y-6">
             {/* Position 1 */}
             <div>
-              <h3 className="text-lg font-semibold mb-3" style={{ color: colors.primary }}>
+              <h3
+                className="text-lg font-semibold mb-3"
+                style={{ color: colors.primary }}
+              >
                 Position 1:
               </h3>
               <p className="text-gray-700 mb-3">
-                Lie down on bed with pillow under shoulder on side being examined and place the arm of side to be examined overhead. In this position, the breast tissue spreads out evenly along chest wall.
+                Lie down on bed with pillow under shoulder on side being
+                examined and place the arm of side to be examined overhead. In
+                this position, the breast tissue spreads out evenly along chest
+                wall.
               </p>
               <div className="bg-gray-50 p-4 rounded-lg mb-3">
                 <p className="font-medium mb-2 text-gray-800">Steps:</p>
                 <ol className="space-y-2 text-sm text-gray-700 list-decimal list-inside">
-                  <li>Place pillow under your right shoulder and put your right arm behind your head.</li>
-                  <li>Using your left hand, move the pads of your three middle fingers around your right breast whole area and armpit.</li>
-                  <li>Use light, medium and firm pressure to feel for any new lump, thickening, hardened knots or any other change.</li>
+                  <li>
+                    Place pillow under your right shoulder and put your right
+                    arm behind your head.
+                  </li>
+                  <li>
+                    Using your left hand, move the pads of your three middle
+                    fingers around your right breast whole area and armpit.
+                  </li>
+                  <li>
+                    Use light, medium and firm pressure to feel for any new
+                    lump, thickening, hardened knots or any other change.
+                  </li>
                   <li>Squeeze nipple for any discharge.</li>
                   <li>Repeat steps for left breast.</li>
                 </ol>
               </div>
               <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4">
                 <p className="text-sm text-gray-700">
-                  <strong>Note:</strong> You can use any one method from below three methods for breast palpation. Make sure, once you choose a convenient particular method, stick to that method always while examining. Do not keep changing methods.
+                  <strong>Note:</strong> You can use any one method from below
+                  three methods for breast palpation. Make sure, once you choose
+                  a convenient particular method, stick to that method always
+                  while examining. Do not keep changing methods.
                 </p>
               </div>
             </div>
 
             {/* Position 2 */}
             <div>
-              <h3 className="text-lg font-semibold mb-3" style={{ color: colors.primary }}>
+              <h3
+                className="text-lg font-semibold mb-3"
+                style={{ color: colors.primary }}
+              >
                 Position 2:
               </h3>
               <p className="text-gray-700">
@@ -592,7 +725,10 @@ export default function BreastCancerCarePage() {
 
             {/* Position 3 */}
             <div>
-              <h3 className="text-lg font-semibold mb-3" style={{ color: colors.primary }}>
+              <h3
+                className="text-lg font-semibold mb-3"
+                style={{ color: colors.primary }}
+              >
                 Position 3:
               </h3>
               <p className="text-gray-700">
@@ -617,22 +753,38 @@ export default function BreastCancerCarePage() {
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 style={{ color: colors.black }}
               >
-                I have read and understood the self breast examination guide. I will perform regular self-examinations as recommended and consult a healthcare professional if I notice any changes or abnormalities.
+                I have read and understood the self breast examination guide. I
+                will perform regular self-examinations as recommended and
+                consult a healthcare professional if I notice any changes or
+                abnormalities.
               </label>
             </div>
           </div>
         </Card>
 
         {/* Important Note */}
-        <Card className="p-6 border-l-4" style={{ borderColor: colors.primary, backgroundColor: '#F0F9FF' }}>
+        <Card
+          className="p-6 border-l-4"
+          style={{ borderColor: colors.primary, backgroundColor: '#F0F9FF' }}
+        >
           <div className="flex items-start">
-            <CheckCircle2 className="w-5 h-5 mr-3 mt-0.5" style={{ color: colors.primary }} />
+            <CheckCircle2
+              className="w-5 h-5 mr-3 mt-0.5"
+              style={{ color: colors.primary }}
+            />
             <div>
-              <h3 className="font-semibold mb-2" style={{ color: colors.primary }}>
+              <h3
+                className="font-semibold mb-2"
+                style={{ color: colors.primary }}
+              >
                 Important Reminder
               </h3>
               <p className="text-sm text-gray-700">
-                Self-examination is a valuable tool for early detection, but it does not replace regular clinical breast exams and mammograms as recommended by your healthcare provider. If you notice any changes, lumps, or abnormalities, please consult with a healthcare professional immediately.
+                Self-examination is a valuable tool for early detection, but it
+                does not replace regular clinical breast exams and mammograms as
+                recommended by your healthcare provider. If you notice any
+                changes, lumps, or abnormalities, please consult with a
+                healthcare professional immediately.
               </p>
             </div>
           </div>

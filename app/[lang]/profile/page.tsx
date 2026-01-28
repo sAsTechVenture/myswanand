@@ -18,7 +18,15 @@ import {
 } from '@/components/profile';
 import { EditPersonalDetailsModal } from '@/components/profile/EditPersonalDetailsModal';
 import { colors } from '@/config/theme';
-import { ArrowLeft, FileText, Wallet, Coins, Gift, Upload, LogOut } from 'lucide-react';
+import {
+  ArrowLeft,
+  FileText,
+  Wallet,
+  Coins,
+  Gift,
+  Upload,
+  LogOut,
+} from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -144,7 +152,7 @@ function ProfileContent() {
     };
 
     fetchProfile();
-  }, [router]);
+  }, [localizedRouter]);
 
   const handleEditPersonalDetails = () => {
     setEditModalOpen(true);
@@ -207,7 +215,8 @@ function ProfileContent() {
         localStorage.removeItem('patient_user');
 
         // Clear cookie
-        document.cookie = 'patient_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
+        document.cookie =
+          'patient_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
 
         // Dispatch auth-change event to update header
         window.dispatchEvent(new Event('auth-change'));

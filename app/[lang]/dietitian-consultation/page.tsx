@@ -54,10 +54,24 @@ function DietitianConsultationContent() {
   const locale = getCurrentLocale(pathname);
   const localizedRouter = useLocalizedRouter();
   const searchParams = useSearchParams();
+  const { dictionary } = useDictionary(locale);
+
+  // Translation helper (safe fallback to key)
+  const t = (key: string): string => {
+    if (!dictionary) return key;
+    const keys = key.split('.');
+    let value: unknown = dictionary as unknown;
+    for (const k of keys) {
+      value = (value as any)?.[k];
+    }
+    return typeof value === 'string' ? value : key;
+  };
   const [dietitians, setDietitians] = useState<Consultant[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDietitian, setSelectedDietitian] = useState<Consultant | null>(null);
+  const [selectedDietitian, setSelectedDietitian] = useState<Consultant | null>(
+    null
+  );
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -155,7 +169,7 @@ function DietitianConsultationContent() {
 
     async function fetchSlots() {
       if (!selectedDietitian) return;
-      
+
       try {
         setLoadingSlots(true);
         const params = new URLSearchParams({
@@ -172,7 +186,9 @@ function DietitianConsultationContent() {
         }>(`/patient/consultations/available-slots?${params.toString()}`);
 
         if (response.data.success && response.data.data) {
-          setAvailableSlots(response.data.data.slots || response.data.data.data || []);
+          setAvailableSlots(
+            response.data.data.slots || response.data.data.data || []
+          );
         }
       } catch (err) {
         console.error('Error fetching slots:', err);
@@ -191,32 +207,38 @@ function DietitianConsultationContent() {
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
-    
+
     // Check if it's today
     if (date.toDateString() === today.toDateString()) {
       return 'Today';
     }
-    
+
     // Check if it's tomorrow
     if (date.toDateString() === tomorrow.toDateString()) {
       return 'Tomorrow';
     }
-    
+
     // Otherwise format as "Mon, Jan 12"
     const dayName = date.toLocaleDateString('en-IN', { weekday: 'short' });
-    const monthDay = date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+    const monthDay = date.toLocaleDateString('en-IN', {
+      month: 'short',
+      day: 'numeric',
+    });
     return `${dayName}, ${monthDay}`;
   };
 
   // Group slots by date
-  const groupedSlots = availableSlots.reduce((acc, slot) => {
-    const dateKey = slot.date;
-    if (!acc[dateKey]) {
-      acc[dateKey] = [];
-    }
-    acc[dateKey].push(slot);
-    return acc;
-  }, {} as Record<string, AvailableSlot[]>);
+  const groupedSlots = availableSlots.reduce(
+    (acc, slot) => {
+      const dateKey = slot.date;
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(slot);
+      return acc;
+    },
+    {} as Record<string, AvailableSlot[]>
+  );
 
   // Process image URL
   const getImageUrl = (imageUrl: string | null): string | null => {
@@ -249,7 +271,7 @@ function DietitianConsultationContent() {
       setBookingError(null);
       const token = getAuthToken();
 
-      const slot = availableSlots.find(s => s.id === selectedTimeSlot);
+      const slot = availableSlots.find((s) => s.id === selectedTimeSlot);
       if (!slot) {
         throw new Error('Selected time slot not found');
       }
@@ -272,7 +294,9 @@ function DietitianConsultationContent() {
 
       if (response.data.success) {
         setBookingSuccess(true);
-        toast.success(response.data.data?.message || t('common.appointmentBookedSuccess'));
+        toast.success(
+          response.data.data?.message || t('common.appointmentBookedSuccess')
+        );
         // Reset form
         setTimeout(() => {
           setSelectedDietitian(null);
@@ -283,7 +307,10 @@ function DietitianConsultationContent() {
       }
     } catch (err: any) {
       console.error('Error booking appointment:', err);
-      const errorMsg = err?.data?.message || err?.message || t('common.failedToBookAppointment');
+      const errorMsg =
+        err?.data?.message ||
+        err?.message ||
+        t('common.failedToBookAppointment');
       setBookingError(errorMsg);
       toast.error(errorMsg);
     } finally {
@@ -366,7 +393,9 @@ function DietitianConsultationContent() {
                         isSelected ? 'ring-2' : ''
                       }`}
                       style={{
-                        borderColor: isSelected ? colors.primary : colors.primaryLight,
+                        borderColor: isSelected
+                          ? colors.primary
+                          : colors.primaryLight,
                         borderWidth: '1px',
                       }}
                       onClick={() => {
@@ -377,7 +406,10 @@ function DietitianConsultationContent() {
                     >
                       <div className="flex gap-4">
                         {/* Profile Image */}
-                        <div className="relative w-24 h-24 rounded-full overflow-hidden shrink-0 border-2" style={{ borderColor: colors.primary }}>
+                        <div
+                          className="relative w-24 h-24 rounded-full overflow-hidden shrink-0 border-2"
+                          style={{ borderColor: colors.primary }}
+                        >
                           {imageUrl ? (
                             <Image
                               src={imageUrl}
@@ -418,7 +450,8 @@ function DietitianConsultationContent() {
                             MSc (Nutrition), RD
                           </p>
                           <p className="text-sm text-gray-600 mb-3">
-                            Expert in weight management, diabetes diet, and therapeutic nutrition.
+                            Expert in weight management, diabetes diet, and
+                            therapeutic nutrition.
                           </p>
                           <div className="flex flex-wrap gap-2 mb-3">
                             <Badge
@@ -461,7 +494,9 @@ function DietitianConsultationContent() {
                           </div>
                           <div className="border-t pt-3 mt-3 flex items-center justify-between">
                             <div>
-                              <p className="text-sm text-gray-600">Consultation Fee</p>
+                              <p className="text-sm text-gray-600">
+                                Consultation Fee
+                              </p>
                               <p
                                 className="text-lg font-bold"
                                 style={{ color: colors.black }}
@@ -470,7 +505,9 @@ function DietitianConsultationContent() {
                               </p>
                             </div>
                             <div>
-                              <p className="text-sm text-gray-600">Next Available</p>
+                              <p className="text-sm text-gray-600">
+                                Next Available
+                              </p>
                               <p
                                 className="text-lg font-bold"
                                 style={{ color: colors.black }}
@@ -501,7 +538,8 @@ function DietitianConsultationContent() {
               {/* Time Slot Selection */}
               <div className="mb-6">
                 <Label className="mb-3 block" style={{ color: colors.black }}>
-                  {t('common.selectTime')} <span className="text-red-500">*</span>
+                  {t('common.selectTime')}{' '}
+                  <span className="text-red-500">*</span>
                 </Label>
                 {loadingSlots ? (
                   <div className="space-y-3">
@@ -519,14 +557,21 @@ function DietitianConsultationContent() {
                   <div className="space-y-4">
                     {Object.entries(groupedSlots).map(([date, slots]) => (
                       <div key={date}>
-                        <p className="text-sm font-medium mb-2" style={{ color: colors.black }}>
+                        <p
+                          className="text-sm font-medium mb-2"
+                          style={{ color: colors.black }}
+                        >
                           {formatDate(date)}
                         </p>
                         <div className="grid grid-cols-2 gap-2">
                           {slots.map((slot) => (
                             <Button
                               key={slot.id}
-                              variant={selectedTimeSlot === slot.id ? 'default' : 'outline'}
+                              variant={
+                                selectedTimeSlot === slot.id
+                                  ? 'default'
+                                  : 'outline'
+                              }
                               onClick={() => setSelectedTimeSlot(slot.id)}
                               style={
                                 selectedTimeSlot === slot.id
@@ -560,16 +605,22 @@ function DietitianConsultationContent() {
                   color: colors.white,
                 }}
               >
-                {booking ? t('common.bookAppointment') + '..." : t('common.bookAppointment')}
+                {booking
+                  ? `${t('common.bookAppointment')}...`
+                  : t('common.bookAppointment')}
               </Button>
 
               {/* Success Message */}
               {bookingSuccess && (
                 <div
                   className="p-3 rounded mb-3 text-sm"
-                  style={{ backgroundColor: colors.lightestGreen, color: colors.green }}
+                  style={{
+                    backgroundColor: colors.lightestGreen,
+                    color: colors.green,
+                  }}
                 >
-                  Appointment booked successfully! You will receive a confirmation via SMS.
+                  Appointment booked successfully! You will receive a
+                  confirmation via SMS.
                 </div>
               )}
 

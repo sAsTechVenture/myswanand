@@ -45,9 +45,11 @@ export default function LikedItemsPage() {
     // If not authenticated, redirect to login
     if (!isAuthenticated()) {
       const currentPath = window.location.pathname;
-      localizedRouter.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      localizedRouter.replace(
+        `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+      );
     }
-  }, [router]);
+  }, [localizedRouter]);
 
   // Process image URLs
   const getImageUrl = (imageUrl: string | null | undefined): string => {
@@ -125,7 +127,8 @@ export default function LikedItemsPage() {
                 {t('common.myFavorites')}
               </h1>
               <p className="text-gray-600">
-                {likedItems.length} {likedItems.length === 1 ? t('common.item') : t('common.items')}{' '}
+                {likedItems.length}{' '}
+                {likedItems.length === 1 ? t('common.item') : t('common.items')}{' '}
                 {t('common.saved')}
               </p>
             </div>
@@ -272,7 +275,8 @@ export default function LikedItemsPage() {
                         className="text-left text-xs flex-shrink-0"
                         style={{ color: colors.black }}
                       >
-                        {packageData?.testCount || 0} {t('common.testsIncluded')}
+                        {packageData?.testCount || 0}{' '}
+                        {t('common.testsIncluded')}
                       </p>
                     )}
 

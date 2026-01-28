@@ -5,7 +5,15 @@ import { usePathname } from 'next/navigation';
 import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
 import { createLocalizedPath, getCurrentLocale } from '@/lib/utils/i18n';
 import { useDictionary } from '@/lib/hooks/useDictionary';
-import { ArrowLeft, Loader2, Smile, TrendingUp, Users, Heart, Music } from 'lucide-react';
+import {
+  ArrowLeft,
+  Loader2,
+  Smile,
+  TrendingUp,
+  Users,
+  Heart,
+  Music,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,7 +21,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { colors } from '@/config/theme';
-import { isAuthenticated, getAuthToken, syncAuthTokenToCookie } from '@/lib/utils/auth';
+import {
+  isAuthenticated,
+  getAuthToken,
+  syncAuthTokenToCookie,
+} from '@/lib/utils/auth';
 import { apiClient } from '@/lib/api';
 import { toast } from '@/lib/toast';
 import Link from 'next/link';
@@ -99,7 +111,9 @@ export default function MyHappinessCornerPage() {
 
     if (!isAuthenticated()) {
       const currentPath = window.location.pathname;
-      localizedRouter.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      localizedRouter.replace(
+        `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+      );
       return;
     }
 
@@ -121,7 +135,7 @@ export default function MyHappinessCornerPage() {
 
     fetchExistingData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router, selectedDate]);
+  }, [localizedRouter, selectedDate]);
 
   const fetchExistingData = async () => {
     try {
@@ -141,9 +155,12 @@ export default function MyHappinessCornerPage() {
             gratitude?: string;
           }>;
         };
-      }>(`/patient/user-details?type=DAILY_REFLECTION&dateFrom=${selectedDate}&dateTo=${selectedDate}`, {
-        token,
-      });
+      }>(
+        `/patient/user-details?type=DAILY_REFLECTION&dateFrom=${selectedDate}&dateTo=${selectedDate}`,
+        {
+          token,
+        }
+      );
 
       if (response.data.success && response.data.data.data.length > 0) {
         const existingData = response.data.data.data[0];
@@ -192,8 +209,12 @@ export default function MyHappinessCornerPage() {
       // Send date with timezone offset to ensure correct date
       const dateObj = new Date(selectedDate + 'T12:00:00');
       const timezoneOffset = -dateObj.getTimezoneOffset();
-      const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60).toString().padStart(2, '0');
-      const offsetMinutes = (Math.abs(timezoneOffset) % 60).toString().padStart(2, '0');
+      const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60)
+        .toString()
+        .padStart(2, '0');
+      const offsetMinutes = (Math.abs(timezoneOffset) % 60)
+        .toString()
+        .padStart(2, '0');
       const offsetSign = timezoneOffset >= 0 ? '+' : '-';
       const dateWithTimezone = `${selectedDate}T12:00:00${offsetSign}${offsetHours}:${offsetMinutes}`;
 
@@ -220,14 +241,20 @@ export default function MyHappinessCornerPage() {
       }
     } catch (error: any) {
       console.error('Error submitting form:', error);
-      const errorMessage = error?.data?.message || error?.message || 'Failed to save reflection. Please try again.';
+      const errorMessage =
+        error?.data?.message ||
+        error?.message ||
+        'Failed to save reflection. Please try again.';
       toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleRatingChange = (field: 'moodRating' | 'productivityRating' | 'connectedWithOthers', emojiIndex: number) => {
+  const handleRatingChange = (
+    field: 'moodRating' | 'productivityRating' | 'connectedWithOthers',
+    emojiIndex: number
+  ) => {
     const ratingValue = getRatingFromEmoji(emojiIndex);
     setFormData((prev) => ({
       ...prev,
@@ -264,7 +291,8 @@ export default function MyHappinessCornerPage() {
             My Happiness Corner
           </h1>
           <p className="text-gray-600 mt-2">
-            Nurture your well-being with daily reflections, mindfulness, positivity, and meditation.
+            Nurture your well-being with daily reflections, mindfulness,
+            positivity, and meditation.
           </p>
         </div>
 
@@ -286,7 +314,11 @@ export default function MyHappinessCornerPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Date Selection */}
               <div>
-                <Label htmlFor="reflection-date" className="mb-2 block" style={{ color: colors.black }}>
+                <Label
+                  htmlFor="reflection-date"
+                  className="mb-2 block"
+                  style={{ color: colors.black }}
+                >
                   Date <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -305,30 +337,45 @@ export default function MyHappinessCornerPage() {
               <div className="space-y-4">
                 {/* Mood Rating */}
                 <div>
-                  <Label className="mb-2 block flex items-center gap-2" style={{ color: colors.black }}>
+                  <Label
+                    className="mb-2 block flex items-center gap-2"
+                    style={{ color: colors.black }}
+                  >
                     <Smile className="w-4 h-4" />
                     How was your mood today? (1-10)
                   </Label>
                   <div className="flex gap-2">
                     {[0, 1, 2, 3, 4].map((emojiIndex) => {
-                      const isSelected = getEmojiIndexFromRating(formData.moodRating) === emojiIndex;
+                      const isSelected =
+                        getEmojiIndexFromRating(formData.moodRating) ===
+                        emojiIndex;
                       return (
                         <button
                           key={emojiIndex}
                           type="button"
-                          onClick={() => handleRatingChange('moodRating', emojiIndex)}
+                          onClick={() =>
+                            handleRatingChange('moodRating', emojiIndex)
+                          }
                           className={`flex-1 p-3 rounded-lg border-2 transition-all ${
                             isSelected
                               ? 'border-primary'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                           style={{
-                            backgroundColor: isSelected ? colors.primaryLight : 'transparent',
-                            borderColor: isSelected ? colors.primary : undefined,
+                            backgroundColor: isSelected
+                              ? colors.primaryLight
+                              : 'transparent',
+                            borderColor: isSelected
+                              ? colors.primary
+                              : undefined,
                           }}
                         >
-                          <div className="text-2xl mb-1">{RATING_EMOJIS[emojiIndex]}</div>
-                          <div className="text-xs text-gray-600">{RATING_LABELS[emojiIndex]}</div>
+                          <div className="text-2xl mb-1">
+                            {RATING_EMOJIS[emojiIndex]}
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            {RATING_LABELS[emojiIndex]}
+                          </div>
                         </button>
                       );
                     })}
@@ -337,30 +384,45 @@ export default function MyHappinessCornerPage() {
 
                 {/* Productivity Rating */}
                 <div>
-                  <Label className="mb-2 block flex items-center gap-2" style={{ color: colors.black }}>
+                  <Label
+                    className="mb-2 block flex items-center gap-2"
+                    style={{ color: colors.black }}
+                  >
                     <TrendingUp className="w-4 h-4" />
                     How productive were you today? (1-10)
                   </Label>
                   <div className="flex gap-2">
                     {[0, 1, 2, 3, 4].map((emojiIndex) => {
-                      const isSelected = getEmojiIndexFromRating(formData.productivityRating) === emojiIndex;
+                      const isSelected =
+                        getEmojiIndexFromRating(formData.productivityRating) ===
+                        emojiIndex;
                       return (
                         <button
                           key={emojiIndex}
                           type="button"
-                          onClick={() => handleRatingChange('productivityRating', emojiIndex)}
+                          onClick={() =>
+                            handleRatingChange('productivityRating', emojiIndex)
+                          }
                           className={`flex-1 p-3 rounded-lg border-2 transition-all ${
                             isSelected
                               ? 'border-primary'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                           style={{
-                            backgroundColor: isSelected ? colors.primaryLight : 'transparent',
-                            borderColor: isSelected ? colors.primary : undefined,
+                            backgroundColor: isSelected
+                              ? colors.primaryLight
+                              : 'transparent',
+                            borderColor: isSelected
+                              ? colors.primary
+                              : undefined,
                           }}
                         >
-                          <div className="text-2xl mb-1">{RATING_EMOJIS[emojiIndex]}</div>
-                          <div className="text-xs text-gray-600">{RATING_LABELS[emojiIndex]}</div>
+                          <div className="text-2xl mb-1">
+                            {RATING_EMOJIS[emojiIndex]}
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            {RATING_LABELS[emojiIndex]}
+                          </div>
                         </button>
                       );
                     })}
@@ -369,30 +431,49 @@ export default function MyHappinessCornerPage() {
 
                 {/* Connected with Others Rating */}
                 <div>
-                  <Label className="mb-2 block flex items-center gap-2" style={{ color: colors.black }}>
+                  <Label
+                    className="mb-2 block flex items-center gap-2"
+                    style={{ color: colors.black }}
+                  >
                     <Users className="w-4 h-4" />
                     How connected did you feel with others today? (1-10)
                   </Label>
                   <div className="flex gap-2">
                     {[0, 1, 2, 3, 4].map((emojiIndex) => {
-                      const isSelected = getEmojiIndexFromRating(formData.connectedWithOthers) === emojiIndex;
+                      const isSelected =
+                        getEmojiIndexFromRating(
+                          formData.connectedWithOthers
+                        ) === emojiIndex;
                       return (
                         <button
                           key={emojiIndex}
                           type="button"
-                          onClick={() => handleRatingChange('connectedWithOthers', emojiIndex)}
+                          onClick={() =>
+                            handleRatingChange(
+                              'connectedWithOthers',
+                              emojiIndex
+                            )
+                          }
                           className={`flex-1 p-3 rounded-lg border-2 transition-all ${
                             isSelected
                               ? 'border-primary'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                           style={{
-                            backgroundColor: isSelected ? colors.primaryLight : 'transparent',
-                            borderColor: isSelected ? colors.primary : undefined,
+                            backgroundColor: isSelected
+                              ? colors.primaryLight
+                              : 'transparent',
+                            borderColor: isSelected
+                              ? colors.primary
+                              : undefined,
                           }}
                         >
-                          <div className="text-2xl mb-1">{RATING_EMOJIS[emojiIndex]}</div>
-                          <div className="text-xs text-gray-600">{RATING_LABELS[emojiIndex]}</div>
+                          <div className="text-2xl mb-1">
+                            {RATING_EMOJIS[emojiIndex]}
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            {RATING_LABELS[emojiIndex]}
+                          </div>
                         </button>
                       );
                     })}
@@ -405,7 +486,10 @@ export default function MyHappinessCornerPage() {
                     id="physicalHealthCare"
                     checked={formData.physicalHealthCare}
                     onCheckedChange={(checked) =>
-                      setFormData((prev) => ({ ...prev, physicalHealthCare: checked === true }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        physicalHealthCare: checked === true,
+                      }))
                     }
                     className="mt-1"
                   />
@@ -424,7 +508,10 @@ export default function MyHappinessCornerPage() {
                     id="meaningfulActivity"
                     checked={formData.meaningfulActivity}
                     onCheckedChange={(checked) =>
-                      setFormData((prev) => ({ ...prev, meaningfulActivity: checked === true }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        meaningfulActivity: checked === true,
+                      }))
                     }
                     className="mt-1"
                   />
@@ -440,13 +527,22 @@ export default function MyHappinessCornerPage() {
 
               {/* Gratitude Textarea */}
               <div>
-                <Label htmlFor="gratitude" className="mb-2 block" style={{ color: colors.black }}>
+                <Label
+                  htmlFor="gratitude"
+                  className="mb-2 block"
+                  style={{ color: colors.black }}
+                >
                   What are you grateful for today?
                 </Label>
                 <Textarea
                   id="gratitude"
                   value={formData.gratitude}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, gratitude: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      gratitude: e.target.value,
+                    }))
+                  }
                   placeholder="Share what you're grateful for..."
                   rows={4}
                   style={{ borderColor: colors.primary }}
@@ -489,8 +585,13 @@ export default function MyHappinessCornerPage() {
               </h2>
             </div>
 
-            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-lg border-l-4" style={{ borderColor: colors.primary }}>
-              <p className="text-lg text-gray-800 italic mb-4">"{randomQuote}"</p>
+            <div
+              className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-lg border-l-4"
+              style={{ borderColor: colors.primary }}
+            >
+              <p className="text-lg text-gray-800 italic mb-4">
+                "{randomQuote}"
+              </p>
               <Button
                 variant="outline"
                 onClick={handleNewQuote}
@@ -517,24 +618,37 @@ export default function MyHappinessCornerPage() {
             </div>
 
             <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg border-l-4" style={{ borderColor: colors.primary }}>
+              <div
+                className="bg-blue-50 p-4 rounded-lg border-l-4"
+                style={{ borderColor: colors.primary }}
+              >
                 <p className="text-sm text-gray-700 mb-3">
-                  Take a moment to breathe deeply and center yourself. Mindfulness practices can help reduce stress, improve emotional well-being, and promote healing.
+                  Take a moment to breathe deeply and center yourself.
+                  Mindfulness practices can help reduce stress, improve
+                  emotional well-being, and promote healing.
                 </p>
                 <Link href={createLocalizedPath('/blogs', locale)}>
                   <Button
                     variant="outline"
                     size="sm"
-                    style={{ borderColor: colors.primary, color: colors.primary }}
+                    style={{
+                      borderColor: colors.primary,
+                      color: colors.primary,
+                    }}
                   >
                     Explore Mindfulness Articles
                   </Button>
                 </Link>
               </div>
 
-              <div className="bg-green-50 p-4 rounded-lg border-l-4" style={{ borderColor: colors.green }}>
+              <div
+                className="bg-green-50 p-4 rounded-lg border-l-4"
+                style={{ borderColor: colors.green }}
+              >
                 <p className="text-sm text-gray-700 mb-3">
-                  Healing is a journey, not a destination. Practice self-compassion and be patient with yourself as you navigate through challenges.
+                  Healing is a journey, not a destination. Practice
+                  self-compassion and be patient with yourself as you navigate
+                  through challenges.
                 </p>
                 <Link href={createLocalizedPath('/blogs', locale)}>
                   <Button
@@ -547,15 +661,23 @@ export default function MyHappinessCornerPage() {
                 </Link>
               </div>
 
-              <div className="bg-purple-50 p-4 rounded-lg border-l-4" style={{ borderColor: colors.primary }}>
+              <div
+                className="bg-purple-50 p-4 rounded-lg border-l-4"
+                style={{ borderColor: colors.primary }}
+              >
                 <p className="text-sm text-gray-700 mb-3">
-                  Remember that every small step towards wellness matters. Your mental and emotional health is just as important as your physical health.
+                  Remember that every small step towards wellness matters. Your
+                  mental and emotional health is just as important as your
+                  physical health.
                 </p>
                 <Link href={createLocalizedPath('/blogs', locale)}>
                   <Button
                     variant="outline"
                     size="sm"
-                    style={{ borderColor: colors.primary, color: colors.primary }}
+                    style={{
+                      borderColor: colors.primary,
+                      color: colors.primary,
+                    }}
                   >
                     Discover Wellness Tips
                   </Button>
@@ -591,7 +713,8 @@ export default function MyHappinessCornerPage() {
               />
             </div>
             <p className="text-sm text-gray-600 mt-3 text-center">
-              Take a moment to relax and find your inner peace with this calming meditation music.
+              Take a moment to relax and find your inner peace with this calming
+              meditation music.
             </p>
           </Card>
         </div>

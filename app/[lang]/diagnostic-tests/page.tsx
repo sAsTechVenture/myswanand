@@ -75,7 +75,9 @@ function DiagnosticTestsContent() {
 
   const redirectToLogin = () => {
     const currentPath = window.location.pathname + window.location.search;
-    localizedRouter.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+    localizedRouter.push(
+      `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+    );
   };
   const [tests, setTests] = useState<DiagnosticTest[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -442,7 +444,6 @@ function DiagnosticTestsContent() {
                   style={{
                     borderColor: colors.primaryLight,
                   }}
-                  suppressHydrationWarning
                 />
               </div>
             </form>
@@ -582,7 +583,9 @@ function DiagnosticTestsContent() {
                               }
                             }}
                           />
-                          <span className="text-sm">{t('common.popularOnly')}</span>
+                          <span className="text-sm">
+                            {t('common.popularOnly')}
+                          </span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                           <Checkbox
@@ -595,7 +598,9 @@ function DiagnosticTestsContent() {
                               }
                             }}
                           />
-                          <span className="text-sm">{t('common.nonPopularOnly')}</span>
+                          <span className="text-sm">
+                            {t('common.nonPopularOnly')}
+                          </span>
                         </label>
                         {isPopular !== null && (
                           <Button
@@ -688,7 +693,10 @@ function DiagnosticTestsContent() {
         {/* Results Count */}
         {!loading && (
           <div className="mb-4 text-sm text-gray-600">
-            {t('common.showingResults').replace('{count}', String(tests.length)).replace('{total}', String(totalItems)).replace('{type}', t('common.tests'))}
+            {t('common.showingResults')
+              .replace('{count}', String(tests.length))
+              .replace('{total}', String(totalItems))
+              .replace('{type}', t('common.tests'))}
           </div>
         )}
 
