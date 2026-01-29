@@ -69,7 +69,9 @@ export default function PackagePurchasePage() {
 
     if (!isAuthenticated()) {
       const currentPath = window.location.pathname;
-      localizedRouter.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      localizedRouter.replace(
+        `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+      );
       return;
     }
 
@@ -81,7 +83,9 @@ export default function PackagePurchasePage() {
       setLoading(true);
       const token = getAuthToken();
       if (!token) {
-        localizedRouter.push(`/auth/login?redirect=/care-packages/${packageId}/purchase`);
+        localizedRouter.push(
+          `/auth/login?redirect=/care-packages/${packageId}/purchase`
+        );
         return;
       }
 
@@ -112,11 +116,15 @@ export default function PackagePurchasePage() {
     homeSampleCollection: boolean;
     hardCopyReport: boolean;
     coinsToRedeem?: number; // Optional: coins to redeem for discount
+    existingMedicines?: string | null; // Optional: patient's current medicines
+    healthDisorder?: string | null; // Optional: any health disorder
   }) => {
     try {
       const token = getAuthToken();
       if (!token) {
-        localizedRouter.push(`/auth/login?redirect=/care-packages/${packageId}/purchase`);
+        localizedRouter.push(
+          `/auth/login?redirect=/care-packages/${packageId}/purchase`
+        );
         return;
       }
 
@@ -130,6 +138,8 @@ export default function PackagePurchasePage() {
         additionalService: string;
         hardCopyReport: boolean;
         coinsToRedeem?: number;
+        existingMedicines?: string | null;
+        healthDisorder?: string | null;
       } = {
         paymentMethod: orderData.paymentMethod,
         additionalService: orderData.homeSampleCollection
@@ -152,12 +162,33 @@ export default function PackagePurchasePage() {
         payload.coinsToRedeem = orderData.coinsToRedeem;
       }
 
+      // Add optional health info if provided
+      if (
+        orderData.existingMedicines != null &&
+        orderData.existingMedicines !== ''
+      ) {
+        payload.existingMedicines = orderData.existingMedicines;
+      }
+      if (orderData.healthDisorder != null && orderData.healthDisorder !== '') {
+        payload.healthDisorder = orderData.healthDisorder;
+      }
+
       const response = await apiClient.post<{
         success: boolean;
         data: {
           message: string;
-          booking: { id: string; status: string; slot?: unknown; package?: unknown };
-          payment?: { id: string; amount: number; status: string; paymentMethod: string };
+          booking: {
+            id: string;
+            status: string;
+            slot?: unknown;
+            package?: unknown;
+          };
+          payment?: {
+            id: string;
+            amount: number;
+            status: string;
+            paymentMethod: string;
+          };
           redirectUrl?: string;
           assignedVouchers?: string[]; // Array of assigned voucher IDs
         };
@@ -246,7 +277,9 @@ export default function PackagePurchasePage() {
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="container mx-auto px-4 max-w-2xl">
           <Card className="p-8 text-center">
-            <p className="text-lg text-gray-600">{t('common.packageNotFound')}</p>
+            <p className="text-lg text-gray-600">
+              {t('common.packageNotFound')}
+            </p>
             <Link href={createLocalizedPath('/care-packages', locale)}>
               <Button
                 className="mt-4"
@@ -283,7 +316,11 @@ export default function PackagePurchasePage() {
 
       {viewState === 'checkout' && (
         <CheckoutForm
-          package={{ id: packageData.id, name: packageData.name, price: packageData.price }}
+          package={{
+            id: packageData.id,
+            name: packageData.name,
+            price: packageData.price,
+          }}
           onPlaceOrder={handlePlaceOrder}
           onBackToCart={handleBackToPackage}
           backLabel={t('common.backToPackage')}

@@ -192,6 +192,8 @@ export default function CartPage() {
     homeSampleCollection: boolean;
     hardCopyReport: boolean;
     coinsToRedeem?: number; // Optional: coins to redeem for discount
+    existingMedicines?: string | null; // Optional: patient's current medicines
+    healthDisorder?: string | null; // Optional: any health disorder
   }) => {
     try {
       const token = getAuthToken();
@@ -212,6 +214,8 @@ export default function CartPage() {
         additionalService: string;
         hardCopyReport: boolean;
         coinsToRedeem?: number;
+        existingMedicines?: string | null;
+        healthDisorder?: string | null;
       } = {
         paymentMethod: orderData.paymentMethod, // 'ONLINE' or 'OFFLINE'
         type: 'DIAGNOSTIC',
@@ -224,6 +228,17 @@ export default function CartPage() {
       // Add coins to redeem if provided
       if (orderData.coinsToRedeem && orderData.coinsToRedeem > 0) {
         bookingPayload.coinsToRedeem = orderData.coinsToRedeem;
+      }
+
+      // Add optional health info if provided
+      if (
+        orderData.existingMedicines != null &&
+        orderData.existingMedicines !== ''
+      ) {
+        bookingPayload.existingMedicines = orderData.existingMedicines;
+      }
+      if (orderData.healthDisorder != null && orderData.healthDisorder !== '') {
+        bookingPayload.healthDisorder = orderData.healthDisorder;
       }
 
       // If slotId exists, use it; otherwise use slot details for dynamic slot creation

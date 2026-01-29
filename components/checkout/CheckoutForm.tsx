@@ -12,6 +12,7 @@ import {
   Trash2,
   Home,
   Coins,
+  Activity,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { colors } from '@/config/theme';
 import { apiClient } from '@/lib/api';
 import { getAuthToken } from '@/lib/utils/auth';
@@ -110,6 +112,8 @@ interface CheckoutFormProps {
     homeSampleCollection: boolean;
     hardCopyReport: boolean;
     coinsToRedeem?: number; // Optional: coins to redeem for discount
+    existingMedicines?: string | null; // Optional: patient's current medicines
+    healthDisorder?: string | null; // Optional: any health disorder
   }) => Promise<void>;
   onBackToCart?: () => void;
   /** Label for back button. Default: "Back to Cart" */
@@ -134,7 +138,8 @@ export function CheckoutForm({
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
-  const [homeSampleCollection, setHomeSampleCollection] = useState<boolean>(false);
+  const [homeSampleCollection, setHomeSampleCollection] =
+    useState<boolean>(false);
   const [hardcopyReport, setHardcopyReport] = useState<string>('no'); // 'yes' or 'no'
   const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'OFFLINE'>(
     'OFFLINE'
@@ -144,7 +149,7 @@ export function CheckoutForm({
   const [editAddressModalOpen, setEditAddressModalOpen] = useState(false);
   const [editAddressValue, setEditAddressValue] = useState('');
   const [updatingAddress, setUpdatingAddress] = useState(false);
-  
+
   // Coin redemption state
   const [totalCoins, setTotalCoins] = useState<number>(0);
   const [useCoins, setUseCoins] = useState<boolean>(false);
@@ -152,6 +157,12 @@ export function CheckoutForm({
   const [finalAmount, setFinalAmount] = useState<number>(0); // Will be updated when baseTotal is calculated
   const [validatingCoins, setValidatingCoins] = useState(false);
   const [coinsToRedeem, setCoinsToRedeem] = useState<number>(0);
+
+  // Optional health info (existing medicines, health disorder)
+  const [showExistingMedicines, setShowExistingMedicines] = useState(false);
+  const [existingMedicines, setExistingMedicines] = useState('');
+  const [showHealthDisorder, setShowHealthDisorder] = useState(false);
+  const [healthDisorder, setHealthDisorder] = useState('');
 
   // Check URL parameter for auto-enabling coin redemption
   useEffect(() => {
@@ -271,11 +282,9 @@ export function CheckoutForm({
     effectiveSubtotal +
     (homeSampleCollection ? 200 : 0) +
     (hardcopyReport === 'yes' ? 100 : 0);
-  
+
   // Apply coin discount if using coins
-  const total = useCoins && discountAmount > 0 
-    ? finalAmount 
-    : baseTotal;
+  const total = useCoins && discountAmount > 0 ? finalAmount : baseTotal;
 
   // Validate coin redemption when useCoins is toggled or total changes
   useEffect(() => {
@@ -304,7 +313,7 @@ export function CheckoutForm({
           '/patient/coins/validate-redemption',
           {
             bookingAmount: baseTotal,
-            coinsToRedeem: totalCoins
+            coinsToRedeem: totalCoins,
           },
           { token }
         );
@@ -361,6 +370,8 @@ export function CheckoutForm({
         homeSampleCollection: boolean;
         hardCopyReport: boolean;
         coinsToRedeem?: number;
+        existingMedicines?: string | null;
+        healthDisorder?: string | null;
       } = {
         paymentMethod, // 'ONLINE' or 'OFFLINE'
         homeSampleCollection, // boolean
@@ -370,6 +381,14 @@ export function CheckoutForm({
       // Add coins to redeem if user opted in
       if (useCoins && coinsToRedeem > 0) {
         orderData.coinsToRedeem = coinsToRedeem;
+      }
+
+      // Add optional health info if user provided
+      if (showExistingMedicines && existingMedicines.trim()) {
+        orderData.existingMedicines = existingMedicines.trim();
+      }
+      if (showHealthDisorder && healthDisorder.trim()) {
+        orderData.healthDisorder = healthDisorder.trim();
       }
 
       // If slotId exists, use it; otherwise send slot details for dynamic slot creation
@@ -793,6 +812,90 @@ export function CheckoutForm({
               </CardContent>
             </Card>
 
+            {/* Health Information (optional) */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Activity
+                    className="h-5 w-5"
+                    style={{ color: colors.primary }}
+                  />
+                  <h2
+                    className="text-lg font-semibold"
+                    style={{ color: colors.black }}
+                  >
+                    Health Information (optional)
+                  </h2>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Existing medicines - label left, checkbox right; when checked show input */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between gap-4 p-4 border rounded-lg">
+                      <Label
+                        htmlFor="existing_medicines_check"
+                        className="flex-1 cursor-pointer text-sm font-medium"
+                        style={{ color: colors.black }}
+                      >
+                        I am currently taking medicines
+                      </Label>
+                      <Checkbox
+                        id="existing_medicines_check"
+                        checked={showExistingMedicines}
+                        onCheckedChange={(checked) => {
+                          setShowExistingMedicines(checked === true);
+                          if (checked !== true) setExistingMedicines('');
+                        }}
+                      />
+                    </div>
+                    {showExistingMedicines && (
+                      <div className="pl-1">
+                        <Input
+                          id="existing_medicines_input"
+                          placeholder="e.g. Metformin 500mg, Vitamin D"
+                          value={existingMedicines}
+                          onChange={(e) => setExistingMedicines(e.target.value)}
+                          className="w-full"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Health disorder - label left, checkbox right; when checked show input */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between gap-4 p-4 border rounded-lg">
+                      <Label
+                        htmlFor="health_disorder_check"
+                        className="flex-1 cursor-pointer text-sm font-medium"
+                        style={{ color: colors.black }}
+                      >
+                        I have a health disorder / condition
+                      </Label>
+                      <Checkbox
+                        id="health_disorder_check"
+                        checked={showHealthDisorder}
+                        onCheckedChange={(checked) => {
+                          setShowHealthDisorder(checked === true);
+                          if (checked !== true) setHealthDisorder('');
+                        }}
+                      />
+                    </div>
+                    {showHealthDisorder && (
+                      <div className="pl-1">
+                        <Input
+                          id="health_disorder_input"
+                          placeholder="e.g. Type 2 Diabetes, Hypertension"
+                          value={healthDisorder}
+                          onChange={(e) => setHealthDisorder(e.target.value)}
+                          className="w-full"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Coin Redemption Section */}
             {totalCoins >= 100 && (
               <Card>
@@ -826,9 +929,7 @@ export function CheckoutForm({
                     >
                       <div>
                         <div className="flex items-center justify-between mb-1">
-                          <p className="font-medium">
-                            Use coins for discount
-                          </p>
+                          <p className="font-medium">Use coins for discount</p>
                           {validatingCoins && (
                             <span className="text-sm text-gray-500">
                               Validating...
@@ -845,16 +946,19 @@ export function CheckoutForm({
                             style={{ backgroundColor: colors.lightestGreen }}
                           >
                             <p className="text-sm font-medium text-green-700">
-                              Discount: ₹{discountAmount.toLocaleString('en-IN')} 
-                              {' '}({coinsToRedeem.toLocaleString('en-IN')} coins)
+                              Discount: ₹
+                              {discountAmount.toLocaleString('en-IN')} (
+                              {coinsToRedeem.toLocaleString('en-IN')} coins)
                             </p>
                           </div>
                         )}
-                        {useCoins && discountAmount === 0 && !validatingCoins && (
-                          <p className="text-sm text-red-600 mt-1">
-                            Minimum 100 coins required for redemption
-                          </p>
-                        )}
+                        {useCoins &&
+                          discountAmount === 0 &&
+                          !validatingCoins && (
+                            <p className="text-sm text-red-600 mt-1">
+                              Minimum 100 coins required for redemption
+                            </p>
+                          )}
                       </div>
                     </Label>
                   </div>
@@ -892,7 +996,8 @@ export function CheckoutForm({
                         <div>
                           <p className="font-medium mb-1">Online Payment</p>
                           <p className="text-sm text-gray-600">
-                            Pay securely using PhonePe (UPI, Cards, Net Banking, or Wallet)
+                            Pay securely using PhonePe (UPI, Cards, Net Banking,
+                            or Wallet)
                           </p>
                         </div>
                       </Label>

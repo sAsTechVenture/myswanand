@@ -15,6 +15,7 @@ import {
   CoinsTab,
   VouchersTab,
   PrescriptionsTab,
+  BloodSugarTrackingTab,
 } from '@/components/profile';
 import { EditPersonalDetailsModal } from '@/components/profile/EditPersonalDetailsModal';
 import { colors } from '@/config/theme';
@@ -26,6 +27,7 @@ import {
   Gift,
   Upload,
   LogOut,
+  Activity,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
@@ -83,6 +85,7 @@ function ProfileContent() {
         'coins',
         'vouchers',
         'prescriptions',
+        'blood-sugar',
       ].includes(tabParam)
     ) {
       setActiveTab(tabParam);
@@ -404,6 +407,17 @@ function ProfileContent() {
                 <span className="hidden sm:inline">Prescriptions</span>
                 <span className="sm:hidden">Prescriptions</span>
               </TabsTrigger>
+              <TabsTrigger
+                value="blood-sugar"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold whitespace-nowrap text-sm sm:text-base"
+                style={{
+                  color: colors.black,
+                }}
+              >
+                <Activity className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+                <span className="hidden sm:inline">Blood Sugar Tracking</span>
+                <span className="sm:hidden">Blood Sugar</span>
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -428,6 +442,10 @@ function ProfileContent() {
               isActive={activeTab === 'prescriptions'}
               onUpload={handleUploadPrescription}
             />
+          </TabsContent>
+
+          <TabsContent value="blood-sugar">
+            <BloodSugarTrackingTab isActive={activeTab === 'blood-sugar'} />
           </TabsContent>
         </Tabs>
       </div>
