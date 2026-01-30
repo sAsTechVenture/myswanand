@@ -76,7 +76,9 @@ function LoginContent() {
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
-  const [forgotPasswordError, setForgotPasswordError] = useState<string | null>(null);
+  const [forgotPasswordError, setForgotPasswordError] = useState<string | null>(
+    null
+  );
   const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,7 +171,11 @@ function LoginContent() {
 
         // Use localizedRouter.replace to avoid adding to history
         // If redirectUrl already has locale, use it directly, otherwise use localizedRouter
-        if (redirectUrl.startsWith('/en/') || redirectUrl.startsWith('/hi/') || redirectUrl.startsWith('/mr/')) {
+        if (
+          redirectUrl.startsWith('/en/') ||
+          redirectUrl.startsWith('/hi/') ||
+          redirectUrl.startsWith('/mr/')
+        ) {
           localizedRouter.router.replace(redirectUrl);
         } else {
           localizedRouter.replace(redirectUrl);
@@ -335,7 +341,8 @@ function LoginContent() {
                   htmlFor="email"
                   className="mb-2 block text-sm font-medium"
                 >
-                  {t('common.emailAddress')} <span className="text-red-500">*</span>
+                  {t('common.emailAddress')}{' '}
+                  <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="email"
@@ -429,9 +436,18 @@ function LoginContent() {
                     borderColor: colors.primary,
                     color: colors.primary,
                   }}
-                  onClick={() =>
-                    localizedRouter.push(createLocalizedPath('/auth/mobile-login', locale))
-                  }
+                  onClick={() => {
+                    // Preserve redirect parameter when navigating to mobile login
+                    const redirectParam = searchParams.get('redirect');
+                    const mobileLoginPath = createLocalizedPath(
+                      '/auth/mobile-login',
+                      locale
+                    );
+                    const redirectQuery = redirectParam
+                      ? `?redirect=${encodeURIComponent(redirectParam)}`
+                      : '';
+                    localizedRouter.push(`${mobileLoginPath}${redirectQuery}`);
+                  }}
                 >
                   Continue with Mobile
                 </Button>

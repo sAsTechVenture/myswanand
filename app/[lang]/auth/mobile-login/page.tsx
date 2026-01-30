@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { useState, useRef, Suspense } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
 import { getCurrentLocale } from '@/lib/utils/i18n';
 import { createLocalizedPath } from '@/lib/utils/i18n';
@@ -24,8 +24,9 @@ function validateMobile(digits: string): string | null {
   return null;
 }
 
-export default function MobileLoginPage() {
+function MobileLoginContent() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const locale = getCurrentLocale(pathname);
   const localizedRouter = useLocalizedRouter();
   const mobileInputRef = useRef<HTMLInputElement>(null);
@@ -34,7 +35,9 @@ export default function MobileLoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, '').slice(0, INDIAN_MOBILE_LENGTH);
+    const raw = e.target.value
+      .replace(/\D/g, '')
+      .slice(0, INDIAN_MOBILE_LENGTH);
     setMobileDigits(raw);
     if (error) setError(null);
   };
@@ -58,12 +61,20 @@ export default function MobileLoginPage() {
 
     setIsSubmitting(true);
     try {
-      const mobile = `+91${rawDigits}`;
-      const response = await sendOtp(mobile);
+      // Use phone parameter name to match new API
+      const phone = `+91${rawDigits}`;
+      const response = await sendOtp(phone);
 
       if (response.data?.success) {
         const verifyPath = createLocalizedPath('/auth/verify-otp', locale);
-        localizedRouter.push(`${verifyPath}?mobile=${encodeURIComponent(rawDigits)}`);
+        // Preserve redirect parameter if present
+        const redirectParam = searchParams.get('redirect');
+        const redirectQuery = redirectParam
+          ? `&redirect=${encodeURIComponent(redirectParam)}`
+          : '';
+        localizedRouter.push(
+          `${verifyPath}?mobile=${encodeURIComponent(rawDigits)}${redirectQuery}`
+        );
         return;
       }
 
@@ -127,7 +138,8 @@ export default function MobileLoginPage() {
             Enter your mobile number
           </h2>
           <p className="text-gray-600 mb-6">
-            We&apos;ll send you a one-time password (OTP) to verify your number. Enter 10 digits without +91.
+            We&apos;ll send you a one-time password (OTP) to verify your number.
+            Enter 10 digits without +91.
           </p>
 
           {error && (
@@ -139,7 +151,10 @@ export default function MobileLoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <Label htmlFor="mobile" className="mb-2 block text-sm font-medium">
+              <Label
+                htmlFor="mobile"
+                className="mb-2 block text-sm font-medium"
+              >
                 Mobile number <span className="text-red-500">*</span>
               </Label>
               <input
@@ -159,11 +174,12 @@ export default function MobileLoginPage() {
                   error && 'border-red-500'
                 )}
               />
-              {mobileDigits.length > 0 && mobileDigits.length !== INDIAN_MOBILE_LENGTH && (
-                <p className="mt-1 text-sm text-gray-500">
-                  {mobileDigits.length} / {INDIAN_MOBILE_LENGTH} digits
-                </p>
-              )}
+              {mobileDigits.length > 0 &&
+                mobileDigits.length !== INDIAN_MOBILE_LENGTH && (
+                  <p className="mt-1 text-sm text-gray-500">
+                    {mobileDigits.length} / {INDIAN_MOBILE_LENGTH} digits
+                  </p>
+                )}
             </div>
 
             <Button
@@ -187,7 +203,7 @@ export default function MobileLoginPage() {
 
             <div className="text-center pt-2">
               <Link
-                href={createLocalizedPath('/auth/login', locale)}
+                href={`${createLocalizedPath('/auth/login', locale)}${searchParams.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect')!)}` : ''}`}
                 className="text-sm font-medium hover:underline"
                 style={{ color: colors.primary }}
               >
@@ -198,5 +214,22 @@ export default function MobileLoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MobileLoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen py-8 flex items-center justify-center">
+          <Loader2
+            className="h-12 w-12 animate-spin"
+            style={{ color: colors.primary }}
+          />
+        </div>
+      }
+    >
+      <MobileLoginContent />
+    </Suspense>
   );
 }

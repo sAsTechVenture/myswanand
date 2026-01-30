@@ -6,12 +6,12 @@ import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
 import { getCurrentLocale } from '@/lib/utils/i18n';
 import { createLocalizedPath } from '@/lib/utils/i18n';
 import Link from 'next/link';
-import { verifyOtp } from '@/lib/api';
+import { verifyOtp, sendOtp } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { colors } from '@/config/theme';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const OTP_LENGTH = 6;
@@ -28,17 +28,63 @@ function VerifyOtpContent() {
   const searchParams = useSearchParams();
   const locale = getCurrentLocale(pathname);
   const localizedRouter = useLocalizedRouter();
-  const mobileFromQuery = (searchParams.get('mobile') ?? '').trim().replace(/\D/g, '').slice(0, 10);
+  const mobileFromQuery = (searchParams.get('mobile') ?? '')
+    .trim()
+    .replace(/\D/g, '')
+    .slice(0, 10);
   const otpInputRef = useRef<HTMLInputElement>(null);
 
   const [otp, setOtp] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [missingMobile, setMissingMobile] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   useEffect(() => {
     if (!mobileFromQuery) setMissingMobile(true);
   }, [mobileFromQuery]);
+
+  // Cooldown timer for resend
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(
+        () => setResendCooldown(resendCooldown - 1),
+        1000
+      );
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
+
+  const handleResendOtp = async () => {
+    if (isResending || resendCooldown > 0 || !mobileFromQuery) return;
+
+    setIsResending(true);
+    setError(null);
+    setResendSuccess(false);
+
+    try {
+      const phone = `+91${mobileFromQuery}`;
+      const response = await sendOtp(phone);
+
+      if (response.data?.success) {
+        setResendSuccess(true);
+        setResendCooldown(60); // 60 second cooldown
+        setTimeout(() => setResendSuccess(false), 3000);
+      } else {
+        setError('Failed to resend OTP. Please try again.');
+      }
+    } catch (err: unknown) {
+      const message =
+        (err as { message?: string })?.message ||
+        (err as { data?: { message?: string } })?.data?.message ||
+        'Failed to resend OTP. Please try again.';
+      setError(message.replace(/^API (Error|Request Failed):\s*/i, ''));
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, '').slice(0, OTP_LENGTH);
@@ -71,9 +117,16 @@ function VerifyOtpContent() {
 
     setIsSubmitting(true);
     try {
-      const mobile = mobileFromQuery.length === 10 ? `+91${mobileFromQuery}` : mobileFromQuery;
-      const response = await verifyOtp(mobile, rawOtp);
-      const data = response.data as { success?: boolean; data?: { token?: string; user?: Record<string, unknown> } };
+      // Format phone number with country code
+      const phone =
+        mobileFromQuery.length === 10
+          ? `+91${mobileFromQuery}`
+          : mobileFromQuery;
+      const response = await verifyOtp(phone, rawOtp);
+      const data = response.data as {
+        success?: boolean;
+        data?: { token?: string; user?: Record<string, unknown> };
+      };
 
       if (data?.success && data?.data?.token) {
         const token = data.data.token;
@@ -90,7 +143,22 @@ function VerifyOtpContent() {
           window.dispatchEvent(new Event('auth-change'));
         }
 
-        localizedRouter.replace('/');
+        // Get redirect URL if provided, otherwise go to home
+        const redirectParam = searchParams.get('redirect');
+        const redirectUrl = redirectParam
+          ? decodeURIComponent(redirectParam)
+          : '/';
+
+        // Use localizedRouter.replace to avoid adding to history
+        if (
+          redirectUrl.startsWith('/en/') ||
+          redirectUrl.startsWith('/hi/') ||
+          redirectUrl.startsWith('/mr/')
+        ) {
+          localizedRouter.router.replace(redirectUrl);
+        } else {
+          localizedRouter.replace(redirectUrl);
+        }
         return;
       }
 
@@ -121,7 +189,10 @@ function VerifyOtpContent() {
         >
           <div className="container mx-auto max-w-6xl px-8">
             <div className="relative z-10">
-              <h1 className="text-4xl font-bold" style={{ color: colors.white }}>
+              <h1
+                className="text-4xl font-bold"
+                style={{ color: colors.white }}
+              >
                 Verify OTP
               </h1>
             </div>
@@ -152,9 +223,10 @@ function VerifyOtpContent() {
     );
   }
 
-  const maskedMobile = mobileFromQuery.length >= 4
-    ? `******${mobileFromQuery.slice(-4)}`
-    : '******';
+  const maskedMobile =
+    mobileFromQuery.length >= 4
+      ? `******${mobileFromQuery.slice(-4)}`
+      : '******';
 
   return (
     <div className="min-h-screen py-8">
@@ -212,6 +284,15 @@ function VerifyOtpContent() {
             </Alert>
           )}
 
+          {resendSuccess && (
+            <Alert className="mb-6 border-green-500 bg-green-50">
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-800">
+                OTP sent successfully! Check your phone.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <input type="hidden" name="mobile" value={mobileFromQuery} />
             <div>
@@ -256,7 +337,32 @@ function VerifyOtpContent() {
               )}
             </Button>
 
+            {/* Resend OTP */}
             <div className="text-center pt-2">
+              <p className="text-sm text-gray-600 mb-2">
+                Didn&apos;t receive the code?
+              </p>
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={isResending || resendCooldown > 0}
+                className="text-sm font-medium hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ color: colors.primary }}
+              >
+                {isResending ? (
+                  <span className="flex items-center justify-center">
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    Sending...
+                  </span>
+                ) : resendCooldown > 0 ? (
+                  `Resend OTP in ${resendCooldown}s`
+                ) : (
+                  'Resend OTP'
+                )}
+              </button>
+            </div>
+
+            <div className="text-center pt-2 border-t border-gray-200 mt-4">
               <Link
                 href={`${createLocalizedPath('/auth/mobile-login', locale)}`}
                 className="text-sm font-medium hover:underline"

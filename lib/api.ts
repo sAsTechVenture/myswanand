@@ -171,17 +171,28 @@ export const apiClient = {
 
 /**
  * Send OTP to mobile number (Twilio Verify).
- * Mobile should be 10-digit Indian number; caller may prepend +91 before sending.
+ * Phone should include country code, e.g., +919876543210
+ *
+ * Endpoint: POST /patient/otp/send
+ * Body: { "phone": "+919876543210" }
  */
-export function sendOtp(mobile: string): Promise<ApiResponse<{ success: boolean; data?: unknown }>> {
-  return apiClient.post('/patient/send-otp', { mobile });
+export function sendOtp(
+  phone: string
+): Promise<ApiResponse<{ success: boolean; data?: unknown }>> {
+  return apiClient.post('/patient/otp/send', { phone });
 }
 
 /**
- * Verify OTP and return token on success.
+ * Verify OTP and return JWT token on success.
+ * This endpoint works for both:
+ * - OTP registration verification (sets emailVerified: true and returns JWT)
+ * - OTP login (returns JWT for existing verified user)
+ *
+ * Endpoint: POST /patient/otp/verify
+ * Body: { "phone": "+919876543210", "otp": "123456" }
  */
 export function verifyOtp(
-  mobile: string,
+  phone: string,
   otp: string
 ): Promise<
   ApiResponse<{
@@ -189,5 +200,5 @@ export function verifyOtp(
     data?: { token: string; user?: Record<string, unknown> };
   }>
 > {
-  return apiClient.post('/patient/verify-otp', { mobile, otp });
+  return apiClient.post('/patient/otp/verify', { phone, otp });
 }
