@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from 'next/image';
 
 interface PageBannerProps {
   title: string;
@@ -8,11 +8,11 @@ interface PageBannerProps {
 
 export default function PageBanner({
   title,
-  subtitle = "Home / " + title,
-  imageUrl = "/auth/hero-banner.jpg",
+  subtitle = 'Home / ' + title,
+  imageUrl = '/auth/hero-banner.jpg',
 }: PageBannerProps) {
   return (
-    <section className="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden">
+    <section className="relative h-64 sm:h-36 md:h-48 w-full overflow-hidden">
       {/* Background Image */}
       <Image
         src={imageUrl}
@@ -21,18 +21,17 @@ export default function PageBanner({
         className="object-cover"
         priority
       />
-
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/40"></div>
-
       {/* Content */}
-      <div className="relative h-full flex flex-col items-center justify-center text-center px-4">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
-          {title}
-        </h1>
-        {subtitle && (
-          <p className="text-sm sm:text-base text-gray-100">{subtitle}</p>
-        )}
+      <div className="relative h-full flex items-center justify-center">
+        {/* Glassy card with logo */}
+        <div
+          className="backdrop-blur-lg bg-white/20 rounded-3xl shadow-lg p-6"
+          style={{
+            border: '1.5px solid rgba(255,255,255,0.25)',
+          }}
+        >
+          <Image src="/logo.png" alt="Logo" width={180} height={184} priority />
+        </div>
       </div>
     </section>
   );

@@ -6,12 +6,9 @@ import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
 import { createLocalizedPath, getCurrentLocale } from '@/lib/utils/i18n';
 import { useDictionary } from '@/lib/hooks/useDictionary';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Search, ArrowUpRight } from 'lucide-react';
 import PageBanner from '@/components/common/PageBanner';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Pagination,
@@ -24,6 +21,7 @@ import {
 import { colors } from '@/config/theme';
 import { apiClient } from '@/lib/api';
 import Image from 'next/image';
+import GlareHover from '@/components/GlareHover';
 
 interface Blog {
   id: string;
@@ -198,20 +196,15 @@ function BlogsContent() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[1, 2, 3, 4, 5].map((i) => (
-              <Card key={i} className="overflow-hidden">
-                <Skeleton className="h-48 w-full" />
-                <CardContent className="p-4">
-                  <Skeleton className="h-6 w-3/4 mb-2" />
-                  <Skeleton className="h-4 w-full mb-4" />
-                  <Skeleton className="h-10 w-full" />
-                </CardContent>
-              </Card>
+              <div key={i} className="rounded-3xl overflow-hidden">
+                <Skeleton className="h-[380px] w-full" />
+              </div>
             ))}
           </div>
         ) : blogs.length === 0 ? (
-          <Card className="p-12 text-center">
+          <div className="p-12 text-center rounded-3xl bg-gray-50">
             <p className="text-gray-600">No blogs found</p>
-          </Card>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {blogs.map((blog) => {
@@ -222,7 +215,10 @@ function BlogsContent() {
                 if (!imageUrl.startsWith('http')) {
                   if (imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
                     let urlToUse = baseUrl;
-                    if (baseUrl.endsWith('/api') && imageUrl.startsWith('/api')) {
+                    if (
+                      baseUrl.endsWith('/api') &&
+                      imageUrl.startsWith('/api')
+                    ) {
                       urlToUse = baseUrl.replace(/\/api$/, '');
                     }
                     imageUrl = `${urlToUse}${imageUrl}`;
@@ -238,91 +234,95 @@ function BlogsContent() {
               const normalizedImageUrl = imageUrl || null;
 
               return (
-                <Card
+                <GlareHover
                   key={blog.id}
-                  className="overflow-hidden hover:shadow-lg transition-shadow"
+                  width="100%"
+                  height="380px"
+                  background="transparent"
+                  borderRadius="24px"
+                  borderColor="transparent"
+                  glareColor="#ffffff"
+                  glareOpacity={0.3}
                 >
-                  {/* Image Section */}
-                  <div className="relative h-48 w-full overflow-hidden">
-                    {normalizedImageUrl ? (
-                      <Image
-                        src={normalizedImageUrl}
-                        alt={blog.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        unoptimized
-                      />
-                    ) : (
-                      <div
-                        className="w-full h-full flex items-center justify-center"
-                        style={{ backgroundColor: colors.primaryLight }}
-                      >
-                        <div className="text-center">
-                          <div className="flex items-center justify-center gap-2 mb-2">
-                            <div
-                              className="w-12 h-12 rounded-full"
-                              style={{ backgroundColor: '#FFB6C1' }}
-                            />
-                            <div
-                              className="w-12 h-12 rounded-full"
-                              style={{ backgroundColor: '#87CEEB' }}
-                            />
+                  <Link
+                    href={createLocalizedPath(`/blogs/${blog.id}`, locale)}
+                    className="block w-full h-full"
+                  >
+                    <div className="relative rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow w-full h-full">
+                      {/* Image Background */}
+                      <div className="absolute inset-0">
+                        {normalizedImageUrl ? (
+                          <Image
+                            src={normalizedImageUrl}
+                            alt={blog.title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                            unoptimized
+                          />
+                        ) : (
+                          <div
+                            className="w-full h-full"
+                            style={{
+                              background: `linear-gradient(135deg, ${colors.primaryLight} 0%, ${colors.primaryLightest} 100%)`,
+                            }}
+                          >
+                            {/* Medical pattern placeholder */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-30">
+                              <svg
+                                width="100"
+                                height="100"
+                                viewBox="0 0 100 100"
+                                fill="none"
+                              >
+                                <path
+                                  d="M45 20h10v60H45z"
+                                  fill={colors.primary}
+                                />
+                                <path
+                                  d="M20 45h60v10H20z"
+                                  fill={colors.primary}
+                                />
+                              </svg>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
-                    )}
 
-                    {/* Badge Overlay - Optional, can be removed if not needed */}
-                    <div className="absolute top-3 left-3">
-                      <Badge
-                        className="px-2 py-1 text-xs font-medium rounded"
-                        style={{
-                          backgroundColor: '#374151',
-                          color: colors.white,
-                        }}
-                      >
-                        Blog
-                      </Badge>
-                    </div>
-
-                    {/* Title Overlay on Image */}
-                    <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
-                      <h3
-                        className="text-white font-semibold text-sm mb-1 line-clamp-1"
-                      >
-                        {blog.title.length > 25 ? blog.title.substring(0, 25) + '...' : blog.title}
-                      </h3>
-                      <p className="text-white/90 text-xs font-medium line-clamp-1">
-                        {new Date(blog.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Card Content */}
-                  <CardContent className="p-4 space-y-3">
-                    <h3
-                      className="font-bold text-lg line-clamp-2"
-                      style={{ color: colors.black }}
-                    >
-                      {blog.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {truncateContent(blog.content)}
-                    </p>
-                    <Link href={createLocalizedPath(`/blogs/${blog.id}`, locale)}>
-                      <Button
-                        className="w-full"
+                      {/* Purple Curved Corner - Top Right */}
+                      <div
+                        className="absolute top-0 right-0 w-[100px] h-[100px]"
                         style={{
                           backgroundColor: colors.primary,
-                          color: colors.white,
+                          borderBottomLeftRadius: '100%',
                         }}
+                      />
+
+                      {/* Arrow Icon - Top Right */}
+                      <div className="absolute top-4 right-4 w-12 h-12 rounded-full border-2 border-white bg-transparent flex items-center justify-center z-10">
+                        <ArrowUpRight className="w-5 h-5 text-white" />
+                      </div>
+
+                      {/* White Bottom Section with Content */}
+                      <div
+                        className="absolute bottom-0 left-0 right-0 bg-white px-5 pt-6 pb-5 rounded-t-[32px]"
+                        style={{ minHeight: '130px' }}
                       >
-                        Read More
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                        {/* Title - Primary color, italic */}
+                        <h3
+                          className="font-semibold text-xl italic leading-tight line-clamp-2 mb-2"
+                          style={{ color: colors.primary }}
+                        >
+                          {blog.title}
+                        </h3>
+                        {/* Description - Truncated */}
+                        <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                          {truncateContent(blog.content, 100)}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                </GlareHover>
               );
             })}
           </div>

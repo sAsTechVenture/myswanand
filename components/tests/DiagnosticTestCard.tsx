@@ -3,9 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Heart, ShoppingCart, Star } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { colors } from '@/config/theme';
 import { cn } from '@/lib/utils';
@@ -41,7 +39,6 @@ export interface DiagnosticTestCardProps {
 }
 
 export function DiagnosticTestCard({
-  ageRange,
   isFavorite = false,
   onFavoriteToggle,
   imageUrl,
@@ -50,7 +47,6 @@ export function DiagnosticTestCard({
   description,
   testCount,
   price,
-  features = [],
   onAddToCart,
   className,
   testId,
@@ -72,47 +68,93 @@ export function DiagnosticTestCard({
       onAddToCart();
     }
   };
+
   return (
     <GlareHover
       width="100%"
       height="100%"
       background="transparent"
-      borderRadius="0.75rem"
+      borderRadius="1rem"
       borderColor="transparent"
-      glareColor={colors.primary}
-      glareOpacity={0.3}
+      glareColor="#ffffff"
+      glareOpacity={0.2}
       glareSize={200}
       transitionDuration={500}
       className="h-full"
     >
-      <Card
+      <div
         className={cn(
-          'relative flex flex-col overflow-hidden bg-white shadow-lg transition-all hover:shadow-xl',
-          'border-2 h-full w-full',
+          'relative flex flex-col overflow-hidden rounded-2xl h-full w-full',
+          'shadow-lg transition-all hover:shadow-xl border border-gray-200',
           className
         )}
-        style={{
-          borderColor: colors.primary,
-          boxShadow: `0 4px 20px rgba(94, 46, 133, 0.15)`,
-        }}
       >
-        <CardHeader className="relative p-0 flex-shrink-0">
-          {/* Top Left - Age Badge */}
-          {ageRange && (
-            <div className="absolute left-3 top-3 z-10">
-              <Badge
-                variant="default"
-                className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                style={{
-                  backgroundColor: colors.primary,
-                  color: colors.white,
-                  borderColor: colors.primary,
-                }}
-              >
-                AGE : {ageRange}
-              </Badge>
+        {/* Image Section with Overlay Content - Fixed height */}
+        <div className="relative h-[280px] flex-shrink-0">
+          {/* Background Image */}
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={imageAlt}
+              fill
+              className="object-cover"
+              unoptimized
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            />
+          ) : (
+            /* Default medical/health themed background when no image */
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600">
+              {/* Medical cross pattern overlay */}
+              <div className="absolute inset-0 opacity-10">
+                <svg
+                  className="w-full h-full"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <defs>
+                    <pattern
+                      id="medical-pattern"
+                      x="0"
+                      y="0"
+                      width="60"
+                      height="60"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <path
+                        d="M25 10 h10 v15 h15 v10 h-15 v15 h-10 v-15 h-15 v-10 h15 z"
+                        fill="white"
+                      />
+                    </pattern>
+                  </defs>
+                  <rect
+                    width="100%"
+                    height="100%"
+                    fill="url(#medical-pattern)"
+                  />
+                </svg>
+              </div>
+              {/* Centered health icon */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-12 h-12 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {/* Heart with pulse line */}
+                    <path d="M19.5 12.572l-7.5 7.428l-7.5-7.428a5 5 0 1 1 7.5-6.566a5 5 0 1 1 7.5 6.572" />
+                    <path d="M12 6v4m0 0v4m0-4h4m-4 0H8" />
+                  </svg>
+                </div>
+              </div>
             </div>
           )}
+
+          {/* Dark Overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
 
           {/* Top Right - Favorite Heart */}
           {onFavoriteToggle && (
@@ -122,11 +164,9 @@ export function DiagnosticTestCard({
                 e.stopPropagation();
                 onFavoriteToggle();
               }}
-              className="absolute right-3 top-3 z-10 rounded-full p-1.5 transition-colors"
+              className="absolute right-3 top-3 z-10 rounded-full p-2 transition-all hover:scale-110"
               style={{
-                backgroundColor: isFavorite
-                  ? colors.primaryLight
-                  : 'transparent',
+                backgroundColor: 'white',
               }}
               aria-label={
                 isFavorite ? 'Remove from favorites' : 'Add to favorites'
@@ -134,87 +174,23 @@ export function DiagnosticTestCard({
             >
               <Heart
                 className={cn(
-                  'h-4 w-4 transition-colors',
-                  isFavorite ? 'fill-current' : 'stroke-2'
+                  'h-5 w-5 transition-colors',
+                  isFavorite ? 'fill-current' : ''
                 )}
                 style={{
-                  color: isFavorite ? colors.primary : colors.primary,
+                  color: colors.primary,
                 }}
               />
             </button>
           )}
 
-          {/* Main Image - Full Width */}
-          {imageUrl ? (
-            <div className="relative h-48 w-full overflow-hidden">
-              <Image
-                src={imageUrl}
-                alt={imageAlt}
-                fill
-                className="object-cover"
-                unoptimized
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              />
-            </div>
-          ) : (
-            <div className="relative h-48 w-full overflow-hidden bg-gray-100 flex items-center justify-center">
-              {/* Default graphic: Hands cupping heart with cross */}
-              <svg
-                viewBox="0 0 120 120"
-                className="h-32 w-32"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Hands */}
-                <path
-                  d="M20 60 Q20 40 30 35 Q40 30 50 40 L50 50 Q45 55 40 60 Q35 65 30 70 Q25 75 20 70 Z"
-                  fill="#F5E6D3"
-                  stroke="#D4A574"
-                  strokeWidth="2"
-                />
-                <path
-                  d="M100 60 Q100 40 90 35 Q80 30 70 40 L70 50 Q75 55 80 60 Q85 65 90 70 Q95 75 100 70 Z"
-                  fill="#F5E6D3"
-                  stroke="#D4A574"
-                  strokeWidth="2"
-                />
-                {/* Heart */}
-                <path
-                  d="M60 45 C60 35 50 30 45 35 C40 30 30 35 30 45 C30 55 45 70 60 80 C75 70 90 55 90 45 C90 35 80 30 75 35 C70 30 60 35 60 45 Z"
-                  fill="#DC2626"
-                />
-                {/* Cross */}
-                <line
-                  x1="60"
-                  y1="55"
-                  x2="60"
-                  y2="70"
-                  stroke="white"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                />
-                <line
-                  x1="52"
-                  y1="62.5"
-                  x2="68"
-                  y2="62.5"
-                  stroke="white"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-          )}
-        </CardHeader>
-
-        <CardContent className="flex flex-col flex-1 px-4 pb-4 space-y-2">
-          {/* Title */}
-          <div className="flex-shrink-0">
+          {/* Overlay Content - Title, Test Count, Price */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+            {/* Title */}
             {testId ? (
               <Link href={`/diagnostic-tests/${testId}`}>
                 <h3
-                  className="line-clamp-1 text-lg font-bold leading-tight hover:opacity-80 transition-opacity cursor-pointer"
-                  style={{ color: colors.black }}
+                  className="text-xl font-bold text-white leading-tight hover:opacity-80 transition-opacity cursor-pointer line-clamp-2"
                   title={title}
                 >
                   {title}
@@ -222,78 +198,62 @@ export function DiagnosticTestCard({
               </Link>
             ) : (
               <h3
-                className="line-clamp-1 text-lg font-bold leading-tight"
-                style={{ color: colors.black }}
+                className="text-xl font-bold text-white leading-tight line-clamp-2"
                 title={title}
               >
                 {title}
               </h3>
             )}
-          </div>
 
-          {/* Description with truncate */}
-          {description && (
-            <p
-              className="line-clamp-2 text-xs leading-snug flex-shrink-0"
-              style={{ color: colors.black }}
-              title={description}
-            >
-              {description}
-            </p>
-          )}
+            {/* Test Count */}
+            {testCount !== undefined && (
+              <p className="text-sm text-white/80 mt-1">
+                {testCount} Tests Include
+              </p>
+            )}
 
-          {/* Test Count */}
-          {testCount !== undefined && (
-            <p
-              className="text-xs flex-shrink-0"
-              style={{ color: colors.black }}
-            >
-              {testCount} Tests Included
-            </p>
-          )}
-
-          {/* Features List - Flexible section */}
-          {features.length > 0 && (
-            <ul className="space-y-1 flex-1 min-h-0">
-              {features.map((feature, index) => (
-                <li
-                  key={index}
-                  className="flex items-start gap-1.5 text-xs leading-tight"
-                  style={{ color: colors.black }}
-                >
-                  <Star
-                    className="mt-0.5 h-3 w-3 shrink-0"
-                    style={{ color: colors.primary }}
-                    fill={colors.primary}
-                  />
-                  <span className="flex-1 line-clamp-2">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {/* Price and Button - Always at bottom */}
-          <div className="flex-shrink-0 space-y-2 mt-auto">
             {/* Price */}
-            <p className="text-xl font-bold" style={{ color: colors.black }}>
-              ₹ {price.toLocaleString('en-IN')}
-            </p>
-
-            {/* Add to Cart Button */}
-            <Button
-              onClick={handleAddToCart}
-              className="w-full rounded-lg py-2.5 text-sm font-semibold transition-all hover:opacity-90"
-              style={{
-                backgroundColor: colors.primary,
-                color: colors.white,
-              }}
+            <p
+              className="text-2xl font-bold mt-1"
+              style={{ color: colors.white }}
             >
-              <ShoppingCart className="h-4 w-4" />
-              Add to cart
-            </Button>
+              ₹{price.toLocaleString('en-IN')}
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* White Bottom Section - Fixed height for symmetry */}
+        <div className="bg-white px-5 pt-6 pb-5 rounded-t-3xl -mt-6 relative z-20 h-[180px] flex flex-col">
+          {/* Truncated Description - Fixed height container */}
+          <div className="flex-1 overflow-hidden">
+            {description ? (
+              <p
+                className="text-sm leading-relaxed line-clamp-3"
+                style={{ color: colors.black }}
+                title={description}
+              >
+                {description}
+              </p>
+            ) : (
+              <p className="text-sm leading-relaxed text-gray-400 italic">
+                Comprehensive health checkup package
+              </p>
+            )}
+          </div>
+
+          {/* Add to Cart Button - Always at bottom */}
+          <Button
+            onClick={handleAddToCart}
+            className="w-full rounded-full py-5 text-sm font-semibold transition-all hover:opacity-90 mt-auto"
+            style={{
+              backgroundColor: colors.primary,
+              color: colors.white,
+            }}
+          >
+            Add to cart
+          </Button>
+        </div>
+      </div>
     </GlareHover>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
 import { createLocalizedPath, getCurrentLocale } from '@/lib/utils/i18n';
@@ -54,7 +54,7 @@ interface CartResponse {
 
 type ViewState = 'cart' | 'checkout' | 'success' | 'error';
 
-export default function CartPage() {
+function CartContent() {
   const pathname = usePathname();
   const locale = getCurrentLocale(pathname);
   const localizedRouter = useLocalizedRouter();
@@ -626,5 +626,36 @@ export default function CartPage() {
         assignedVoucherIds={assignedVoucherIds}
       />
     </>
+  );
+}
+
+export default function CartPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <Skeleton className="h-8 w-32 mb-6" />
+            <Skeleton className="h-12 w-64 mx-auto mb-6" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-4">
+                {[1, 2].map((i) => (
+                  <Card key={i} className="p-4">
+                    <Skeleton className="h-20 w-full" />
+                  </Card>
+                ))}
+              </div>
+              <div>
+                <Card className="p-4">
+                  <Skeleton className="h-48 w-full" />
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <CartContent />
+    </Suspense>
   );
 }

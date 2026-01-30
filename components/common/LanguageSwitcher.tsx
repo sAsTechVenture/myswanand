@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Globe } from 'lucide-react';
 import {
@@ -12,7 +13,7 @@ import { locales, localeNames, type Locale } from '@/lib/i18n/config';
 import { colors } from '@/config/theme';
 import { getCurrentLocale } from '@/lib/utils/i18n';
 
-export function LanguageSwitcher() {
+function LanguageSwitcherContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -28,24 +29,16 @@ export function LanguageSwitcher() {
 
     // Remove current locale from pathname
     let pathWithoutLocale = pathname.replace(/^\/(en|hi|mr)/, '');
-    
+
     // If path is empty or just '/', set it to empty string (will become just /locale)
     if (!pathWithoutLocale || pathWithoutLocale === '/') {
       pathWithoutLocale = '';
     }
-    
+
     // Preserve query parameters
     const queryString = searchParams.toString();
     const newPath = `/${locale}${pathWithoutLocale}${queryString ? `?${queryString}` : ''}`;
-    
-    // Debug logging
-    console.log('Language switch:', {
-      from: currentLocale,
-      to: locale,
-      currentPath: pathname,
-      newPath,
-    });
-    
+
     // Navigate to new locale - use replace to avoid adding to history
     router.replace(newPath);
   };
@@ -61,12 +54,15 @@ export function LanguageSwitcher() {
             backgroundColor: '#f0ede4',
           }}
         >
-          <Globe className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: colors.green }} />
+          <Globe
+            className="w-4 h-4 sm:w-5 sm:h-5"
+            style={{ color: colors.green }}
+          />
         </Button>
       </PopoverTrigger>
-      <PopoverContent 
-        className="w-44 p-1.5" 
-        align="end" 
+      <PopoverContent
+        className="w-44 p-1.5"
+        align="end"
         sideOffset={8}
         side="bottom"
       >
@@ -99,5 +95,33 @@ export function LanguageSwitcher() {
         </div>
       </PopoverContent>
     </Popover>
+  );
+}
+
+// Fallback component
+function LanguageSwitcherFallback() {
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="rounded-full h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center"
+      style={{
+        backgroundColor: '#f0ede4',
+      }}
+      disabled
+    >
+      <Globe
+        className="w-4 h-4 sm:w-5 sm:h-5"
+        style={{ color: colors.green }}
+      />
+    </Button>
+  );
+}
+
+export function LanguageSwitcher() {
+  return (
+    <Suspense fallback={<LanguageSwitcherFallback />}>
+      <LanguageSwitcherContent />
+    </Suspense>
   );
 }

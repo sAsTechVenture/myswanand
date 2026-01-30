@@ -38,7 +38,6 @@ export function Footer() {
   const socialLinks = [
     { name: 'Facebook', Icon: Facebook, href: '#' },
     { name: 'YouTube', Icon: Youtube, href: '#' },
-    { name: 'Twitter', Icon: Twitter, href: '#' },
     { name: 'Instagram', Icon: Instagram, href: '#' },
   ];
 
@@ -49,16 +48,41 @@ export function Footer() {
   ];
 
   const privacyLinks = [
-    { href: createLocalizedPath('/refund', locale), label: t('common.refundAndReturns'), id: 'refund-returns' },
-    { href: createLocalizedPath('/refund', locale), label: t('common.policy'), id: 'policy' },
-    { href: createLocalizedPath('/privacy', locale), label: t('common.privacyPolicy'), id: 'privacy' },
-    { href: createLocalizedPath('/terms', locale), label: t('common.termsConditions'), id: 'terms' },
+    {
+      href: createLocalizedPath('/refund', locale),
+      label: t('common.refundAndReturns'),
+      id: 'refund-returns',
+    },
+    {
+      href: createLocalizedPath('/refund', locale),
+      label: t('common.policy'),
+      id: 'policy',
+    },
+    {
+      href: createLocalizedPath('/privacy', locale),
+      label: t('common.privacyPolicy'),
+      id: 'privacy',
+    },
+    {
+      href: createLocalizedPath('/terms', locale),
+      label: t('common.termsConditions'),
+      id: 'terms',
+    },
   ];
 
   const accountLinks = [
-    { href: createLocalizedPath('/profile', locale), label: t('common.myAccount') },
-    { href: createLocalizedPath('/contact', locale), label: t('common.contact') },
-    { href: createLocalizedPath('/cart', locale), label: t('common.shoppingCart') },
+    {
+      href: createLocalizedPath('/profile', locale),
+      label: t('common.myAccount'),
+    },
+    {
+      href: createLocalizedPath('/contact', locale),
+      label: t('common.contact'),
+    },
+    {
+      href: createLocalizedPath('/cart', locale),
+      label: t('common.shoppingCart'),
+    },
     { href: createLocalizedPath('/shop', locale), label: t('common.shop') },
   ];
 
@@ -180,10 +204,10 @@ export function Footer() {
                 </address>
                 <div className="text-sm text-gray-600 space-y-2">
                   <p>
-                    <strong>Monday - Saturday:</strong> 8:00 am - 4:00pm
+                    <strong>Monday - Saturday:</strong> 7:00 am - 10:00pm
                   </p>
                   <p>
-                    <strong>Sunday:</strong> 9:00 am - 5:00pm
+                    <strong>Sunday:</strong> 8:00 am - 4:00pm
                   </p>
                 </div>
               </div>

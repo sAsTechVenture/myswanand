@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   Menu,
@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { colors } from '@/config/theme';
 import { useLikedItems } from '@/lib/hooks/useLikedItems';
 import { useCartCount } from '@/lib/hooks/useCartCount';
@@ -42,7 +43,7 @@ import { getCurrentLocale, createLocalizedPath } from '@/lib/utils/i18n';
 import { useDictionary } from '@/lib/hooks/useDictionary';
 import { locales, localeNames, type Locale } from '@/lib/i18n/config';
 
-export function Header() {
+function HeaderContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -865,5 +866,31 @@ export function Header() {
       </div>
       <div className="h-px bg-gray-300"></div>
     </header>
+  );
+}
+
+// Header fallback for Suspense
+function HeaderFallback() {
+  return (
+    <header className="w-full bg-white sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 sm:h-20 items-center justify-between gap-2">
+          <Skeleton className="h-10 w-32" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <Skeleton className="h-10 w-10 rounded-full" />
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export function Header() {
+  return (
+    <Suspense fallback={<HeaderFallback />}>
+      <HeaderContent />
+    </Suspense>
   );
 }

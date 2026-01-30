@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { getCurrentLocale } from '@/lib/utils/i18n';
 import { useDictionary } from '@/lib/hooks/useDictionary';
-import PolicyLayout from "@/components/privacy/PolicyLayout";
+import PolicyLayout from '@/components/privacy/PolicyLayout';
 
 export default function TermsAndConditions() {
   const pathname = usePathname();
@@ -23,41 +23,35 @@ export default function TermsAndConditions() {
 
   return (
     <PolicyLayout title="common.termsConditions">
-
-      <p className="text-sm text-gray-500">
-        {t('common.swanandPathology')} <br />
+      <p className="text-sm text-gray-500 mb-6">
+        {t('common.swanandPathology')}
       </p>
 
       <p>
-        Welcome to <strong>Swanand Pathology</strong> (“Swanand”, “we”, “our”,
-        “us”). These Terms & Conditions (“Terms”) govern your access to and use
-        of our website, mobile application, and related services (collectively,
-        the “Platform”).
+        Welcome to <strong>Swanand Pathology</strong> (&quot;Swanand&quot;,
+        &quot;we&quot;, &quot;our&quot;, &quot;us&quot;). These Terms &amp;
+        Conditions (&quot;Terms&quot;) govern your access to and use of our
+        website, mobile application, and related services (collectively, the
+        &quot;Platform&quot;).
       </p>
 
-      <p>
-        {t('common.termsIntro2')}
-      </p>
+      <p>{t('common.termsIntro2')}</p>
 
-      {/* 1 */}
-      <h2 className="font-semibold text-lg mt-8">
-        1. Eligibility to Use the Platform
-      </h2>
-      <ul className="list-disc pl-6">
+      <h2>1. Eligibility to Use the Platform</h2>
+      <ul>
         <li>You must be at least 18 years old to use the Platform.</li>
-        <li>You confirm that all information provided is accurate and complete.</li>
+        <li>
+          You confirm that all information provided is accurate and complete.
+        </li>
         <li>
           If you use the Platform on behalf of another person, you confirm that
           you have their consent.
         </li>
       </ul>
 
-      {/* 2 */}
-      <h2 className="font-semibold text-lg mt-8">
-        2. Nature of Services
-      </h2>
+      <h2>2. Nature of Services</h2>
       <p>Swanand Pathology provides:</p>
-      <ul className="list-disc pl-6">
+      <ul>
         <li>Diagnostic laboratory test booking</li>
         <li>Health check-up packages</li>
         <li>Home sample collection services</li>
@@ -65,20 +59,17 @@ export default function TermsAndConditions() {
         <li>Digital access to diagnostic reports and health records</li>
       </ul>
 
-      <p className="mt-2">
-        ⚠️ Swanand Pathology does not provide medical diagnosis or treatment
-        advice. All medical interpretation should be done by a qualified
-        healthcare professional.
+      <p className="mt-4 p-4 bg-amber-50 rounded-lg border-l-4 border-amber-400">
+        <strong>⚠️ Important:</strong> Swanand Pathology does not provide
+        medical diagnosis or treatment advice. All medical interpretation should
+        be done by a qualified healthcare professional.
       </p>
 
-      {/* 3 */}
-      <h2 className="font-semibold text-lg mt-8">
-        3. User Account & Responsibilities
-      </h2>
+      <h2>3. User Account &amp; Responsibilities</h2>
       <p>
         To access certain features, you may be required to create an account.
       </p>
-      <ul className="list-disc pl-6">
+      <ul>
         <li>Maintain confidentiality of login credentials</li>
         <li>Provide accurate personal and patient information</li>
         <li>Update information when required</li>
@@ -87,11 +78,8 @@ export default function TermsAndConditions() {
         You are responsible for all activities carried out through your account.
       </p>
 
-      {/* 4 */}
-      <h2 className="font-semibold text-lg mt-8">
-        4. Booking & Service Fulfilment
-      </h2>
-      <ul className="list-disc pl-6">
+      <h2>4. Booking &amp; Service Fulfilment</h2>
+      <ul>
         <li>All bookings are subject to availability and confirmation.</li>
         <li>
           Sample collection time slots are indicative and may vary due to
@@ -107,23 +95,25 @@ export default function TermsAndConditions() {
         </li>
       </ul>
 
-      {/* 5 */}
-      <h2 className="font-semibold text-lg mt-8">
-        5. Payments
-      </h2>
-      <ul className="list-disc pl-6">
-        <li>Payments must be made in full at the time of booking unless stated otherwise.</li>
-        <li>Prices are inclusive or exclusive of taxes as displayed on the Platform.</li>
+      <h2>5. Payments</h2>
+      <ul>
+        <li>
+          Payments must be made in full at the time of booking unless stated
+          otherwise.
+        </li>
+        <li>
+          Prices are inclusive or exclusive of taxes as displayed on the
+          Platform.
+        </li>
         <li>Payments are processed via secure third-party gateways.</li>
-        <li>Swanand Pathology does not store complete card or banking details.</li>
+        <li>
+          Swanand Pathology does not store complete card or banking details.
+        </li>
       </ul>
 
-      {/* 6 */}
-      <h2 className="font-semibold text-lg mt-8">
-        6. Cancellation & Refunds
-      </h2>
+      <h2>6. Cancellation &amp; Refunds</h2>
       <p>
-        Cancellations and refunds are governed by our Return, Cancellation &
+        Cancellations and refunds are governed by our Return, Cancellation &amp;
         Refund Policy, which forms an integral part of these Terms.
       </p>
       <p className="mt-2">
@@ -131,12 +121,9 @@ export default function TermsAndConditions() {
         are not applicable.
       </p>
 
-      {/* 7 */}
-      <h2 className="font-semibold text-lg mt-8">
-        7. User Conduct
-      </h2>
+      <h2>7. User Conduct</h2>
       <p>You agree not to:</p>
-      <ul className="list-disc pl-6">
+      <ul>
         <li>Misuse or interfere with the Platform</li>
         <li>Upload false, misleading, or fraudulent information</li>
         <li>Attempt unauthorized access to systems or data</li>
@@ -146,11 +133,8 @@ export default function TermsAndConditions() {
         Violations may result in suspension or termination of your account.
       </p>
 
-      {/* 8 */}
-      <h2 className="font-semibold text-lg mt-8">
-        8. Medical Data & Reports
-      </h2>
-      <ul className="list-disc pl-6">
+      <h2>8. Medical Data &amp; Reports</h2>
+      <ul>
         <li>Reports are generated based on laboratory analysis.</li>
         <li>No guarantee of specific medical outcomes is provided.</li>
         <li>
@@ -163,20 +147,14 @@ export default function TermsAndConditions() {
         </li>
       </ul>
 
-      {/* 9 */}
-      <h2 className="font-semibold text-lg mt-8">
-        9. Third-Party Services
-      </h2>
+      <h2>9. Third-Party Services</h2>
       <p>
         The Platform may include third-party labs, doctors, and payment service
         providers. Swanand Pathology is not responsible for services provided by
         third parties beyond platform facilitation.
       </p>
 
-      {/* 10 */}
-      <h2 className="font-semibold text-lg mt-8">
-        10. Intellectual Property
-      </h2>
+      <h2>10. Intellectual Property</h2>
       <p>
         All content on the Platform, including logos, text, design, and
         software, is the intellectual property of Swanand Pathology or its
@@ -187,21 +165,15 @@ export default function TermsAndConditions() {
         written permission.
       </p>
 
-      {/* 11 */}
-      <h2 className="font-semibold text-lg mt-8">
-        11. Privacy & Data Protection
-      </h2>
+      <h2>11. Privacy &amp; Data Protection</h2>
       <p>
         Your use of the Platform is governed by our Privacy Policy. By using the
         Platform, you consent to the collection, processing, storage, and
         sharing of data as described therein.
       </p>
 
-      {/* 12 */}
-      <h2 className="font-semibold text-lg mt-8">
-        12. Limitation of Liability
-      </h2>
-      <ul className="list-disc pl-6">
+      <h2>12. Limitation of Liability</h2>
+      <ul>
         <li>
           Swanand Pathology shall not be liable for indirect, incidental, or
           consequential damages.
@@ -216,77 +188,61 @@ export default function TermsAndConditions() {
         </li>
       </ul>
 
-      {/* 13 */}
-      <h2 className="font-semibold text-lg mt-8">
-        13. Indemnity
-      </h2>
+      <h2>13. Indemnity</h2>
       <p>
         You agree to indemnify and hold harmless Swanand Pathology from claims,
         losses, damages, or liabilities arising from misuse of the Platform,
         incorrect information provided by you, or violation of these Terms.
       </p>
 
-      {/* 14 */}
-      <h2 className="font-semibold text-lg mt-8">
-        14. Suspension & Termination
-      </h2>
+      <h2>14. Suspension &amp; Termination</h2>
       <p>
         We reserve the right to suspend or terminate accounts without prior
         notice if misuse or violation of these Terms is detected.
       </p>
 
-      {/* 15 */}
-      <h2 className="font-semibold text-lg mt-8">
-        15. Force Majeure
-      </h2>
+      <h2>15. Force Majeure</h2>
       <p>
         Swanand Pathology shall not be liable for failure or delay in services
         due to events beyond reasonable control, including natural disasters,
         government restrictions, technical failures, or pandemics.
       </p>
 
-      {/* 16 */}
-      <h2 className="font-semibold text-lg mt-8">
-        16. Governing Law & Jurisdiction
-      </h2>
+      <h2>16. Governing Law &amp; Jurisdiction</h2>
       <p>
         These Terms shall be governed by the laws of India. Courts located in
-        [Your City/State] shall have exclusive jurisdiction.
+        Thane, Maharashtra shall have exclusive jurisdiction.
       </p>
 
-      {/* 17 */}
-      <h2 className="font-semibold text-lg mt-8">
-        17. Changes to Terms
-      </h2>
+      <h2>17. Changes to Terms</h2>
       <p>
         We may update these Terms from time to time. Continued use of the
         Platform constitutes acceptance of the updated Terms.
       </p>
 
-      {/* 18 */}
-      <h2 className="font-semibold text-lg mt-8">
-        18. Contact & Grievance Redressal
-      </h2>
-      <p>
-        <strong>Customer Support / Grievance Officer</strong><br />
-        Swanand Pathology<br />
-        📧 Email: support@swanandpathology.com<br />
-        📞 Phone: +91-XXXXXXXXXX<br />
-        📍 Address: Unit No. 1, 101/102,
-Parth Regency, Shivaji Path,
-Opp. Nehru Maidan Main Gate,
-Dombivli (E), Thane - 421201.
-      </p>
+      <h2>18. Contact &amp; Grievance Redressal</h2>
+      <div className="mt-4 p-6 bg-gray-50 rounded-xl">
+        <p className="font-semibold text-gray-900 mb-3">
+          Customer Support / Grievance Officer
+        </p>
+        <p className="text-gray-700">
+          <strong>Swanand Pathology</strong>
+          <br />
+          <br />
+          📧 Email: <a href="mailto:hello@myswanand.com">hello@myswanand.com</a>
+          <br />
+          📞 Phone: <a href="tel:+91-8419970311">+91-8419970311</a>
+          <br />
+          📍 Address: Unit No. 1, 101/102, Parth Regency, Shivaji Path, Opp.
+          Nehru Maidan Main Gate, Dombivli (E), Thane - 421201.
+        </p>
+      </div>
 
-      {/* 19 */}
-      <h2 className="font-semibold text-lg mt-8">
-        19. Acceptance of Terms
-      </h2>
+      <h2>19. Acceptance of Terms</h2>
       <p>
         By using the Swanand Pathology Platform, you confirm that you have read,
         understood, and agree to be legally bound by these Terms.
       </p>
-
     </PolicyLayout>
   );
 }

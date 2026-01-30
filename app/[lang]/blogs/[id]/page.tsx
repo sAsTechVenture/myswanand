@@ -2,17 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, usePathname } from 'next/navigation';
-import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
 import { createLocalizedPath, getCurrentLocale } from '@/lib/utils/i18n';
 import { useDictionary } from '@/lib/hooks/useDictionary';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, Clock } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { colors } from '@/config/theme';
 import { apiClient } from '@/lib/api';
 import Image from 'next/image';
+import PageBanner from '@/components/common/PageBanner';
 
 interface Blog {
   id: string;
@@ -27,12 +26,70 @@ interface Blog {
   updatedAt: string;
 }
 
+// Function to estimate read time based on word count
+const estimateReadTime = (content: string): number => {
+  const wordsPerMinute = 200;
+  const wordCount = content.split(/\s+/).length;
+  return Math.ceil(wordCount / wordsPerMinute);
+};
+
+// Function to format content with proper styling
+const formatContent = (content: string): string => {
+  // Split content into paragraphs
+  const paragraphs = content.split(/\r\n\r\n|\n\n/);
+
+  const formattedParagraphs = paragraphs.map((paragraph) => {
+    const trimmed = paragraph.trim();
+    if (!trimmed) return '';
+
+    // Check if it's a numbered heading (e.g., "1. The Power of Early Detection")
+    const numberedHeadingMatch = trimmed.match(/^(\d+)\.\s+(.+)$/);
+    if (numberedHeadingMatch) {
+      return `<h3 class="blog-heading">${numberedHeadingMatch[1]}. ${numberedHeadingMatch[2]}</h3>`;
+    }
+
+    // Check if it's a section heading (ends with specific patterns or is a known heading)
+    const sectionHeadings = [
+      'Common Tests You Should Know',
+      'Why Choose Swanand Pathology?',
+    ];
+    if (sectionHeadings.some((h) => trimmed.startsWith(h))) {
+      return `<h3 class="blog-heading">${trimmed}</h3>`;
+    }
+
+    // Check if it starts with a bullet point pattern (like "CBC (Complete Blood Count):")
+    if (trimmed.match(/^[A-Z][A-Za-z0-9\s]+(\([^)]+\))?:/)) {
+      // It's a definition/bullet item
+      const parts = trimmed.split(':');
+      const term = parts[0];
+      const definition = parts.slice(1).join(':').trim();
+      return `<p class="blog-bullet"><span class="blog-bullet-dot">•</span> <strong>${term}:</strong> ${definition}</p>`;
+    }
+
+    // Check for lines that look like bullet points (starting with specific keywords)
+    if (
+      trimmed.match(/^(Accuracy|Speed|Care|Special Launch Offer!):/i) ||
+      trimmed.match(/^(Accuracy|Speed|Care):/)
+    ) {
+      const parts = trimmed.split(':');
+      const term = parts[0];
+      const definition = parts.slice(1).join(':').trim();
+      return `<p class="blog-bullet"><span class="blog-bullet-dot">•</span> <strong>${term}:</strong> ${definition}</p>`;
+    }
+
+    // Regular paragraph - handle line breaks within
+    const withLineBreaks = trimmed.replace(/\r\n|\n/g, '<br />');
+    return `<p class="blog-paragraph">${withLineBreaks}</p>`;
+  });
+
+  return formattedParagraphs.filter((p) => p).join('\n');
+};
+
 export default function BlogDetailPage() {
   const params = useParams();
   const pathname = usePathname();
   const locale = getCurrentLocale(pathname);
   const { dictionary } = useDictionary(locale);
-  const localizedRouter = useLocalizedRouter();
   const blogId = params.id as string;
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
@@ -83,13 +140,15 @@ export default function BlogDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <Skeleton className="h-12 w-32 mb-6" />
-          <Skeleton className="h-96 w-full mb-6" />
-          <Skeleton className="h-8 w-3/4 mb-4" />
-          <Skeleton className="h-4 w-full mb-2" />
-          <Skeleton className="h-4 w-full mb-2" />
+      <div className="min-h-screen bg-white">
+        <PageBanner title={t('common.blogs')} />
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <Skeleton className="h-8 w-32 mb-6" />
+          <Skeleton className="h-[400px] w-full rounded-3xl mb-8" />
+          <Skeleton className="h-10 w-3/4 mb-4" />
+          <Skeleton className="h-6 w-48 mb-8" />
+          <Skeleton className="h-4 w-full mb-3" />
+          <Skeleton className="h-4 w-full mb-3" />
           <Skeleton className="h-4 w-2/3" />
         </div>
       </div>
@@ -98,14 +157,19 @@ export default function BlogDetailPage() {
 
   if (!blog) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <Card className="p-12 text-center">
-            <h2 className="text-2xl font-bold mb-4" style={{ color: colors.black }}>
-              {t('common.blogNotFound')}
+      <div className="min-h-screen bg-white">
+        <PageBanner title={t('common.blogs')} />
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="p-12 text-center rounded-3xl bg-gray-50">
+            <h2
+              className="text-2xl font-bold mb-4"
+              style={{ color: colors.black }}
+            >
+              Blog Not Found
             </h2>
             <p className="text-gray-600 mb-6">
-              {t('common.blogNotFoundDesc')}
+              The blog you&apos;re looking for doesn&apos;t exist or has been
+              removed.
             </p>
             <Link href={createLocalizedPath('/blogs', locale)}>
               <Button
@@ -115,16 +179,16 @@ export default function BlogDetailPage() {
                 }}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                {t('common.backToBlogs')}
+                Back to Blogs
               </Button>
             </Link>
-          </Card>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Process image URL similar to diagnostic-tests
+  // Process image URL
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
   let imageUrl = blog.imageUrl;
   if (imageUrl) {
@@ -145,148 +209,115 @@ export default function BlogDetailPage() {
     }
   }
   const normalizedImageUrl = imageUrl || null;
+  const readTime = estimateReadTime(blog.content);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
-        {/* Back Button */}
-        <Link href={createLocalizedPath('/blogs', locale)}>
-          <Button
-            variant="ghost"
-            className="mb-6"
-            style={{
-              color: colors.primary,
-            }}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {t('common.backToBlogs')}
-          </Button>
+    <div className="min-h-screen bg-white">
+      {/* Page Banner */}
+      <PageBanner title={t('common.blogs')} />
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Back to Blogs Link */}
+        <Link
+          href={createLocalizedPath('/blogs', locale)}
+          className="inline-flex items-center gap-2 mb-8 transition-opacity hover:opacity-70"
+          style={{ color: colors.primary }}
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="font-medium">Back to Blogs</span>
         </Link>
 
-        {/* Blog Content */}
-        <Card className="overflow-hidden shadow-lg">
-          {/* Featured Image */}
-          {normalizedImageUrl && (
-            <div className="relative w-full h-64 md:h-96 lg:h-[500px]">
-              <Image
-                src={normalizedImageUrl}
-                alt={blog.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 896px"
-                priority
-                unoptimized
-              />
+        {/* Featured Image */}
+        {normalizedImageUrl && (
+          <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-3xl overflow-hidden mb-8 shadow-lg">
+            <Image
+              src={normalizedImageUrl}
+              alt={blog.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 1280px"
+              priority
+              unoptimized
+            />
+          </div>
+        )}
+
+        {/* Blog Content Container */}
+        <article className="max-w-4xl">
+          {/* Title */}
+          <h1
+            className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight"
+            style={{ color: '#B8860B' }}
+          >
+            {blog.title}
+          </h1>
+
+          {/* Meta Information */}
+          <div className="flex flex-wrap items-center gap-6 text-sm mb-8">
+            <div className="flex items-center gap-2 text-gray-600">
+              <Calendar className="w-4 h-4" />
+              <span>{formatDate(blog.createdAt)}</span>
             </div>
-          )}
-
-          <CardContent className="p-6 md:p-8 lg:p-12">
-            {/* Title */}
-            <h1
-              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight"
-              style={{ color: colors.black }}
-            >
-              {blog.title}
-            </h1>
-
-            {/* Meta Information */}
-            <div className="flex flex-wrap items-center gap-4 text-sm mb-8 pb-6 border-b">
-              <div className="flex items-center gap-2" style={{ color: colors.primary }}>
-                <Calendar className="w-4 h-4" />
-                <span className="font-medium">{formatDate(blog.createdAt)}</span>
-              </div>
-              {blog.uploadTime && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Clock className="w-4 h-4" />
-                  <span>{blog.uploadTime} min read</span>
-                </div>
-              )}
+            <div className="flex items-center gap-2 text-gray-600">
+              <Clock className="w-4 h-4" />
+              <span>{readTime} min read</span>
             </div>
+          </div>
 
-            {/* Content */}
-            <div
-              className="blog-content-wrapper"
-              style={{
-                fontSize: '1.125rem',
-                lineHeight: '1.8',
-                color: '#374151',
-              }}
-            >
-              <div
-                className="space-y-6"
-                dangerouslySetInnerHTML={{ 
-                  __html: blog.content
-                    .replace(/\r\n\r\n/g, '</p><p style="margin-bottom: 1.5rem;">')
-                    .replace(/\r\n/g, '<br />')
-                    .replace(/\n\n/g, '</p><p style="margin-bottom: 1.5rem;">')
-                    .replace(/\n/g, '<br />')
-                    .replace(/^/, '<p style="margin-bottom: 1.5rem;">')
-                    .replace(/$/, '</p>')
-                }}
-              />
-            </div>
-            <style dangerouslySetInnerHTML={{__html: `
-              .blog-content-wrapper p {
-                margin-bottom: 1.5rem;
-                color: #374151;
-                font-size: 1.125rem;
-                line-height: 1.8;
-              }
-              .blog-content-wrapper h1,
-              .blog-content-wrapper h2,
-              .blog-content-wrapper h3 {
-                margin-top: 2rem;
-                margin-bottom: 1rem;
-                font-weight: bold;
-                color: ${colors.black};
-              }
-              .blog-content-wrapper h1 {
-                font-size: 2rem;
-              }
-              .blog-content-wrapper h2 {
-                font-size: 1.75rem;
-              }
-              .blog-content-wrapper h3 {
-                font-size: 1.5rem;
-              }
-              .blog-content-wrapper ul,
-              .blog-content-wrapper ol {
-                margin-left: 1.5rem;
-                margin-bottom: 1.5rem;
-                padding-left: 1.5rem;
-              }
-              .blog-content-wrapper li {
-                margin-bottom: 0.75rem;
-              }
-              .blog-content-wrapper strong {
-                font-weight: 600;
-                color: ${colors.black};
-              }
-              .blog-content-wrapper a {
-                color: ${colors.primary};
-                text-decoration: underline;
-              }
-              .blog-content-wrapper a:hover {
-                opacity: 0.8;
-              }
-            `}} />
-          </CardContent>
-        </Card>
+          {/* Content */}
+          <div
+            className="blog-content"
+            dangerouslySetInnerHTML={{ __html: formatContent(blog.content) }}
+          />
 
-        {/* Back to Blogs Button */}
-        <div className="mt-8 text-center">
-          <Link href="/blogs">
-            <Button
-              style={{
-                backgroundColor: colors.primary,
-                color: colors.white,
-              }}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to All Blogs
-            </Button>
-          </Link>
-        </div>
+          {/* Styles for blog content */}
+          <style jsx global>{`
+            .blog-content {
+              font-size: 1rem;
+              line-height: 1.8;
+              color: #374151;
+            }
+
+            .blog-paragraph {
+              margin-bottom: 1.25rem;
+            }
+
+            .blog-heading {
+              color: ${colors.primary};
+              font-size: 1.25rem;
+              font-weight: 600;
+              margin-top: 2rem;
+              margin-bottom: 1rem;
+            }
+
+            .blog-bullet {
+              margin-bottom: 0.75rem;
+              padding-left: 0.5rem;
+              display: flex;
+              align-items: flex-start;
+              gap: 0.5rem;
+            }
+
+            .blog-bullet-dot {
+              color: ${colors.primary};
+              font-weight: bold;
+              flex-shrink: 0;
+            }
+
+            .blog-bullet strong {
+              color: #1f2937;
+            }
+
+            .blog-content a {
+              color: ${colors.primary};
+              text-decoration: underline;
+            }
+
+            .blog-content a:hover {
+              opacity: 0.8;
+            }
+          `}</style>
+        </article>
       </div>
     </div>
   );

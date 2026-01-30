@@ -500,7 +500,7 @@ export default function DiagnosticTestDetailPage() {
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 {t('common.addToCart')}
               </Button>
-              <Button
+              {/* <Button
                 variant="outline"
                 className="px-6"
                 style={{
@@ -510,7 +510,7 @@ export default function DiagnosticTestDetailPage() {
                 onClick={() => localizedRouter.push('/upload-prescription')}
               >
                 {t('common.bookNow')}
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>

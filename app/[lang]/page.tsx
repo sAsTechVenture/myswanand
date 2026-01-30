@@ -316,7 +316,7 @@ export default function Home() {
   }, []);
 
   return (
-    <>
+    <div className="overflow-x-hidden">
       {/* Search Bar - top */}
       <section
         className="w-full border-b py-4 sm:py-5"
@@ -969,8 +969,8 @@ export default function Home() {
 
       {/* Women Wellness Care Section */}
       <section
-        className="py-16"
-        style={{ backgroundColor: colors.lightestGreen }}
+        className="py-16 mb-4"
+        style={{ backgroundColor: colors.primaryLightest }}
       >
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl">
@@ -1011,8 +1011,9 @@ export default function Home() {
               <Button
                 className="rounded-lg px-8 py-4 text-base font-semibold transition-all hover:opacity-90"
                 style={{
-                  backgroundColor: colors.primary,
-                  color: colors.white,
+                  backgroundColor: colors.white,
+                  color: colors.primary,
+                  border: `1px solid ${colors.primary}`,
                 }}
                 onClick={() => console.log('Cervical Cancer Care')}
               >
@@ -1068,70 +1069,92 @@ export default function Home() {
       </section>
 
       {/* Health Card Section */}
-      <section className="py-16" style={{ backgroundColor: colors.black }}>
+      <section className="py-16" style={{ backgroundColor: colors.white }}>
         <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center gap-8 lg:flex-row">
-            {/* Left Side - Text (2/3 width) */}
-            <div className="flex-1 text-center lg:w-2/3 lg:text-left">
-              <h2 className="mb-2 text-4xl font-bold text-white md:text-5xl">
-                {t('common.mySwanandFamilyHealthCard')}
-              </h2>
-              <p className="mb-2 text-lg text-white">
-                {t('common.healthCardDescription')}
-              </p>
-              <div className="mb-8 space-y-1">
-                <div className="flex items-start gap-3">
-                  <span className="mt-1.5 text-xl text-white">•</span>
-                  <p className="text-lg text-white">
-                    {t('common.discountOnTests')}
+          <div className="flex flex-col items-center gap-0 lg:flex-row lg:items-stretch">
+            {/* Left Side - White Card with Content */}
+            <div className="relative w-full lg:w-2/3">
+              {/* White Card with curved corners */}
+              <div
+                className="relative rounded-3xl bg-white p-8 md:p-12 lg:rounded-l-[40px] lg:rounded-r-[60px] overflow-hidden border border-gray-200 elevation-1 shadow-lg"
+                style={{
+                  minHeight: '420px',
+                  borderBottom: `3px solid ${colors.primary}`,
+                }}
+              >
+                {/* Content */}
+                <div className="relative z-10">
+                  <h2
+                    className="mb-2 text-3xl font-bold md:text-4xl"
+                    style={{ color: colors.black }}
+                  >
+                    {t('common.mySwanandFamilyHealthCard')}
+                  </h2>
+                  <p className="mb-6 text-base text-gray-700 md:text-lg">
+                    {t('common.healthCardDescription')}
                   </p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="mt-1.5 text-xl text-white">•</span>
-                  <p className="text-lg text-white">
-                    {t('common.priorityBooking')}
-                  </p>
-                </div>
-                {/* <div className="flex items-start gap-3">
-                  <span className="mt-1.5 text-xl text-white">•</span>
-                  <p className="text-lg text-white">
-                    Free annual health checkup
-                  </p>
-                </div> */}
-                <div className="flex items-start gap-3">
-                  <span className="mt-1.5 text-xl text-white">•</span>
-                  <p className="text-lg text-white">
-                    {t('common.familyCoverage')}
-                  </p>
+
+                  {/* Benefits List */}
+                  <ul className="mb-8 space-y-2">
+                    <li className="flex items-start gap-3">
+                      <span className="mt-1 text-lg text-black">•</span>
+                      <p className="text-base text-black md:text-lg">
+                        {t('common.discountOnTests')}
+                      </p>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="mt-1 text-lg text-black">•</span>
+                      <p className="text-base text-black md:text-lg">
+                        {t('common.priorityBooking')}
+                      </p>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="mt-1 text-lg text-black">•</span>
+                      <p className="text-base text-black md:text-lg">
+                        Free annual health checkup
+                      </p>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="mt-1 text-lg text-black">•</span>
+                      <p className="text-base text-black md:text-lg">
+                        {t('common.familyCoverage')}
+                      </p>
+                    </li>
+                  </ul>
+
+                  {/* Apply Button */}
+                  <Link
+                    href={createLocalizedPath('/swanand-card/apply', locale)}
+                  >
+                    <Button
+                      className="rounded-full px-8 py-4 text-base font-semibold"
+                      style={{
+                        backgroundColor: colors.black,
+                        color: colors.white,
+                      }}
+                    >
+                      {t('common.applySwanandCard')}
+                    </Button>
+                  </Link>
                 </div>
               </div>
-              <Link href={createLocalizedPath('/swanand-card/apply', locale)}>
-                <Button
-                  className="rounded-lg bg-white px-8 py-4 font-semibold"
-                  style={{ color: colors.primary }}
-                >
-                  {t('common.applySwanandCard')}
-                </Button>
-              </Link>
             </div>
 
-            {/* Right Side - Health Card Image (1/3 width) */}
-            <div className="flex-1 lg:w-1/3">
-              <div className="relative h-[400px] w-full md:h-[500px]">
-                <div className="absolute inset-0 transform rotate-[-5deg] transition-transform hover:rotate-[-3deg]">
-                  <Image
-                    src="/home/healthCard.png"
-                    alt="Swanand Family Health Card"
-                    fill
-                    className="object-contain drop-shadow-2xl"
-                    unoptimized
-                  />
-                </div>
+            {/* Right Side - Mascot Image */}
+            <div className="relative hidden lg:flex lg:w-1/3 items-end justify-center">
+              <div className="relative h-[450px] w-full">
+                <Image
+                  src="/home/mascot.jpg"
+                  alt="Swanand Health Mascot"
+                  fill
+                  className="object-contain object-bottom"
+                  unoptimized
+                />
               </div>
             </div>
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

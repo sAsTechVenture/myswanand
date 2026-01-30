@@ -1,11 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Info, Star, Heart } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { colors } from '@/config/theme';
 import { cn } from '@/lib/utils';
@@ -14,7 +11,7 @@ import { ParticleCard } from '@/components/MagicBento';
 export interface CarePackageCardProps {
   // Category name (e.g., "HEALTH", "FULL BODY")
   category: string;
-  // Index for color alternation (odd = yellow, even = blue)
+  // Index for color alternation (0 = primary, others = primaryLightest)
   index: number;
   // Title of the package
   title: string;
@@ -22,7 +19,9 @@ export interface CarePackageCardProps {
   testCount: number;
   // Price in rupees
   price: number;
-  // List of features/benefits (typically 3 items)
+  // Description of the package
+  description?: string;
+  // List of features/benefits
   features?: string[];
   // Image URL for the package
   imageUrl?: string;
@@ -39,18 +38,14 @@ export interface CarePackageCardProps {
 }
 
 export function CarePackageCard({
-  category,
   index,
   title,
   testCount,
   price,
-  features,
-  imageUrl,
+  description,
   onBookPackage,
   className,
   packageId,
-  isLiked = false,
-  onLikeToggle,
 }: CarePackageCardProps) {
   const router = useRouter();
 
@@ -69,109 +64,47 @@ export function CarePackageCard({
       onBookPackage();
     }
   };
-  // Determine color scheme: odd index = primary, even index = blue
-  const isPrimary = index % 2 === 1;
-  const accentColor = isPrimary ? colors.primary : colors.blue;
-  const badgeBgColor = isPrimary ? colors.primary : colors.blue;
-  const badgeTextColor = isPrimary ? colors.white : colors.white;
+
+  // First card (index 0) has primary purple, others have primaryLightest
+  const isFirstCard = index === 0;
+
+  // Default description if not provided
+  const displayDescription =
+    description ||
+    'Comprehensive health checkup package with detailed reports and expert consultation.';
 
   return (
     <ParticleCard
-      className="h-full rounded-lg"
-      style={{ borderRadius: '0.5rem' }}
+      className="h-full rounded-3xl"
+      style={{ borderRadius: '1.5rem' }}
       particleCount={8}
       glowColor="132, 0, 255"
       enableTilt={false}
       clickEffect={true}
       enableMagnetism={false}
     >
-      <Card
+      <div
         className={cn(
-          'relative flex flex-col overflow-hidden bg-white shadow-sm transition-all hover:shadow-md',
-          'border h-full w-full',
+          'relative flex flex-col overflow-hidden rounded-3xl h-full w-full',
+          'shadow-xl transition-all hover:shadow-2xl',
           className
         )}
+        style={{
+          backgroundColor: isFirstCard
+            ? colors.primary
+            : colors.primaryLightest,
+          minHeight: '380px',
+        }}
       >
-        <CardHeader className="relative min-h-[60px] pb-3 flex-shrink-0">
-          {/* Top Left - Category Badge */}
-          <div className="absolute left-3 top-3 z-10">
-            <Badge
-              variant="default"
-              className="rounded-md px-2.5 py-0.5 text-xs font-bold uppercase"
-              style={{
-                backgroundColor: badgeBgColor,
-                color: badgeTextColor,
-                borderColor: badgeBgColor,
-              }}
-            >
-              {category}
-            </Badge>
-          </div>
-
-          {/* Top Right - Like and Info Icons */}
-          <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
-            {/* Like Button */}
-            {onLikeToggle && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onLikeToggle();
-                }}
-                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:opacity-80"
-                style={{
-                  backgroundColor: isLiked
-                    ? colors.primary
-                    : 'rgba(255, 255, 255, 0.8)',
-                }}
-                aria-label={
-                  isLiked ? 'Remove from favorites' : 'Add to favorites'
-                }
-              >
-                <Heart
-                  className={cn(
-                    'h-4 w-4 transition-colors',
-                    isLiked ? 'fill-current' : ''
-                  )}
-                  style={{
-                    color: isLiked ? colors.white : colors.primary,
-                  }}
-                />
-              </button>
-            )}
-            {/* Info Icon */}
-            <button
-              className="flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:opacity-80"
-              style={{ backgroundColor: accentColor }}
-              aria-label="Package information"
-            >
-              <Info className="h-3.5 w-3.5 text-white" strokeWidth={3} />
-            </button>
-          </div>
-
-          {/* Package Image */}
-          {imageUrl && (
-            <div className="relative -mx-6 -mt-6 mb-4 h-48 w-full overflow-hidden">
-              <Image
-                src={imageUrl}
-                alt={title}
-                fill
-                className="object-cover"
-                unoptimized
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              />
-            </div>
-          )}
-        </CardHeader>
-
-        <CardContent className="flex flex-col flex-1 px-4 pb-4 pt-0 space-y-2.5">
+        {/* Main Content Area */}
+        <div className="flex-1 px-6 pt-6">
           {/* Title */}
           <div className="flex-shrink-0">
             {packageId ? (
               <Link href={`/care-packages/${packageId}`}>
                 <h3
-                  className="line-clamp-2 text-left text-lg font-bold leading-tight hover:opacity-80 transition-opacity cursor-pointer"
-                  style={{ color: colors.black }}
+                  className="text-xl font-bold leading-tight hover:opacity-80 transition-opacity cursor-pointer line-clamp-2"
+                  style={{ color: isFirstCard ? colors.white : colors.black }}
                   title={title}
                 >
                   {title}
@@ -179,8 +112,8 @@ export function CarePackageCard({
               </Link>
             ) : (
               <h3
-                className="line-clamp-2 text-left text-lg font-bold leading-tight"
-                style={{ color: colors.black }}
+                className="text-xl font-bold leading-tight line-clamp-2"
+                style={{ color: isFirstCard ? colors.white : colors.black }}
                 title={title}
               >
                 {title}
@@ -190,56 +123,65 @@ export function CarePackageCard({
 
           {/* Test Count */}
           <p
-            className="text-left text-xs flex-shrink-0"
-            style={{ color: colors.black }}
+            className="text-sm mt-1"
+            style={{
+              color: isFirstCard ? 'rgba(255,255,255,0.8)' : colors.black,
+            }}
           >
             {testCount} Tests Included
           </p>
 
-          {/* Features List - Flexible section */}
-          {features && features.length > 0 && (
-            <ul className="space-y-1 flex-1 min-h-0">
-              {features.map((feature, featureIndex) => (
-                <li
-                  key={featureIndex}
-                  className="flex items-start gap-1.5 text-xs leading-tight"
-                  style={{ color: colors.black }}
-                >
-                  <Star
-                    className="mt-0.5 h-3 w-3 shrink-0"
-                    style={{ color: colors.primary }}
-                    fill={colors.primary}
-                  />
-                  <span className="flex-1 line-clamp-2">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+          {/* Price */}
+          <p
+            className="text-2xl font-bold mt-2"
+            style={{ color: isFirstCard ? colors.white : colors.primary }}
+          >
+            ₹{price.toLocaleString('en-IN')}
+          </p>
 
-          {/* Price and Button - Always at bottom */}
-          <div className="flex-shrink-0 space-y-2.5 mt-auto">
-            {/* Price */}
+          {/* Description - Truncated */}
+          <div className="mt-4">
             <p
-              className="text-left text-xl font-bold"
-              style={{ color: colors.black }}
-            >
-              ₹ {price.toLocaleString('en-IN')}
-            </p>
-
-            {/* Book Package Button */}
-            <Button
-              onClick={handleBookPackage}
-              className="w-full rounded-lg py-2.5 text-xs font-bold uppercase tracking-wide transition-all hover:opacity-90"
+              className="text-sm leading-relaxed line-clamp-3"
               style={{
-                backgroundColor: accentColor,
-                color: colors.white,
+                color: isFirstCard ? 'rgba(255,255,255,0.9)' : colors.black,
               }}
+              title={displayDescription}
             >
-              Book Package
-            </Button>
+              {displayDescription}
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Bottom Row - Arrow and Book Package Button */}
+        <div className="flex items-center justify-between px-6 pb-6">
+          {/* Arrow Icon */}
+          <button
+            onClick={handleBookPackage}
+            className="flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all hover:scale-105"
+            style={{
+              borderColor: colors.black,
+              backgroundColor: colors.white,
+            }}
+            aria-label="View package details"
+          >
+            <ArrowUpRight className="h-5 w-5" style={{ color: colors.black }} />
+          </button>
+
+          {/* Book Package Button */}
+          <Button
+            onClick={handleBookPackage}
+            className="rounded-full px-6 py-2.5 text-sm font-semibold transition-all hover:opacity-90"
+            style={{
+              backgroundColor: isFirstCard ? colors.white : colors.black,
+              color: isFirstCard ? colors.primary : colors.white,
+              border: isFirstCard ? `2px solid ${colors.primary}` : 'none',
+            }}
+          >
+            Book Package
+          </Button>
+        </div>
+      </div>
     </ParticleCard>
   );
 }
