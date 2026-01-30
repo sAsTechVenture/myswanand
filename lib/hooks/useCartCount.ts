@@ -51,8 +51,16 @@ export function useCartCount() {
       } else {
         setCartCount(0);
       }
-    } catch (error) {
-      console.error('Error fetching cart count:', error);
+    } catch (error: unknown) {
+      const err = error as { status?: number; message?: string };
+      const isUnauthorized =
+        err?.status === 401 ||
+        (typeof err?.message === 'string' &&
+          (err.message.includes('Unauthorized') ||
+            err.message.includes('Patient access required')));
+      if (!isUnauthorized) {
+        console.error('Error fetching cart count:', error);
+      }
       setCartCount(0);
     } finally {
       fetchingRef.current = false;

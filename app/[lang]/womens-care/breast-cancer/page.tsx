@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
 import { createLocalizedPath, getCurrentLocale } from '@/lib/utils/i18n';
 import { useDictionary } from '@/lib/hooks/useDictionary';
-import { ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, FileText, Loader2, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -297,6 +297,56 @@ export default function BreastCancerCarePage() {
               If you are post menopausal, select same date of every month and
               mark on calendar or set reminders on your mobile.
             </p>
+          </div>
+        </Card>
+
+        {/* Self Examination Guide – PDF & Video */}
+        <Card className="p-6 mb-6">
+          <h2
+            className="text-xl font-bold mb-4"
+            style={{ color: colors.black }}
+          >
+            Self Examination Guide & Video
+          </h2>
+          <p className="text-gray-700 mb-4">
+            Download our guide and watch the video below to learn how to perform a self breast examination step by step.
+          </p>
+          <div className="flex flex-wrap gap-4 mb-6">
+            <a
+              href="/womens-care/self-breast-examination-guide.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-opacity hover:opacity-90"
+              style={{
+                backgroundColor: colors.primary,
+                color: colors.white,
+              }}
+            >
+              <FileText className="w-5 h-5" />
+              Download Self Breast Examination Guide (PDF)
+            </a>
+            <a
+              href="https://youtu.be/2uBXA2pNPAw?si=jDEIitbRYbwtdaid"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-opacity hover:opacity-90 border-2"
+              style={{
+                borderColor: colors.primary,
+                color: colors.primary,
+              }}
+            >
+              <Youtube className="w-5 h-5" />
+              Watch on YouTube
+            </a>
+          </div>
+          <div className="aspect-video w-full max-w-2xl rounded-lg overflow-hidden bg-gray-100">
+            <iframe
+              title="Self Breast Examination Video"
+              src="https://www.youtube.com/embed/2uBXA2pNPAw"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="w-full h-full"
+            />
           </div>
         </Card>
 
