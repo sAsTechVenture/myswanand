@@ -415,6 +415,27 @@ function LoginContent() {
                   </Link>
                 </p>
               </div>
+
+              {/* Login using mobile number */}
+              <div className="pt-6 mt-6 border-t border-gray-200">
+                <p className="text-sm font-medium text-gray-700 mb-3">
+                  Login using mobile number
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full py-6 text-lg font-semibold"
+                  style={{
+                    borderColor: colors.primary,
+                    color: colors.primary,
+                  }}
+                  onClick={() =>
+                    localizedRouter.push(createLocalizedPath('/auth/mobile-login', locale))
+                  }
+                >
+                  Continue with Mobile
+                </Button>
+              </div>
             </form>
           </div>
 

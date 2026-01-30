@@ -168,3 +168,26 @@ export const apiClient = {
     options?: Omit<ApiRequestOptions, 'method' | 'body'>
   ) => api<T>(url, { ...options, method: 'DELETE' }),
 };
+
+/**
+ * Send OTP to mobile number (Twilio Verify).
+ * Mobile should be 10-digit Indian number; caller may prepend +91 before sending.
+ */
+export function sendOtp(mobile: string): Promise<ApiResponse<{ success: boolean; data?: unknown }>> {
+  return apiClient.post('/patient/send-otp', { mobile });
+}
+
+/**
+ * Verify OTP and return token on success.
+ */
+export function verifyOtp(
+  mobile: string,
+  otp: string
+): Promise<
+  ApiResponse<{
+    success: boolean;
+    data?: { token: string; user?: Record<string, unknown> };
+  }>
+> {
+  return apiClient.post('/patient/verify-otp', { mobile, otp });
+}

@@ -104,9 +104,17 @@ export function useLikedItems() {
       setLikedTestIds(
         new Set(items.filter((item) => item.testId).map((item) => item.testId!))
       );
-    } catch (err: any) {
-      console.error('Error fetching liked items:', err);
-      setError('Failed to fetch liked items');
+    } catch (err: unknown) {
+      const e = err as { status?: number; message?: string };
+      const isUnauthorized =
+        e?.status === 401 ||
+        (typeof e?.message === 'string' &&
+          (e.message.includes('Unauthorized') ||
+            e.message.includes('Patient access required')));
+      if (!isUnauthorized) {
+        console.error('Error fetching liked items:', err);
+        setError('Failed to fetch liked items');
+      }
       setLikedItems([]);
       setLikedPackageIds(new Set());
       setLikedTestIds(new Set());
