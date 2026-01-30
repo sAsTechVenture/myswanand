@@ -141,22 +141,45 @@ export function Header() {
 
   const navLinks = [
     { href: createLocalizedPath('/', currentLocale), label: t('common.home') },
-    { href: createLocalizedPath('/about', currentLocale), label: t('common.about') },
-    { href: createLocalizedPath('/blogs', currentLocale), label: t('common.blogs') },
-    { href: createLocalizedPath('/contact', currentLocale), label: t('common.contact') },
+    {
+      href: createLocalizedPath('/about', currentLocale),
+      label: t('common.about'),
+    },
+    {
+      href: createLocalizedPath('/blogs', currentLocale),
+      label: t('common.blogs'),
+    },
+    {
+      href: createLocalizedPath('/contact', currentLocale),
+      label: t('common.contact'),
+    },
   ];
 
   const serviceLinks = [
-    { href: createLocalizedPath('/diagnostic-tests', currentLocale), label: t('common.diagnosticTests') },
-    { href: createLocalizedPath('/care-packages', currentLocale), label: t('common.carePackages') },
+    {
+      href: createLocalizedPath('/diagnostic-tests', currentLocale),
+      label: t('common.diagnosticTests'),
+    },
+    {
+      href: createLocalizedPath('/care-packages', currentLocale),
+      label: t('common.carePackages'),
+    },
   ];
 
   const policyLinks = [
-    { href: createLocalizedPath('/refund', currentLocale), label: t('common.refundPolicy') },
-    { href: createLocalizedPath('/privacy', currentLocale), label: t('common.privacyPolicy') },
-    { href: createLocalizedPath('/terms', currentLocale), label: t('common.termsConditions') },
+    {
+      href: createLocalizedPath('/refund', currentLocale),
+      label: t('common.refundPolicy'),
+    },
+    {
+      href: createLocalizedPath('/privacy', currentLocale),
+      label: t('common.privacyPolicy'),
+    },
+    {
+      href: createLocalizedPath('/terms', currentLocale),
+      label: t('common.termsConditions'),
+    },
   ];
-
 
   return (
     <header className="w-full" style={{ backgroundColor: colors.primary }}>
@@ -164,7 +187,10 @@ export function Header() {
         {/* Desktop Header */}
         <div className="hidden lg:flex items-center justify-between py-4">
           {/* Logo */}
-          <Link href={createLocalizedPath('/', currentLocale)} className="flex items-center">
+          <Link
+            href={createLocalizedPath('/', currentLocale)}
+            className="flex items-center"
+          >
             <div
               className="rounded-full p-2 border-2 flex items-center justify-center"
               style={{
@@ -333,7 +359,9 @@ export function Header() {
               </>
             ) : (
               <>
-                <Link href={createLocalizedPath('/auth/register', currentLocale)}>
+                <Link
+                  href={createLocalizedPath('/auth/register', currentLocale)}
+                >
                   <Button
                     className="px-4"
                     style={{
@@ -513,8 +541,11 @@ export function Header() {
                         e.preventDefault();
                         e.stopPropagation();
                         if (isActive) return;
-                        
-                        let pathWithoutLocale = pathname.replace(/^\/(en|hi|mr)/, '');
+
+                        let pathWithoutLocale = pathname.replace(
+                          /^\/(en|hi|mr)/,
+                          ''
+                        );
                         if (!pathWithoutLocale || pathWithoutLocale === '/') {
                           pathWithoutLocale = '';
                         }
@@ -522,7 +553,7 @@ export function Header() {
                         const newPath = `/${locale}${pathWithoutLocale}${queryString ? `?${queryString}` : ''}`;
                         router.replace(newPath);
                       };
-                      
+
                       return (
                         <SheetClose key={locale} asChild>
                           <button
@@ -709,7 +740,10 @@ export function Header() {
 
           {/* Logo - Centered */}
           <div className="flex-1 flex justify-center">
-            <Link href={createLocalizedPath('/', currentLocale)} className="flex items-center">
+            <Link
+              href={createLocalizedPath('/', currentLocale)}
+              className="flex items-center"
+            >
               <div
                 className="rounded-lg p-2 border-2 flex items-center justify-center"
                 style={{
@@ -797,7 +831,9 @@ export function Header() {
               </>
             ) : (
               <>
-                <Link href={createLocalizedPath('/auth/register', currentLocale)}>
+                <Link
+                  href={createLocalizedPath('/auth/register', currentLocale)}
+                >
                   <Button
                     size="sm"
                     className="px-3 text-xs"

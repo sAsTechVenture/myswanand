@@ -67,9 +67,9 @@ export default function Home() {
   const localizedRouter = useLocalizedRouter();
   const { dictionary, loading: dictLoading } = useDictionary(locale);
   const [banners, setBanners] = useState<Banner[]>([]);
-  const [popularCarePackages, setPopularCarePackages] = useState<
-    CarePackage[]
-  >([]);
+  const [popularCarePackages, setPopularCarePackages] = useState<CarePackage[]>(
+    []
+  );
   const [popularTests, setPopularTests] = useState<PopularTest[]>([]);
   const { isLiked, toggleLike } = useLikedItems();
 
@@ -90,7 +90,9 @@ export default function Home() {
 
   const redirectToLogin = () => {
     const currentPath = window.location.pathname;
-    localizedRouter.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+    localizedRouter.push(
+      `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+    );
   };
 
   // Loading states for each section
@@ -406,7 +408,9 @@ export default function Home() {
                   <Button
                     className="flex-1 rounded-lg py-3 text-white transition-all hover:opacity-90"
                     style={{ backgroundColor: '#E91E63' }}
-                    onClick={() => window.open(`tel:${getContactPhoneNumberRaw()}`)}
+                    onClick={() =>
+                      window.open(`tel:${getContactPhoneNumberRaw()}`)
+                    }
                   >
                     <Phone className="mr-2 h-5 w-5" />
                     {t('common.call')}
@@ -461,7 +465,9 @@ export default function Home() {
                 <Button
                   className="flex-1 rounded-lg py-3 text-white transition-all hover:opacity-90"
                   style={{ backgroundColor: '#E91E63' }}
-                  onClick={() => window.open(`tel:${getContactPhoneNumberRaw()}`)}
+                  onClick={() =>
+                    window.open(`tel:${getContactPhoneNumberRaw()}`)
+                  }
                 >
                   <Phone className="mr-2 h-5 w-5" />
                   Call
@@ -669,9 +675,7 @@ export default function Home() {
               >
                 {t('common.scheduleYourTests')}
               </h2>
-              <p className="text-gray-600">
-                {t('common.chooseScheduling')}
-              </p>
+              <p className="text-gray-600">{t('common.chooseScheduling')}</p>
             </div>
 
             {/* Tabs */}
@@ -837,7 +841,9 @@ export default function Home() {
                     {t('common.doctorDescription')}
                   </p>
                   {/* Button */}
-                  <Link href={createLocalizedPath('/doctor-consultation', locale)}>
+                  <Link
+                    href={createLocalizedPath('/doctor-consultation', locale)}
+                  >
                     <Button
                       className="w-full rounded-lg px-6 py-3 text-sm font-semibold"
                       style={{
@@ -876,7 +882,12 @@ export default function Home() {
                     {t('common.dieticianDescription')}
                   </p>
                   {/* Button */}
-                  <Link href={createLocalizedPath('/dietitian-consultation', locale)}>
+                  <Link
+                    href={createLocalizedPath(
+                      '/dietitian-consultation',
+                      locale
+                    )}
+                  >
                     <Button
                       className="w-full rounded-lg px-6 py-3 text-sm font-semibold"
                       style={{
@@ -991,7 +1002,9 @@ export default function Home() {
                   backgroundColor: colors.primary,
                   color: colors.white,
                 }}
-                onClick={() => localizedRouter.push('/womens-care/breast-cancer')}
+                onClick={() =>
+                  localizedRouter.push('/womens-care/breast-cancer')
+                }
               >
                 {t('common.breastCancerCare')}
               </Button>
