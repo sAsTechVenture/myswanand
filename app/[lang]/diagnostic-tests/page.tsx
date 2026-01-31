@@ -421,7 +421,11 @@ function DiagnosticTestsContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Category Banner */}
-      <PageBanner title={t('common.diagnosticTests')} />
+      <PageBanner
+        title={t('common.diagnosticTests')}
+        imageUrl="/services/dignosis_banner.png"
+        showLogo={false}
+      />
 
       <div className="container mx-auto px-4 py-6">
         {/* Search and Filters Bar */}

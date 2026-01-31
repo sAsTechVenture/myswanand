@@ -669,7 +669,7 @@ function HeaderContent() {
                             {cartCount}
                           </Badge>
                         </div>
-                        <span>Shopping Cart</span>
+                        <span>{t('common.shoppingCart')}</span>
                       </Link>
                     </SheetClose>
                   </div>

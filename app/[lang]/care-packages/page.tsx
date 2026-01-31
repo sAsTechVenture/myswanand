@@ -396,7 +396,11 @@ function CarePackagesContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Category Banner */}
-      <PageBanner title={t('common.carePackages')} />
+      <PageBanner
+        title={t('common.carePackages')}
+        imageUrl="/services/carepackage_banner.png"
+        showLogo={false}
+      />
 
       <div className="container mx-auto px-4 py-6">
         {/* Search and Filters Bar */}

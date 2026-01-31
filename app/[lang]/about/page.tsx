@@ -96,7 +96,7 @@ export default function AboutPage() {
   return (
     <main className="w-full overflow-x-hidden bg-white">
       {/* Hero Banner */}
-      <PageBanner title={t('common.about')} />
+      <PageBanner title={t('common.about')} imageUrl="/about/about_banner.png" showLogo={false} />
 
       {/* ================= ABOUT SWANAND SECTION ================= */}
       <section className="py-16 bg-[#FDF8F3]">
@@ -359,10 +359,10 @@ export default function AboutPage() {
             {/* Founder Image */}
             <div className="relative w-[280px] h-[350px] rounded-2xl overflow-hidden shadow-xl">
               <Image
-                src="/founder.JPG"
+                src="/about/dr_poorva.jpeg"
                 alt="Dr. Poorva Rane Surve"
                 fill
-                className="object-cover"
+                className="object-contain"
               />
             </div>
 

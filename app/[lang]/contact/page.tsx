@@ -13,6 +13,7 @@ import { usePathname } from 'next/navigation';
 import PageBanner from '@/components/common/PageBanner';
 import {
   getContactPhoneNumber,
+  getContactPhoneNumberRaw,
   getContactPhoneNumberWhatsApp,
 } from '@/lib/constants';
 import { getCurrentLocale } from '@/lib/utils/i18n';
@@ -61,7 +62,11 @@ ${t('common.tellUsMessage')}: ${formData.get('message')}
   return (
     <main className="w-full overflow-x-hidden bg-white">
       {/* ================= HERO ================= */}
-      <PageBanner title={t('common.contact')} />
+      <PageBanner
+        title={t('common.contact')}
+        imageUrl="/contact/contact_banner.png"
+        showLogo={false}
+      />
 
       {/* ================= INTRO ================= */}
       <section className="max-w-6xl mx-auto px-4 py-10 text-sm text-gray-600 leading-relaxed">
@@ -99,7 +104,9 @@ ${t('common.tellUsMessage')}: ${formData.get('message')}
                 <p className="flex items-start gap-3">
                   <Phone className="w-4 h-4 mt-0.5 flex-shrink-0 text-white/70" />
                   <span className="leading-relaxed">
-                    <a href="tel:+91-8419970311">+91-8419970311</a>
+                    <a href={`tel:${getContactPhoneNumberRaw()}`}>
+                      {getContactPhoneNumber()}
+                    </a>
                   </span>
                 </p>
               </div>

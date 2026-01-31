@@ -161,7 +161,11 @@ function BlogsContent() {
   return (
     <div className="min-h-screen bg-white">
       {/* Banner Section */}
-      <PageBanner title={t('common.blogs')} />
+      <PageBanner
+        title={t('common.blogs')}
+        imageUrl="/blog/blog_banner.png"
+        showLogo={false}
+      />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 md:py-12">
