@@ -1,5 +1,6 @@
 import { Header } from '@/components/common/Header';
 import { Footer } from '@/components/common/Footer';
+import { FloatingActionButtons } from '@/components/common/FloatingActionButtons';
 import { Toaster } from '@/components/ui/sonner';
 import { LocaleScript } from '@/components/common/LocaleScript';
 import { locales, defaultLocale } from '@/lib/i18n/config';
@@ -25,6 +26,7 @@ export default async function LangLayout({
       <Header />
       <main className="min-h-screen">{children}</main>
       <Footer />
+      <FloatingActionButtons />
       <Toaster />
     </>
   );

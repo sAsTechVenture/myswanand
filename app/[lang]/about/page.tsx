@@ -26,78 +26,56 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 
-const historyData = [
+const historyDataConfig = [
   {
     year: '2020',
-    title: 'Swanand Pathology Laboratory founded',
-    description:
-      'Started our journey with a vision to provide quality diagnostic services to the community.',
+    titleKey: 'common.journey2020Title',
+    descKey: 'common.journey2020Desc',
     icon: Building2,
     color: '#8B5CF6',
   },
   {
     year: '2021 & 2022',
-    title: 'Helping Community Fight Covid',
-    description:
-      'Firmly stood helping the community during the pandemic with dedication and commitment.',
+    titleKey: 'common.journey2021_2022Title',
+    descKey: 'common.journey2021_2022Desc',
     icon: HeartHandshake,
     color: '#EC4899',
   },
   {
     year: '2023',
-    title: 'Building Trust Through Excellence',
-    description:
-      'Continued gaining trust of patients through sincerity, team work and utmost dedication.',
+    titleKey: 'common.journey2023Title',
+    descKey: 'common.journey2023Desc',
     icon: Shield,
     color: '#10B981',
   },
   {
     year: '2024',
-    title: 'Swanand Healthcard Launch',
-    description:
-      'Launched Swanand Healthcard delivering holistic well being and not just discounts on blood tests.',
+    titleKey: 'common.journey2024Title',
+    descKey: 'common.journey2024Desc',
     icon: Sparkles,
     color: '#F59E0B',
   },
   {
     year: '2025',
-    title: 'MySwanand App Development',
-    description:
-      'Work on MySwanand App in progress to bring healthcare services to your fingertips.',
+    titleKey: 'common.journey2025Title',
+    descKey: 'common.journey2025Desc',
     icon: Smartphone,
     color: '#3B82F6',
   },
   {
     year: '2026',
-    title: 'MySwanand App & Referral Lab',
-    description:
-      'Ready to deliver MySwanand App with personalized accurate healthcare. Becomes a referral lab with all pathology services under one roof.',
+    titleKey: 'common.journey2026Title',
+    descKey: 'common.journey2026Desc',
     icon: Award,
     color: colors.primary,
   },
 ];
 
-const services = [
-  {
-    number: '01',
-    title: 'Comprehensive health check-up packages for all age groups.',
-    color: '#F59E0B',
-  },
-  {
-    number: '02',
-    title: 'Precise and evidence-based diagnostic testing.',
-    color: colors.primary,
-  },
-  {
-    number: '03',
-    title: 'Personalized attention for every patient.',
-    color: '#EC4899',
-  },
-  {
-    number: '04',
-    title: 'Transparent and ethical medical practices.',
-    color: '#14B8A6',
-  },
+const servicesConfig = [
+  { number: '01', titleKey: 'common.service1', color: '#F59E0B' },
+  { number: '02', titleKey: 'common.service2', color: colors.primary },
+  { number: '03', titleKey: 'common.service3', color: '#EC4899' },
+  { number: '04', titleKey: 'common.service4', color: '#14B8A6' },
 ];
 
 export default function AboutPage() {
@@ -138,25 +116,13 @@ export default function AboutPage() {
               </div>
 
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                About SWANAND
+                {t('common.aboutSwanand')}
               </h2>
 
               <div className="space-y-4 text-gray-600 text-sm leading-relaxed">
-                <p>
-                  At SWANAND Pathology Laboratory, we provide accurate,
-                  reliable, and timely diagnostic services that form the
-                  foundation of effective healthcare decisions.
-                </p>
-                <p>
-                  Pathology is the science of understanding diseases - and it is
-                  what we do. At My SWANAND, we combine the best resources and
-                  technology, scientific expertise, and a passionate commitment
-                  to ensure every patient receives the best care possible.
-                </p>
-                <p>
-                  We simplify complex medical data by making every patient's
-                  experience as patient-friendly.
-                </p>
+                <p>{t('common.aboutDescription1')}</p>
+                <p>{t('common.aboutDescription2')}</p>
+                <p>{t('common.aboutDescription3')}</p>
               </div>
             </div>
 
@@ -176,7 +142,7 @@ export default function AboutPage() {
                   style={{ backgroundColor: colors.primary }}
                 >
                   <div className="text-3xl font-bold">2500+</div>
-                  <div className="text-sm">Happy Customers</div>
+                  <div className="text-sm">{t('common.happyCustomers')}</div>
                 </div>
               </div>
             </div>
@@ -204,17 +170,14 @@ export default function AboutPage() {
                   className="text-xl font-bold"
                   style={{ color: colors.primary }}
                 >
-                  Our Vision
+                  {t('common.ourVision')}
                 </h3>
               </div>
               <p
                 className="text-sm leading-relaxed italic"
                 style={{ color: colors.primary }}
               >
-                We are here to support healthcare in transforming healthcare,
-                innovatively from traditional diagnostic testing to advanced
-                Molecular tools, from village lab to some smart clinic, focusing
-                on clear experience in easy steps.
+                {t('common.aboutVisionDescription')}
               </p>
             </div>
 
@@ -234,17 +197,14 @@ export default function AboutPage() {
                   className="text-xl font-bold"
                   style={{ color: colors.primary }}
                 >
-                  Our Mission
+                  {t('common.ourMission')}
                 </h3>
               </div>
               <p
                 className="text-sm leading-relaxed italic"
                 style={{ color: colors.primary }}
               >
-                Our heartfelt motive for the coming years 10, the year of 2035
-                is to notify our diagnostic services offering personal service
-                and friendly testing for every potential person who may need any
-                wellness services prior to our wish mainly in the community.
+                {t('common.aboutMissionDescription')}
               </p>
             </div>
           </div>
@@ -262,13 +222,13 @@ export default function AboutPage() {
               <Settings className="w-5 h-5 text-white" />
             </div>
             <h2 className="text-xl font-bold text-gray-900">
-              Our Services & Commitment
+              {t('common.ourServicesCommitment')}
             </h2>
           </div>
 
           {/* Services Grid - Creative Layout */}
           <div className="relative flex flex-wrap justify-center items-center gap-8 py-8">
-            {services.map((service, index) => (
+            {servicesConfig.map((service, index) => (
               <div
                 key={index}
                 className="relative w-[200px] h-[200px] rounded-full flex flex-col items-center justify-center text-center p-6 border-2 bg-white shadow-lg transition-transform hover:scale-105"
@@ -283,7 +243,7 @@ export default function AboutPage() {
                   {service.number}
                 </span>
                 <p className="text-sm text-gray-700 leading-snug font-medium">
-                  {service.title}
+                  {t(service.titleKey)}
                 </p>
               </div>
             ))}
@@ -302,14 +262,14 @@ export default function AboutPage() {
               <Rocket className="w-5 h-5 text-white" />
             </div>
             <h2 className="text-xl font-bold text-gray-900">
-              Our history throughout the years
+              {t('common.ourHistory')}
             </h2>
           </div>
 
           {/* Timeline Header */}
           <div className="relative mb-12 hidden md:block">
             <div className="flex justify-between items-center px-8">
-              {historyData.map((item, index) => (
+              {historyDataConfig.map((item, index) => (
                 <div key={index} className="flex flex-col items-center">
                   <span
                     className="text-xs font-semibold mb-2 whitespace-nowrap"
@@ -341,7 +301,7 @@ export default function AboutPage() {
               className="w-full"
             >
               <CarouselContent className="-ml-4">
-                {historyData.map((item, index) => {
+                {historyDataConfig.map((item, index) => {
                   const IconComponent = item.icon;
                   return (
                     <CarouselItem
@@ -370,10 +330,10 @@ export default function AboutPage() {
                             {item.year}
                           </h4>
                           <h5 className="font-semibold text-gray-900 mb-2">
-                            {item.title}
+                            {t(item.titleKey)}
                           </h5>
                           <p className="text-sm text-gray-600 leading-relaxed">
-                            {item.description}
+                            {t(item.descKey)}
                           </p>
                         </div>
                       </div>
@@ -392,7 +352,7 @@ export default function AboutPage() {
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-12">
-            About the Founder
+            {t('common.aboutFounder')}
           </h2>
 
           <div className="flex flex-col lg:flex-row gap-12 items-center justify-center">
@@ -412,40 +372,22 @@ export default function AboutPage() {
                 className="text-sm font-medium"
                 style={{ color: colors.primary }}
               >
-                FOUNDER & DIRECTOR
+                {t('common.founderDirector')}
               </span>
               <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                Dr. Poorva Raghunath Rane
+                {t('common.founderName')}
               </h3>
               <p
                 className="text-base font-semibold mt-1"
                 style={{ color: colors.primary }}
               >
-                MBBS, M.D. (Pathology)
+                {t('common.founderQualification')}
               </p>
 
               <div className="mt-6 space-y-4 text-gray-600 leading-relaxed">
-                <p>
-                  Dr. Poorva Raghunath Rane is the visionary founder of Swanand
-                  Pathology Laboratory. With a passion for accurate diagnostics
-                  and patient care, she established Swanand with the mission to
-                  provide reliable, affordable, and accessible healthcare
-                  services to the community.
-                </p>
-                <p>
-                  With her extensive experience in pathology and commitment to
-                  excellence, Dr. Rane has built Swanand into a trusted name in
-                  diagnostic services. Her dedication to innovation led to the
-                  development of the Swanand Healthcard and the upcoming
-                  MySwanand App, bringing modern healthcare solutions to
-                  patients.
-                </p>
-                <p>
-                  Under her leadership, Swanand continues to grow as a
-                  comprehensive referral laboratory, offering a wide range of
-                  pathology services while maintaining the highest standards of
-                  quality and patient satisfaction.
-                </p>
+                <p>{t('common.founderDesc1')}</p>
+                <p>{t('common.founderDesc2')}</p>
+                <p>{t('common.founderDesc3')}</p>
               </div>
 
               {/* Experience Badge */}
@@ -454,7 +396,7 @@ export default function AboutPage() {
                   className="inline-block px-4 py-2 rounded-full text-sm font-medium text-white"
                   style={{ backgroundColor: colors.primary }}
                 >
-                  8+ Years of Experience
+                  {t('common.yearsExperiencePlus')}
                 </span>
               </div>
             </div>

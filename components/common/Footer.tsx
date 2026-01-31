@@ -174,7 +174,7 @@ export function Footer() {
       <div className="border-b border-gray-300">
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
-            {/* Left Column - Logo and Store Location */}
+            {/* Left Column - Logo and Lab Location */}
             <div className="flex flex-col lg:flex-row lg:w-1/2 gap-6 lg:gap-8">
               {/* Logo */}
               <div className="flex-shrink-0">
@@ -191,7 +191,7 @@ export function Footer() {
               {/* Address and Time */}
               <div className="flex-1">
                 <h3 className="text-sm font-semibold mb-3 text-gray-800 uppercase tracking-wide">
-                  {t('common.storeLocation')}
+                  {t('common.labLocation')}
                 </h3>
                 <address className="text-sm text-gray-600 not-italic leading-relaxed mb-4">
                   Unit No. 1, 101/102,
@@ -207,7 +207,7 @@ export function Footer() {
                     <strong>Monday - Saturday:</strong> 7:00 am - 10:00pm
                   </p>
                   <p>
-                    <strong>Sunday:</strong> 8:00 am - 4:00pm
+                    <strong>Sunday:</strong> 7:00 am - 5:00pm
                   </p>
                 </div>
               </div>

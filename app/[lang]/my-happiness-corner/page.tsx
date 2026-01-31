@@ -288,11 +288,10 @@ export default function MyHappinessCornerPage() {
             className="text-3xl md:text-4xl font-bold"
             style={{ color: colors.primary }}
           >
-            My Happiness Corner
+            {t('common.myHappinessCorner')}
           </h1>
           <p className="text-gray-600 mt-2">
-            Nurture your well-being with daily reflections, mindfulness,
-            positivity, and meditation.
+            {t('common.happinessDescription')}
           </p>
         </div>
 
@@ -307,7 +306,7 @@ export default function MyHappinessCornerPage() {
                 <Heart className="h-6 w-6" style={{ color: colors.primary }} />
               </div>
               <h2 className="text-xl font-bold" style={{ color: colors.black }}>
-                Daily Reflection
+                {t('common.dailyReflection')}
               </h2>
             </div>
 
@@ -319,7 +318,7 @@ export default function MyHappinessCornerPage() {
                   className="mb-2 block"
                   style={{ color: colors.black }}
                 >
-                  Date <span className="text-red-500">*</span>
+                  {t('common.date')} <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="reflection-date"
@@ -342,7 +341,7 @@ export default function MyHappinessCornerPage() {
                     style={{ color: colors.black }}
                   >
                     <Smile className="w-4 h-4" />
-                    How was your mood today? (1-10)
+                    {t('common.moodQuestion')}
                   </Label>
                   <div className="flex gap-2">
                     {[0, 1, 2, 3, 4].map((emojiIndex) => {
@@ -389,7 +388,7 @@ export default function MyHappinessCornerPage() {
                     style={{ color: colors.black }}
                   >
                     <TrendingUp className="w-4 h-4" />
-                    How productive were you today? (1-10)
+                    {t('common.productivityQuestion')}
                   </Label>
                   <div className="flex gap-2">
                     {[0, 1, 2, 3, 4].map((emojiIndex) => {
@@ -436,7 +435,7 @@ export default function MyHappinessCornerPage() {
                     style={{ color: colors.black }}
                   >
                     <Users className="w-4 h-4" />
-                    How connected did you feel with others today? (1-10)
+                    {t('common.connectedQuestion')}
                   </Label>
                   <div className="flex gap-2">
                     {[0, 1, 2, 3, 4].map((emojiIndex) => {
@@ -498,7 +497,7 @@ export default function MyHappinessCornerPage() {
                     className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
                     style={{ color: colors.black }}
                   >
-                    Did you take care of your physical health today?
+                    {t('common.physicalHealthQuestion')}
                   </label>
                 </div>
 
@@ -520,7 +519,7 @@ export default function MyHappinessCornerPage() {
                     className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
                     style={{ color: colors.black }}
                   >
-                    Did you engage in meaningful activities today?
+                    {t('common.meaningfulActivityQuestion')}
                   </label>
                 </div>
               </div>
@@ -532,7 +531,7 @@ export default function MyHappinessCornerPage() {
                   className="mb-2 block"
                   style={{ color: colors.black }}
                 >
-                  What are you grateful for today?
+                  {t('common.gratitudeQuestion')}
                 </Label>
                 <Textarea
                   id="gratitude"
@@ -543,7 +542,7 @@ export default function MyHappinessCornerPage() {
                       gratitude: e.target.value,
                     }))
                   }
-                  placeholder="Share what you're grateful for..."
+                  placeholder={t('common.gratitudePlaceholder')}
                   rows={4}
                   style={{ borderColor: colors.primary }}
                 />
@@ -562,10 +561,10 @@ export default function MyHappinessCornerPage() {
                 {submitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Saving...
+                    {t('common.saving')}
                   </>
                 ) : (
-                  'Save Reflection'
+                  t('common.saveReflection')
                 )}
               </Button>
             </form>
@@ -581,7 +580,7 @@ export default function MyHappinessCornerPage() {
                 <Smile className="h-6 w-6" style={{ color: colors.primary }} />
               </div>
               <h2 className="text-xl font-bold" style={{ color: colors.black }}>
-                Daily Dose of Positivity
+                {t('common.dailyDoseOfPositivity')}
               </h2>
             </div>
 
@@ -598,7 +597,7 @@ export default function MyHappinessCornerPage() {
                 className="w-full"
                 style={{ borderColor: colors.primary, color: colors.primary }}
               >
-                Get Another Quote
+                {t('common.getAnotherQuote')}
               </Button>
             </div>
           </Card>
@@ -613,7 +612,7 @@ export default function MyHappinessCornerPage() {
                 <Heart className="h-6 w-6" style={{ color: colors.primary }} />
               </div>
               <h2 className="text-xl font-bold" style={{ color: colors.black }}>
-                Mindfulness for Healing
+                {t('common.mindfulnessForHealing')}
               </h2>
             </div>
 
@@ -623,9 +622,7 @@ export default function MyHappinessCornerPage() {
                 style={{ borderColor: colors.primary }}
               >
                 <p className="text-sm text-gray-700 mb-3">
-                  Take a moment to breathe deeply and center yourself.
-                  Mindfulness practices can help reduce stress, improve
-                  emotional well-being, and promote healing.
+                  {t('common.mindfulnessIntro')}
                 </p>
                 <Link href={createLocalizedPath('/blogs', locale)}>
                   <Button
@@ -636,7 +633,7 @@ export default function MyHappinessCornerPage() {
                       color: colors.primary,
                     }}
                   >
-                    Explore Mindfulness Articles
+                    {t('common.exploreMindfulnessArticles')}
                   </Button>
                 </Link>
               </div>
@@ -646,9 +643,7 @@ export default function MyHappinessCornerPage() {
                 style={{ borderColor: colors.green }}
               >
                 <p className="text-sm text-gray-700 mb-3">
-                  Healing is a journey, not a destination. Practice
-                  self-compassion and be patient with yourself as you navigate
-                  through challenges.
+                  {t('common.healingIntro')}
                 </p>
                 <Link href={createLocalizedPath('/blogs', locale)}>
                   <Button
@@ -656,7 +651,7 @@ export default function MyHappinessCornerPage() {
                     size="sm"
                     style={{ borderColor: colors.green, color: colors.green }}
                   >
-                    Read Healing Stories
+                    {t('common.readHealingStories')}
                   </Button>
                 </Link>
               </div>
@@ -666,9 +661,7 @@ export default function MyHappinessCornerPage() {
                 style={{ borderColor: colors.primary }}
               >
                 <p className="text-sm text-gray-700 mb-3">
-                  Remember that every small step towards wellness matters. Your
-                  mental and emotional health is just as important as your
-                  physical health.
+                  {t('common.wellnessIntro')}
                 </p>
                 <Link href={createLocalizedPath('/blogs', locale)}>
                   <Button
@@ -679,7 +672,7 @@ export default function MyHappinessCornerPage() {
                       color: colors.primary,
                     }}
                   >
-                    Discover Wellness Tips
+                    {t('common.discoverWellnessTips')}
                   </Button>
                 </Link>
               </div>
@@ -696,25 +689,38 @@ export default function MyHappinessCornerPage() {
                 <Music className="h-6 w-6" style={{ color: colors.primary }} />
               </div>
               <h2 className="text-xl font-bold" style={{ color: colors.black }}>
-                Music for Meditation
+                {t('common.musicForMeditation')}
               </h2>
             </div>
 
-            <div className="aspect-video w-full rounded-lg overflow-hidden">
-              <iframe
-                width="100%"
-                height="100%"
-                src="https://www.youtube.com/embed/IHLUJg8z8rc"
-                title="Meditation Music"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
+            <div className="space-y-6">
+              <div className="aspect-video w-full rounded-lg overflow-hidden">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src="https://www.youtube.com/embed/YRJ6xoiRcpQ"
+                  title="Meditation Music 1"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+              <div className="aspect-video w-full rounded-lg overflow-hidden">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src="https://www.youtube.com/embed/nkqnuxKj8Dk"
+                  title="Meditation Music 2"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
             </div>
             <p className="text-sm text-gray-600 mt-3 text-center">
-              Take a moment to relax and find your inner peace with this calming
-              meditation music.
+              {t('common.meditationMusicDescription')}
             </p>
           </Card>
         </div>

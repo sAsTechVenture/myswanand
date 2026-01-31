@@ -76,8 +76,6 @@ export default function Home() {
   // Helper function to get translation
   const t = (key: string): string => {
     if (!dictionary || dictLoading) {
-      // Return a placeholder or the key itself while loading
-      // You can also return the English version as fallback
       return key;
     }
     const keys = key.split('.');
@@ -86,6 +84,12 @@ export default function Home() {
       value = value?.[k];
     }
     return typeof value === 'string' ? value : key;
+  };
+
+  // Helper for translations with fallback when key is shown (e.g. during load or missing key)
+  const tf = (key: string, fallback: string): string => {
+    const val = t(key);
+    return val && !val.startsWith('common.') && val !== 'common' ? val : fallback;
   };
 
   const redirectToLogin = () => {
@@ -1088,10 +1092,10 @@ export default function Home() {
                     className="mb-2 text-3xl font-bold md:text-4xl"
                     style={{ color: colors.black }}
                   >
-                    {t('common.mySwanandFamilyHealthCard')}
+                    {tf('common.familyHealthCardTitle', 'Family Health Card')}
                   </h2>
                   <p className="mb-6 text-base text-gray-700 md:text-lg">
-                    {t('common.healthCardDescription')}
+                    {tf('common.familyHealthCardPrice', 'Just At Rs. 499')}
                   </p>
 
                   {/* Benefits List */}
@@ -1099,25 +1103,19 @@ export default function Home() {
                     <li className="flex items-start gap-3">
                       <span className="mt-1 text-lg text-black">•</span>
                       <p className="text-base text-black md:text-lg">
-                        {t('common.discountOnTests')}
+                        {tf('common.familyHealthCardBenefit1', 'Valid For One Year')}
                       </p>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="mt-1 text-lg text-black">•</span>
                       <p className="text-base text-black md:text-lg">
-                        {t('common.priorityBooking')}
+                        {tf('common.familyHealthCardBenefit2', 'Upto 4 Family Members Covered')}
                       </p>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="mt-1 text-lg text-black">•</span>
                       <p className="text-base text-black md:text-lg">
-                        Free annual health checkup
-                      </p>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1 text-lg text-black">•</span>
-                      <p className="text-base text-black md:text-lg">
-                        {t('common.familyCoverage')}
+                        {tf('common.familyHealthCardBenefit3', '10+ Services Free Of Cost & Discounted Price')}
                       </p>
                     </li>
                   </ul>
