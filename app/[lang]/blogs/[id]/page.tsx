@@ -141,7 +141,11 @@ export default function BlogDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <PageBanner title={t('common.blogs')} />
+        <PageBanner
+          title={t('common.blogs')}
+          imageUrl="/blog/blog_banner.png"
+          showLogo={false}
+        />
         <div className="max-w-7xl mx-auto px-4 py-8">
           <Skeleton className="h-8 w-32 mb-6" />
           <Skeleton className="h-[400px] w-full rounded-3xl mb-8" />
@@ -158,7 +162,11 @@ export default function BlogDetailPage() {
   if (!blog) {
     return (
       <div className="min-h-screen bg-white">
-        <PageBanner title={t('common.blogs')} />
+        <PageBanner
+          title={t('common.blogs')}
+          imageUrl="/blog/blog_banner.png"
+          showLogo={false}
+        />
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="p-12 text-center rounded-3xl bg-gray-50">
             <h2
@@ -214,7 +222,11 @@ export default function BlogDetailPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Page Banner */}
-      <PageBanner title={t('common.blogs')} />
+      <PageBanner
+        title={t('common.blogs')}
+        imageUrl="/blog/blog_banner.png"
+        showLogo={false}
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Back to Blogs Link */}

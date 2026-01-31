@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
 import { createLocalizedPath, getCurrentLocale } from '@/lib/utils/i18n';
 import { useDictionary } from '@/lib/hooks/useDictionary';
+import PageBanner from '@/components/common/PageBanner';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -246,8 +247,14 @@ export default function BreastCancerCarePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <div className="min-h-screen bg-gray-50">
+      {/* Banner */}
+      <PageBanner
+        title={t('common.womenWellnessCare')}
+        imageUrl="/womens-care/Women_wellness_corner.png"
+        showLogo={false}
+      />
+      <div className="container mx-auto px-4 max-w-4xl py-8">
         {/* Header */}
         <div className="mb-6">
           <Link href={createLocalizedPath('/', locale)}>

@@ -464,7 +464,7 @@ function CartContent() {
                 className="text-3xl font-bold md:text-4xl text-center"
                 style={{ color: colors.primary }}
               >
-                Shopping Cart
+                {t('common.shoppingCart')}
               </h1>
             </div>
 
