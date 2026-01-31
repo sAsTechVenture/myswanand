@@ -42,7 +42,9 @@ export default function ContactPage() {
     const formData = new FormData(e.currentTarget);
 
     const text = `
-${t('common.fullName')}: ${formData.get('firstName')} ${formData.get('lastName')}
+${t('common.fullName')}: ${formData.get('firstName')} ${formData.get(
+      'lastName'
+    )}
 ${t('common.emailAddress')}: ${formData.get('email')}
 ${t('common.mobileNumber')}: ${formData.get('phone')}
 ${t('common.selectSubject')}: ${formData.get('subject')}
@@ -146,14 +148,14 @@ ${t('common.tellUsMessage')}: ${formData.get('message')}
                     <p className="font-medium text-white">
                       {t('common.mondaySaturday')}:
                     </p>
-                    <p>8:00 am – 4:00pm</p>
+                    <p>7:00 am – 10:00pm</p>
                   </div>
                 </div>
                 <div>
                   <p className="font-medium text-white">
                     {t('common.sunday')}:
                   </p>
-                  <p>9:00 am – 5:00pm</p>
+                  <p>7:00 am – 5:00pm</p>
                 </div>
               </div>
             </div>

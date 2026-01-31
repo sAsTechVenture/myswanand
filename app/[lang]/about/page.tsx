@@ -360,7 +360,7 @@ export default function AboutPage() {
             <div className="relative w-[280px] h-[350px] rounded-2xl overflow-hidden shadow-xl">
               <Image
                 src="/founder.JPG"
-                alt="Dr. Poorva Raghunath Rane"
+                alt="Dr. Poorva Rane Surve"
                 fill
                 className="object-cover"
               />

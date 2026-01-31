@@ -131,15 +131,15 @@ export function CheckoutForm({
   // Package mode: single package; cart mode: cartItems + subtotal
   const displayItems = pkg
     ? [{ id: pkg.id, test: { id: pkg.id, name: pkg.name, price: pkg.price } }]
-    : (cartItems ?? []);
-  const effectiveSubtotal = pkg ? pkg.price : (subtotal ?? 0);
+    : cartItems ?? [];
+  const effectiveSubtotal = pkg ? pkg.price : subtotal ?? 0;
   const isPackagePurchase = !!pkg;
   const [address, setAddress] = useState<Address | null>(null);
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
-  const [homeSampleCollection, setHomeSampleCollection] =
-    useState<boolean>(false);
+  // Home sample collection is now mandatory
+  const [homeSampleCollection] = useState<boolean>(true);
   const [hardcopyReport, setHardcopyReport] = useState<string>('no'); // 'yes' or 'no'
   const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'OFFLINE'>(
     'OFFLINE'
@@ -277,10 +277,13 @@ export function CheckoutForm({
     }
   }, [selectedDate, availableSlots]);
 
-  // Both cart and package: subtotal + home sample + hard copy when selected
+  // Home sample collection charge (mandatory)
+  const HOME_SAMPLE_CHARGE = 75;
+
+  // Both cart and package: subtotal + home sample (mandatory) + hard copy when selected
   const baseTotal =
     effectiveSubtotal +
-    (homeSampleCollection ? 200 : 0) +
+    HOME_SAMPLE_CHARGE +
     (hardcopyReport === 'yes' ? 100 : 0);
 
   // Apply coin discount if using coins
@@ -729,35 +732,45 @@ export function CheckoutForm({
                     className="text-lg font-semibold"
                     style={{ color: colors.black }}
                   >
-                    Additional Services
+                    Visit Charges
                   </h2>
                 </div>
 
                 <div className="space-y-4">
-                  {/* Home Sample Collection - Checkbox */}
-                  <div className="flex items-start gap-3 p-4 border rounded-lg">
-                    <Checkbox
-                      id="home_sample_collection"
-                      checked={homeSampleCollection}
-                      onCheckedChange={(checked) =>
-                        setHomeSampleCollection(checked === true)
-                      }
-                      className="mt-1"
+                  {/* Home Sample Collection - Mandatory */}
+                  <div
+                    className="flex items-start gap-3 p-4 rounded-lg"
+                    style={{ backgroundColor: colors.primaryLight }}
+                  >
+                    <Home
+                      className="h-5 w-5 mt-0.5"
+                      style={{ color: colors.primary }}
                     />
-                    <Label
-                      htmlFor="home_sample_collection"
-                      className="flex-1 cursor-pointer"
-                    >
+                    <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Home Sample Collection</p>
+                          <p
+                            className="font-medium"
+                            style={{ color: colors.black }}
+                          >
+                            Home Sample Collection
+                            <span
+                              className="ml-2 text-xs px-2 py-0.5 rounded-full"
+                              style={{
+                                backgroundColor: colors.primary,
+                                color: colors.white,
+                              }}
+                            >
+                              Included
+                            </span>
+                          </p>
                           <p className="text-sm text-gray-600">
                             Our phlebotomist will visit your location
                           </p>
                         </div>
-                        <span className="font-semibold">+₹200</span>
+                        <span className="font-semibold">₹75</span>
                       </div>
-                    </Label>
+                    </div>
                   </div>
 
                   {/* Hard Copy Report - Radio Group */}
@@ -1065,9 +1078,7 @@ export function CheckoutForm({
                     <span className="text-gray-600">
                       Home Sample Collection
                     </span>
-                    <span className="font-medium">
-                      {homeSampleCollection ? '₹200' : '₹0'}
-                    </span>
+                    <span className="font-medium">₹75</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Hard Copy Report</span>
@@ -1188,8 +1199,8 @@ export function CheckoutForm({
                   ? 'Updating...'
                   : 'Adding...'
                 : address
-                  ? 'Update Address'
-                  : 'Add Address'}
+                ? 'Update Address'
+                : 'Add Address'}
             </Button>
           </DialogFooter>
         </DialogContent>

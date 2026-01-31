@@ -89,7 +89,9 @@ export default function Home() {
   // Helper for translations with fallback when key is shown (e.g. during load or missing key)
   const tf = (key: string, fallback: string): string => {
     const val = t(key);
-    return val && !val.startsWith('common.') && val !== 'common' ? val : fallback;
+    return val && !val.startsWith('common.') && val !== 'common'
+      ? val
+      : fallback;
   };
 
   const redirectToLogin = () => {
@@ -666,96 +668,100 @@ export default function Home() {
 
       {/* Schedule Your Tests Section */}
       <section
-        className="py-16"
+        className="py-12 sm:py-16"
         style={{ backgroundColor: colors.primaryLightest }}
       >
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl">
             {/* Title and Subtitle */}
-            <div className="mb-8 text-center">
+            <div className="mb-6 sm:mb-8 text-center">
               <h2
-                className="mb-2 text-3xl font-bold md:text-4xl"
+                className="mb-2 text-2xl sm:text-3xl font-bold md:text-4xl"
                 style={{ color: colors.black }}
               >
                 {t('common.scheduleYourTests')}
               </h2>
-              <p className="text-gray-600">{t('common.chooseScheduling')}</p>
+              <p className="text-sm sm:text-base text-gray-600">
+                We offer priority scheduling for cancer patients and normal
+                scheduling for routine tests.
+              </p>
             </div>
 
-            {/* Tabs */}
+            {/* Tabs - Clean switch style */}
             <Tabs defaultValue="priority" className="w-full">
+              <div className="flex justify-center mb-6">
+                <TabsList
+                  className="h-11 sm:h-12 w-full max-w-md grid grid-cols-2 rounded-full p-1"
+                  style={{ backgroundColor: colors.black }}
+                >
+                  <TabsTrigger
+                    value="priority"
+                    className="rounded-full text-xs sm:text-sm font-medium text-white data-[state=active]:text-white transition-all"
+                    style={{
+                      backgroundColor: 'transparent',
+                    }}
+                    data-active-style
+                  >
+                    <Heart className="mr-1 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="hidden xs:inline">
+                      {t('common.priorityTests')}
+                    </span>
+                    <span className="xs:hidden">Priority</span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="normal"
+                    className="rounded-full text-xs sm:text-sm font-medium text-white data-[state=active]:text-white transition-all"
+                    style={{
+                      backgroundColor: 'transparent',
+                    }}
+                  >
+                    <FlaskConical className="mr-1 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="hidden xs:inline">
+                      {t('common.normalSchedule')}
+                    </span>
+                    <span className="xs:hidden">Normal</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
               <style
                 dangerouslySetInnerHTML={{
                   __html: `
-                  [data-state="active"][data-slot="tabs-trigger"] {
+                  [data-slot="tabs-trigger"][data-state="active"] {
                     background-color: ${colors.primary} !important;
-                    color: ${colors.white} !important;
+                    color: white !important;
                   }
                 `,
                 }}
               />
-              <TabsList
-                className="mb-6 h-12 w-full rounded-lg p-1"
-                style={{ backgroundColor: colors.black }}
-              >
-                <TabsTrigger
-                  value="priority"
-                  className="flex-1 rounded-md text-sm font-medium text-white transition-all"
-                  style={{
-                    backgroundColor: 'transparent',
-                  }}
-                >
-                  <Heart className="mr-2 h-4 w-4" />
-                  {t('common.priorityTests')}
-                </TabsTrigger>
-                <TabsTrigger
-                  value="normal"
-                  className="flex-1 rounded-md text-sm font-medium text-white transition-all"
-                  style={{
-                    backgroundColor: 'transparent',
-                  }}
-                >
-                  <FlaskConical className="mr-2 h-4 w-4" />
-                  {t('common.normalSchedule')}
-                </TabsTrigger>
-              </TabsList>
 
               {/* Priority Tests Content */}
               <TabsContent value="priority" className="mt-0">
                 <Card
-                  className="border-2 p-6"
+                  className="border-2 p-4 sm:p-6"
                   style={{ borderColor: colors.primary }}
                 >
-                  <div className="flex flex-col gap-6 md:flex-row md:items-center">
+                  <div className="flex flex-col gap-4 sm:gap-6 md:flex-row md:items-center">
                     {/* Icon */}
                     <div
-                      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full"
+                      className="flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-full"
                       style={{ backgroundColor: colors.primary }}
                     >
-                      <Leaf className="h-8 w-8 text-white" />
+                      <Leaf className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                     </div>
 
                     {/* Content */}
                     <div className="flex-1">
                       <h3
-                        className="mb-3 text-2xl font-bold"
+                        className="mb-2 sm:mb-3 text-xl sm:text-2xl font-bold"
                         style={{ color: colors.black }}
                       >
-                        {t('common.priorityTesting')}
+                        Priority Testing for Cancer Patients
                       </h3>
-                      <p className="mb-6 text-gray-600">
-                        {t('common.priorityDescription')}
+                      <p className="text-sm sm:text-base text-gray-600">
+                        We understand the urgency. Cancer patients receive
+                        priority scheduling, fastest report delivery, and
+                        dedicated support throughout their diagnostic journey.
                       </p>
-                      {/* <Button
-                        className="rounded-lg px-6 py-3 text-base font-semibold"
-                        style={{
-                          backgroundColor: colors.primary,
-                          color: colors.white,
-                        }}
-                        onClick={() => console.log('Schedule priority test')}
-                      >
-                        Schedule Priority Test
-                      </Button> */}
                     </div>
                   </div>
                 </Card>
@@ -764,39 +770,31 @@ export default function Home() {
               {/* Normal Schedule Content */}
               <TabsContent value="normal" className="mt-0">
                 <Card
-                  className="border-2 p-6"
+                  className="border-2 p-4 sm:p-6"
                   style={{ borderColor: colors.primary }}
                 >
-                  <div className="flex flex-col gap-6 md:flex-row md:items-center">
+                  <div className="flex flex-col gap-4 sm:gap-6 md:flex-row md:items-center">
                     {/* Icon */}
                     <div
-                      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full"
+                      className="flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-full"
                       style={{ backgroundColor: colors.primary }}
                     >
-                      <FlaskConical className="h-8 w-8 text-white" />
+                      <FlaskConical className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                     </div>
 
                     {/* Content */}
                     <div className="flex-1">
                       <h3
-                        className="mb-3 text-2xl font-bold"
+                        className="mb-2 sm:mb-3 text-xl sm:text-2xl font-bold"
                         style={{ color: colors.black }}
                       >
-                        {t('common.normalSchedule')}
+                        Normal Schedule Tests
                       </h3>
-                      <p className="mb-6 text-gray-600">
-                        {t('common.normalScheduleDescription')}
+                      <p className="text-sm sm:text-base text-gray-600">
+                        For routine health check-ups and preventive diagnostics,
+                        book your tests at your convenience with flexible
+                        scheduling options.
                       </p>
-                      {/* <Button
-                        className="rounded-lg px-6 py-3 text-base font-semibold"
-                        style={{
-                          backgroundColor: colors.primary,
-                          color: colors.white,
-                        }}
-                        onClick={() => console.log('Schedule normal test')}
-                      >
-                        Schedule Test
-                      </Button> */}
                     </div>
                   </div>
                 </Card>
@@ -808,20 +806,20 @@ export default function Home() {
 
       {/* Health Concerns Section */}
       <section
-        className="py-16"
+        className="py-12 sm:py-16"
         style={{ backgroundColor: colors.primaryLight }}
       >
-        <div className="container mx-auto px-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-12">
           <h2
-            className="mb-12 text-center text-3xl font-bold md:text-4xl"
+            className="mb-8 sm:mb-12 text-center text-2xl sm:text-3xl font-bold md:text-4xl"
             style={{ color: colors.black }}
           >
             {t('common.healthConcerns')}
           </h2>
           <div className="flex justify-center">
-            <div className="grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-2 lg:gap-8">
+            <div className="grid w-full max-w-4xl grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:gap-8">
               {/* Doctor Card */}
-              <Card className="overflow-hidden bg-white p-6 shadow-md w-100">
+              <Card className="overflow-hidden bg-white p-4 sm:p-6 shadow-md w-full">
                 <div className="flex flex-col items-center text-center">
                   {/* Doctor Image */}
                   <div className="relative mb-4 h-48 w-full">
@@ -862,7 +860,7 @@ export default function Home() {
               </Card>
 
               {/* Dietician Card */}
-              <Card className="overflow-hidden bg-white p-6 shadow-md w-100">
+              <Card className="overflow-hidden bg-white p-4 sm:p-6 shadow-md w-full">
                 <div className="flex flex-col items-center text-center">
                   {/* Dietician Image */}
                   <div className="relative mb-4 h-48 w-full">
@@ -1030,7 +1028,7 @@ export default function Home() {
 
       {/* My Happiness Corner Section */}
       <section
-        className="py-16"
+        className="py-16 mb-4"
         style={{ backgroundColor: colors.lightestGreen }}
       >
         <div className="container mx-auto px-4">
@@ -1073,49 +1071,203 @@ export default function Home() {
       </section>
 
       {/* Health Card Section */}
-      <section className="py-16" style={{ backgroundColor: colors.white }}>
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center gap-0 lg:flex-row lg:items-stretch">
-            {/* Left Side - White Card with Content */}
+      <section
+        className="py-12 sm:py-16 relative overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg, ${colors.primaryLightest} 0%, ${colors.primaryLight} 50%, ${colors.primaryLightest} 100%)`,
+        }}
+      >
+        {/* Decorative Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Medical cross patterns */}
+          <svg
+            className="absolute top-8 left-8 w-8 h-8 opacity-20"
+            viewBox="0 0 24 24"
+            fill={colors.primary}
+          >
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
+          <svg
+            className="absolute top-20 left-1/4 w-6 h-6 opacity-15"
+            viewBox="0 0 24 24"
+            fill={colors.primary}
+          >
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
+          <svg
+            className="absolute bottom-16 left-16 w-10 h-10 opacity-20"
+            viewBox="0 0 24 24"
+            fill={colors.primary}
+          >
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
+          <svg
+            className="absolute top-1/3 right-1/4 w-5 h-5 opacity-15"
+            viewBox="0 0 24 24"
+            fill={colors.primary}
+          >
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
+          <svg
+            className="absolute bottom-24 right-16 w-7 h-7 opacity-20"
+            viewBox="0 0 24 24"
+            fill={colors.primary}
+          >
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
+          {/* Decorative circles */}
+          <div
+            className="absolute -top-20 -right-20 w-64 h-64 rounded-full opacity-10"
+            style={{ backgroundColor: colors.primary }}
+          />
+          <div
+            className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full opacity-10"
+            style={{ backgroundColor: colors.primary }}
+          />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="flex flex-col items-center gap-6 lg:flex-row lg:items-stretch lg:gap-0">
+            {/* Left Side - Card Style Content */}
             <div className="relative w-full lg:w-2/3">
-              {/* White Card with curved corners */}
               <div
-                className="relative rounded-3xl bg-white p-8 md:p-12 lg:rounded-l-[40px] lg:rounded-r-[60px] overflow-hidden border border-gray-200 elevation-1 shadow-lg"
+                className="relative rounded-3xl p-6 sm:p-8 md:p-10 lg:rounded-l-[40px] lg:rounded-r-[60px] overflow-hidden shadow-2xl"
                 style={{
-                  minHeight: '420px',
-                  borderBottom: `3px solid ${colors.primary}`,
+                  background: `linear-gradient(180deg, ${colors.white} 0%, ${colors.primaryLightest} 100%)`,
+                  minHeight: '400px',
+                  border: `2px solid ${colors.primaryLight}`,
                 }}
               >
+                {/* Inner decorative elements */}
+                <div className="absolute top-4 right-4 opacity-30">
+                  <svg
+                    className="w-12 h-12"
+                    viewBox="0 0 24 24"
+                    fill={colors.primary}
+                  >
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                  </svg>
+                </div>
+                <div className="absolute bottom-8 left-8 opacity-20">
+                  <svg
+                    className="w-8 h-8"
+                    viewBox="0 0 24 24"
+                    fill={colors.primary}
+                  >
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                  </svg>
+                </div>
+
                 {/* Content */}
                 <div className="relative z-10">
-                  <h2
-                    className="mb-2 text-3xl font-bold md:text-4xl"
-                    style={{ color: colors.black }}
-                  >
-                    {tf('common.familyHealthCardTitle', 'Family Health Card')}
-                  </h2>
-                  <p className="mb-6 text-base text-gray-700 md:text-lg">
-                    {tf('common.familyHealthCardPrice', 'Just At Rs. 499')}
-                  </p>
+                  {/* Title with swanand styling */}
+                  <div className="mb-4">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-end gap-0 sm:gap-2 mb-1 text-center sm:text-left">
+                      <span
+                        className="text-2xl sm:text-3xl md:text-4xl font-bold"
+                        style={{ color: colors.primary }}
+                      >
+                        MySwanand
+                      </span>
+                      <span
+                        className="text-2xl sm:text-3xl md:text-4xl font-light"
+                        style={{ color: colors.black }}
+                      >
+                        {tf(
+                          'common.familyHealthCardTitle',
+                          'Family Health Card'
+                        )}
+                      </span>
+                    </div>
+                    <p
+                      className="text-lg sm:text-xl font-semibold"
+                      style={{ color: colors.yellow }}
+                    >
+                      {tf('common.familyHealthCardPrice', 'Just At Rs. 499')}
+                    </p>
+                  </div>
 
-                  {/* Benefits List */}
-                  <ul className="mb-8 space-y-2">
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1 text-lg text-black">•</span>
-                      <p className="text-base text-black md:text-lg">
-                        {tf('common.familyHealthCardBenefit1', 'Valid For One Year')}
+                  {/* Benefits List with styled bullets */}
+                  <ul className="mb-6 sm:mb-8 space-y-3">
+                    <li className="flex items-center gap-3">
+                      <div
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <p
+                        className="text-sm sm:text-base md:text-lg"
+                        style={{ color: colors.black }}
+                      >
+                        {tf(
+                          'common.familyHealthCardBenefit1',
+                          'Valid For One Year'
+                        )}
                       </p>
                     </li>
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1 text-lg text-black">•</span>
-                      <p className="text-base text-black md:text-lg">
-                        {tf('common.familyHealthCardBenefit2', 'Upto 4 Family Members Covered')}
+                    <li className="flex items-center gap-3">
+                      <div
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <p
+                        className="text-sm sm:text-base md:text-lg"
+                        style={{ color: colors.black }}
+                      >
+                        {tf(
+                          'common.familyHealthCardBenefit2',
+                          'Upto 4 Family Members Covered'
+                        )}
                       </p>
                     </li>
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1 text-lg text-black">•</span>
-                      <p className="text-base text-black md:text-lg">
-                        {tf('common.familyHealthCardBenefit3', '10+ Services Free Of Cost & Discounted Price')}
+                    <li className="flex items-center gap-3">
+                      <div
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <p
+                        className="text-sm sm:text-base md:text-lg"
+                        style={{ color: colors.black }}
+                      >
+                        {tf(
+                          'common.familyHealthCardBenefit3',
+                          '10+ Services Free Of Cost & Discounted Price'
+                        )}
                       </p>
                     </li>
                   </ul>
@@ -1125,15 +1277,23 @@ export default function Home() {
                     href={createLocalizedPath('/swanand-card/apply', locale)}
                   >
                     <Button
-                      className="rounded-full px-8 py-4 text-base font-semibold"
+                      className="rounded-full px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-shadow"
                       style={{
-                        backgroundColor: colors.black,
+                        backgroundColor: colors.primary,
                         color: colors.white,
                       }}
                     >
                       {t('common.applySwanandCard')}
                     </Button>
                   </Link>
+
+                  {/* Tagline */}
+                  <p
+                    className="mt-6 text-xs sm:text-sm italic"
+                    style={{ color: colors.primary }}
+                  >
+                    Care Backed By Science
+                  </p>
                 </div>
               </div>
             </div>
@@ -1145,7 +1305,7 @@ export default function Home() {
                   src="/home/mascot.jpg"
                   alt="Swanand Health Mascot"
                   fill
-                  className="object-contain object-bottom"
+                  className="object-contain object-bottom drop-shadow-2xl"
                   unoptimized
                 />
               </div>

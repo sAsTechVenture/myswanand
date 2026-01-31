@@ -180,7 +180,7 @@ export default function UploadPrescriptionPage() {
       toast.dismiss(loadingToast);
 
       if (response.data.success) {
-        toast.success(t('common.prescriptionUploadedSuccess'));
+        toast.success('Your Prescription Upload Is Successful! Our Team Will Get Back To You Shortly!');
         // Reset form
         setSelectedFile(null);
         setPreview(null);

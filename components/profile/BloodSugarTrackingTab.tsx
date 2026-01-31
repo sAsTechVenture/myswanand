@@ -116,27 +116,44 @@ export function BloodSugarTrackingTab({
         { token }
       );
       const raw = response.data as any;
-      // API returns { success, data: [...], pagination }; handle raw being the array or raw.data
+      
+      // API returns { success, data: { data: [...], pagination } }
+      // Handle multiple possible response structures
       let list: DiabetesRecord[] = [];
+      let pag = null;
+      
       if (Array.isArray(raw)) {
+        // Direct array response
         list = raw;
-      } else if (Array.isArray(raw?.data)) {
-        list = raw.data;
+      } else if (raw?.data) {
+        // Check if data.data exists (nested structure)
+        if (Array.isArray(raw.data.data)) {
+          list = raw.data.data;
+          pag = raw.data.pagination;
+        } else if (Array.isArray(raw.data)) {
+          // data is the array directly
+          list = raw.data;
+          pag = raw.pagination;
+        }
       } else if (Array.isArray(raw?.records)) {
         list = raw.records;
+        pag = raw.pagination;
       } else if (Array.isArray(raw?.diabetesRecords)) {
         list = raw.diabetesRecords;
+        pag = raw.pagination;
       }
+      
       setRecords(list);
-      const pag = raw?.pagination ?? (response as any).pagination;
+      
+      // Use pagination from the correct location
       if (pag) {
         setPagination({
           currentPage: pag.currentPage ?? page,
           totalPages: pag.totalPages ?? 0,
           totalItems: pag.totalItems ?? 0,
           limit: pag.limit ?? 10,
-          hasNext: pag.hasNext ?? false,
-          hasPrev: pag.hasPrev ?? false,
+          hasNext: pag.hasNext ?? (pag.currentPage < pag.totalPages),
+          hasPrev: pag.hasPrev ?? (pag.currentPage > 1),
         });
       }
     } catch (err: any) {

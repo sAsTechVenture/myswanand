@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -52,6 +53,10 @@ export function DiagnosticTestCard({
   testId,
 }: DiagnosticTestCardProps) {
   const router = useRouter();
+  const [imageError, setImageError] = useState(false);
+
+  // Show fallback if no imageUrl or if image failed to load
+  const showFallback = !imageUrl || imageError;
 
   const handleAddToCart = () => {
     // Check if user is logged in
@@ -92,17 +97,18 @@ export function DiagnosticTestCard({
         {/* Image Section with Overlay Content - Fixed height */}
         <div className="relative h-[280px] flex-shrink-0">
           {/* Background Image */}
-          {imageUrl ? (
+          {!showFallback ? (
             <Image
-              src={imageUrl}
+              src={imageUrl!}
               alt={imageAlt}
               fill
               className="object-cover"
               unoptimized
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              onError={() => setImageError(true)}
             />
           ) : (
-            /* Default medical/health themed background when no image */
+            /* Default medical/health themed background when no image or image fails to load */
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600">
               {/* Medical cross pattern overlay */}
               <div className="absolute inset-0 opacity-10">

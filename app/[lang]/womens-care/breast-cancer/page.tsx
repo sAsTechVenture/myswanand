@@ -5,7 +5,13 @@ import { usePathname } from 'next/navigation';
 import { useLocalizedRouter } from '@/lib/hooks/useLocalizedRouter';
 import { createLocalizedPath, getCurrentLocale } from '@/lib/utils/i18n';
 import { useDictionary } from '@/lib/hooks/useDictionary';
-import { ArrowLeft, CheckCircle2, FileText, Loader2, Youtube } from 'lucide-react';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  FileText,
+  Loader2,
+  Youtube,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -309,24 +315,49 @@ export default function BreastCancerCarePage() {
             Self Examination Guide & Video
           </h2>
           <p className="text-gray-700 mb-4">
-            Download our guide and watch the video below to learn how to perform a self breast examination step by step.
+            Download our guide and watch the video below to learn how to perform
+            a self breast examination step by step.
           </p>
           <div className="flex flex-wrap gap-4 mb-6">
-            <a
-              href="/womens-care/self-breast-examination-guide.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
               className="inline-flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-opacity hover:opacity-90"
               style={{
                 backgroundColor: colors.primary,
                 color: colors.white,
               }}
+              onClick={async () => {
+                // Use absolute URL from origin to avoid locale prefix issues
+                const pdfUrl = `${window.location.origin}/womens-care/self-breast-examination-guide.pdf`;
+                
+                try {
+                  const response = await fetch(pdfUrl);
+                  
+                  if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                  }
+                  
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = 'Self-Breast-Examination-Guide.pdf';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  window.URL.revokeObjectURL(url);
+                  toast.success('Download started!');
+                } catch (error) {
+                  console.error('Download error:', error);
+                  toast.error('Unable to download. Please try again.');
+                }
+              }}
             >
               <FileText className="w-5 h-5" />
-              Download Self Breast Examination Guide (PDF)
-            </a>
+              Download PDF Guide
+            </button>
             <a
-              href="https://youtu.be/DuPF3R3NxS4?si=47ZMQwSyrsTIAvcC"
+              href="https://www.youtube.com/watch?v=DuPF3R3NxS4"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-opacity hover:opacity-90 border-2"
@@ -339,14 +370,31 @@ export default function BreastCancerCarePage() {
               Watch on YouTube
             </a>
           </div>
-          <div className="aspect-video w-full max-w-2xl rounded-lg overflow-hidden bg-gray-100">
+          <div className="aspect-video w-full max-w-2xl rounded-lg overflow-hidden bg-gray-100 relative">
             <iframe
               title="Self Breast Examination Video"
-              src="https://www.youtube.com/embed/DuPF3R3NxS4"
+              src="https://www.youtube-nocookie.com/embed/DuPF3R3NxS4?rel=0&modestbranding=1"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
               className="w-full h-full"
             />
+            {/* Fallback link if video doesn't load */}
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+              <a
+                href="https://www.youtube.com/watch?v=DuPF3R3NxS4"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium pointer-events-auto"
+                style={{
+                  backgroundColor: colors.primary,
+                  color: colors.white,
+                }}
+              >
+                <Youtube className="w-5 h-5" />
+                Open Video on YouTube
+              </a>
+            </div>
           </div>
         </Card>
 

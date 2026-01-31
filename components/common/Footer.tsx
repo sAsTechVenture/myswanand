@@ -179,7 +179,7 @@ export function Footer() {
               {/* Logo */}
               <div className="flex-shrink-0">
                 <Image
-                  src="/logo.png"
+                  src="/logo-horizontal.png"
                   alt="swanand Pathology Laboratory"
                   width={120}
                   height={100}

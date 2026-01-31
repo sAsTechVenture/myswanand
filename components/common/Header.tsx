@@ -192,22 +192,22 @@ function HeaderContent() {
             href={createLocalizedPath('/', currentLocale)}
             className="flex items-center"
           >
-            <div
+            {/* <div
               className="rounded-full p-2 border-2 flex items-center justify-center"
               style={{
                 backgroundColor: colors.white,
                 borderColor: colors.yellow,
               }}
-            >
-              <Image
-                src="/logo.png"
-                alt="Swanand Pathology Laboratory"
-                width={120}
-                height={100}
-                className="object-contain"
-                style={{ width: 'auto', height: 'auto' }}
-              />
-            </div>
+            > */}
+            <Image
+              src="/logo-horizontal.png"
+              alt="Swanand Pathology Laboratory"
+              width={120}
+              height={100}
+              className="object-contain"
+              style={{ width: 'auto', height: 'auto' }}
+            />
+            {/* </div> */}
           </Link>
 
           {/* Navigation Links */}
@@ -294,7 +294,7 @@ function HeaderContent() {
 
           {/* Right Icons / Auth Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <LanguageSwitcher />
+            {/* <LanguageSwitcher /> */}
             {isLoggedIn ? (
               <>
                 <Link href={createLocalizedPath('/profile', currentLocale)}>
@@ -551,7 +551,9 @@ function HeaderContent() {
                           pathWithoutLocale = '';
                         }
                         const queryString = searchParams.toString();
-                        const newPath = `/${locale}${pathWithoutLocale}${queryString ? `?${queryString}` : ''}`;
+                        const newPath = `/${locale}${pathWithoutLocale}${
+                          queryString ? `?${queryString}` : ''
+                        }`;
                         router.replace(newPath);
                       };
 

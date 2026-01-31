@@ -337,13 +337,13 @@ export default function MyHappinessCornerPage() {
                 {/* Mood Rating */}
                 <div>
                   <Label
-                    className="mb-2 block flex items-center gap-2"
+                    className="mb-2 block flex items-center gap-2 text-sm sm:text-base"
                     style={{ color: colors.black }}
                   >
-                    <Smile className="w-4 h-4" />
-                    {t('common.moodQuestion')}
+                    <Smile className="w-4 h-4 flex-shrink-0" />
+                    <span>{t('common.moodQuestion')}</span>
                   </Label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 sm:gap-2">
                     {[0, 1, 2, 3, 4].map((emojiIndex) => {
                       const isSelected =
                         getEmojiIndexFromRating(formData.moodRating) ===
@@ -355,7 +355,7 @@ export default function MyHappinessCornerPage() {
                           onClick={() =>
                             handleRatingChange('moodRating', emojiIndex)
                           }
-                          className={`flex-1 p-3 rounded-lg border-2 transition-all ${
+                          className={`flex-1 p-1.5 sm:p-3 rounded-lg border-2 transition-all min-w-0 ${
                             isSelected
                               ? 'border-primary'
                               : 'border-gray-200 hover:border-gray-300'
@@ -369,10 +369,10 @@ export default function MyHappinessCornerPage() {
                               : undefined,
                           }}
                         >
-                          <div className="text-2xl mb-1">
+                          <div className="text-lg sm:text-2xl mb-0.5 sm:mb-1">
                             {RATING_EMOJIS[emojiIndex]}
                           </div>
-                          <div className="text-xs text-gray-600">
+                          <div className="text-[10px] sm:text-xs text-gray-600">
                             {RATING_LABELS[emojiIndex]}
                           </div>
                         </button>
@@ -384,13 +384,13 @@ export default function MyHappinessCornerPage() {
                 {/* Productivity Rating */}
                 <div>
                   <Label
-                    className="mb-2 block flex items-center gap-2"
+                    className="mb-2 block flex items-center gap-2 text-sm sm:text-base"
                     style={{ color: colors.black }}
                   >
-                    <TrendingUp className="w-4 h-4" />
-                    {t('common.productivityQuestion')}
+                    <TrendingUp className="w-4 h-4 flex-shrink-0" />
+                    <span>{t('common.productivityQuestion')}</span>
                   </Label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 sm:gap-2">
                     {[0, 1, 2, 3, 4].map((emojiIndex) => {
                       const isSelected =
                         getEmojiIndexFromRating(formData.productivityRating) ===
@@ -402,7 +402,7 @@ export default function MyHappinessCornerPage() {
                           onClick={() =>
                             handleRatingChange('productivityRating', emojiIndex)
                           }
-                          className={`flex-1 p-3 rounded-lg border-2 transition-all ${
+                          className={`flex-1 p-1.5 sm:p-3 rounded-lg border-2 transition-all min-w-0 ${
                             isSelected
                               ? 'border-primary'
                               : 'border-gray-200 hover:border-gray-300'
@@ -416,10 +416,10 @@ export default function MyHappinessCornerPage() {
                               : undefined,
                           }}
                         >
-                          <div className="text-2xl mb-1">
+                          <div className="text-lg sm:text-2xl mb-0.5 sm:mb-1">
                             {RATING_EMOJIS[emojiIndex]}
                           </div>
-                          <div className="text-xs text-gray-600">
+                          <div className="text-[10px] sm:text-xs text-gray-600">
                             {RATING_LABELS[emojiIndex]}
                           </div>
                         </button>
@@ -431,13 +431,13 @@ export default function MyHappinessCornerPage() {
                 {/* Connected with Others Rating */}
                 <div>
                   <Label
-                    className="mb-2 block flex items-center gap-2"
+                    className="mb-2 block flex items-center gap-2 text-sm sm:text-base"
                     style={{ color: colors.black }}
                   >
-                    <Users className="w-4 h-4" />
-                    {t('common.connectedQuestion')}
+                    <Users className="w-4 h-4 flex-shrink-0" />
+                    <span>{t('common.connectedQuestion')}</span>
                   </Label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 sm:gap-2">
                     {[0, 1, 2, 3, 4].map((emojiIndex) => {
                       const isSelected =
                         getEmojiIndexFromRating(
@@ -453,7 +453,7 @@ export default function MyHappinessCornerPage() {
                               emojiIndex
                             )
                           }
-                          className={`flex-1 p-3 rounded-lg border-2 transition-all ${
+                          className={`flex-1 p-1.5 sm:p-3 rounded-lg border-2 transition-all min-w-0 ${
                             isSelected
                               ? 'border-primary'
                               : 'border-gray-200 hover:border-gray-300'
@@ -467,10 +467,10 @@ export default function MyHappinessCornerPage() {
                               : undefined,
                           }}
                         >
-                          <div className="text-2xl mb-1">
+                          <div className="text-lg sm:text-2xl mb-0.5 sm:mb-1">
                             {RATING_EMOJIS[emojiIndex]}
                           </div>
-                          <div className="text-xs text-gray-600">
+                          <div className="text-[10px] sm:text-xs text-gray-600">
                             {RATING_LABELS[emojiIndex]}
                           </div>
                         </button>
