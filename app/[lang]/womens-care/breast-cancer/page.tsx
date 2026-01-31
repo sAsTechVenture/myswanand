@@ -326,7 +326,7 @@ export default function BreastCancerCarePage() {
               Download Self Breast Examination Guide (PDF)
             </a>
             <a
-              href="https://youtu.be/2uBXA2pNPAw?si=jDEIitbRYbwtdaid"
+              href="https://youtu.be/DuPF3R3NxS4?si=47ZMQwSyrsTIAvcC"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-opacity hover:opacity-90 border-2"
@@ -342,7 +342,7 @@ export default function BreastCancerCarePage() {
           <div className="aspect-video w-full max-w-2xl rounded-lg overflow-hidden bg-gray-100">
             <iframe
               title="Self Breast Examination Video"
-              src="https://www.youtube.com/embed/2uBXA2pNPAw"
+              src="https://www.youtube.com/embed/DuPF3R3NxS4"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
               className="w-full h-full"
