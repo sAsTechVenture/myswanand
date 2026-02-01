@@ -701,27 +701,29 @@ export default function MyHappinessCornerPage() {
             </div>
 
             <div className="space-y-6">
-              <div className="aspect-video w-full rounded-lg overflow-hidden">
+              <div className="aspect-video w-full rounded-lg overflow-hidden bg-gray-100">
                 <iframe
                   width="100%"
                   height="100%"
-                  src="https://www.youtube.com/embed/YRJ6xoiRcpQ"
+                  src="https://www.youtube-nocookie.com/embed/YRJ6xoiRcpQ?rel=0&modestbranding=1"
                   title="Meditation Music 1"
                   frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
                   className="w-full h-full"
                 />
               </div>
-              <div className="aspect-video w-full rounded-lg overflow-hidden">
+              <div className="aspect-video w-full rounded-lg overflow-hidden bg-gray-100">
                 <iframe
                   width="100%"
                   height="100%"
-                  src="https://www.youtube.com/embed/nkqnuxKj8Dk"
+                  src="https://www.youtube-nocookie.com/embed/nkqnuxKj8Dk?rel=0&modestbranding=1"
                   title="Meditation Music 2"
                   frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
                   className="w-full h-full"
                 />
               </div>

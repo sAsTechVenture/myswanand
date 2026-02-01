@@ -819,12 +819,12 @@ export default function Home() {
           <div className="flex justify-center">
             <div className="grid w-full max-w-4xl grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:gap-8">
               {/* Doctor Card */}
-              <Card className="overflow-hidden bg-white p-4 sm:p-6 shadow-md w-full">
-                <div className="flex flex-col items-center text-center">
+              <Card className="overflow-hidden bg-white p-4 sm:p-6 shadow-md w-full h-full">
+                <div className="flex flex-col items-center text-center h-full">
                   {/* Doctor Image */}
                   <div className="relative mb-4 h-48 w-full">
                     <Image
-                      src="/home/doctor.jpg"
+                      src="/home/doctor1.jpg"
                       alt="Doctor"
                       fill
                       className="object-contain"
@@ -839,12 +839,13 @@ export default function Home() {
                     {t('common.doctor')}
                   </h3>
                   {/* Description */}
-                  <p className="mb-6 text-sm text-gray-600">
+                  <p className="flex-1 text-sm text-gray-600">
                     {t('common.doctorDescription')}
                   </p>
                   {/* Button */}
                   <Link
                     href={createLocalizedPath('/doctor-consultation', locale)}
+                    className="mt-6"
                   >
                     <Button
                       className="w-full rounded-lg px-6 py-3 text-sm font-semibold"
@@ -860,12 +861,12 @@ export default function Home() {
               </Card>
 
               {/* Dietician Card */}
-              <Card className="overflow-hidden bg-white p-4 sm:p-6 shadow-md w-full">
-                <div className="flex flex-col items-center text-center">
+              <Card className="overflow-hidden bg-white p-4 sm:p-6 shadow-md w-full h-full">
+                <div className="flex flex-col items-center text-center h-full">
                   {/* Dietician Image */}
                   <div className="relative mb-4 h-48 w-full">
                     <Image
-                      src="/home/dietcian.jpg"
+                      src="/home/dietcian1.jpg"
                       alt="Dietician"
                       fill
                       className="object-contain"
@@ -880,7 +881,7 @@ export default function Home() {
                     {t('common.dietician')}
                   </h3>
                   {/* Description */}
-                  <p className="mb-6 text-sm text-gray-600">
+                  <p className="flex-1 text-sm text-gray-600">
                     {t('common.dieticianDescription')}
                   </p>
                   {/* Button */}
@@ -889,6 +890,7 @@ export default function Home() {
                       '/dietitian-consultation',
                       locale
                     )}
+                    className="mt-6"
                   >
                     <Button
                       className="w-full rounded-lg px-6 py-3 text-sm font-semibold"
