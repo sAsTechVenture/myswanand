@@ -81,6 +81,9 @@ function LoginContent() {
   );
   const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
 
+  // Check if session expired (redirected from middleware)
+  const sessionExpired = searchParams.get('expired') === 'true';
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -325,6 +328,16 @@ function LoginContent() {
                 {t('common.signInTitle')}
               </h2>
             </div>
+
+            {/* Session Expired Message */}
+            {sessionExpired && (
+              <Alert className="mb-6 border-yellow-500 bg-yellow-50">
+                <AlertCircle className="h-4 w-4 text-yellow-600" />
+                <AlertDescription className="text-yellow-800">
+                  Your session has expired. Please log in again to continue.
+                </AlertDescription>
+              </Alert>
+            )}
 
             {/* Error Message */}
             {submitError && (

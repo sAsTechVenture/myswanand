@@ -95,6 +95,23 @@ const protectedRoutes = [
   '/my-happiness-corner',
 ];
 
+// Auth routes - redirect to home if already logged in
+const authRoutes = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/mobile-login',
+  '/auth/verify-otp',
+  '/reset-password',
+];
+
+function isAuthRoute(pathname: string): boolean {
+  const pathWithoutLocale = removeLocale(pathname);
+  return authRoutes.some(
+    (route) =>
+      pathWithoutLocale === route || pathWithoutLocale.startsWith(`${route}/`)
+  );
+}
+
 function isPublicRoute(pathname: string): boolean {
   const pathWithoutLocale = removeLocale(pathname);
   const isProtected = protectedRoutes.some(
@@ -138,22 +155,57 @@ export function middleware(request: NextRequest) {
   // Get pathname without locale for route checking
   const pathWithoutLocale = removeLocale(pathname);
 
-  // Allow public routes
-  if (isPublicRoute(pathWithoutLocale)) {
-    return NextResponse.next();
-  }
+  // Get current locale
+  const currentLocale = pathname.split('/')[1] || defaultLocale;
 
   // Get token from cookie or Authorization header
   const token =
     request.cookies.get('patient_token')?.value ||
     request.headers.get('authorization')?.replace('Bearer ', '');
 
-  // Check if token is valid
-  if (!isValidToken(token)) {
-    // Preserve locale if present
-    const currentLocale = hasLocale(pathname)
-      ? pathname.split('/')[1]
-      : defaultLocale;
+  // Check if token exists and if it's expired
+  const tokenExists = !!token;
+  const tokenExpired = token ? isTokenExpired(token) : false;
+  const tokenValid = tokenExists && !tokenExpired;
+
+  // If token is expired, clear it (auto logout)
+  if (tokenExists && tokenExpired) {
+    // Create response that clears the token cookie
+    const response = NextResponse.next();
+    response.cookies.delete('patient_token');
+
+    // If trying to access a protected route with expired token, redirect to login
+    if (!isPublicRoute(pathWithoutLocale) && !isAuthRoute(pathname)) {
+      const loginUrl = new URL(`/${currentLocale}/auth/login`, request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      loginUrl.searchParams.set('expired', 'true');
+      const redirectResponse = NextResponse.redirect(loginUrl);
+      redirectResponse.cookies.delete('patient_token');
+      return redirectResponse;
+    }
+
+    return response;
+  }
+
+  // If user is logged in and trying to access auth pages, redirect to home
+  if (tokenValid && isAuthRoute(pathname)) {
+    // Check if there's a redirect parameter
+    const redirectParam = request.nextUrl.searchParams.get('redirect');
+    if (redirectParam) {
+      // Redirect to the intended destination
+      return NextResponse.redirect(new URL(redirectParam, request.url));
+    }
+    // Redirect to home
+    return NextResponse.redirect(new URL(`/${currentLocale}`, request.url));
+  }
+
+  // Allow public routes (including auth routes for non-logged-in users)
+  if (isPublicRoute(pathWithoutLocale)) {
+    return NextResponse.next();
+  }
+
+  // Check if token is valid for protected routes
+  if (!tokenValid) {
     const loginUrl = new URL(`/${currentLocale}/auth/login`, request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);

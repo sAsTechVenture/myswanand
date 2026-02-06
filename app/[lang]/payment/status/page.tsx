@@ -12,14 +12,17 @@ import { getAuthToken } from '@/lib/utils/auth';
 
 interface PaymentStatusResponse {
   success: boolean;
-  data: {
-    status: 'SUCCESS' | 'FAILED' | 'PENDING';
-    transactionId?: string;
-    merchantTransactionId?: string;
+  payment?: {
+    id: string;
+    status: 'SUCCESS' | 'FAILED' | 'PENDING' | 'INITIATED';
+    amount: number;
     bookingId?: string;
-    bookingNumber?: string;
-    message?: string;
+    bookingStatus?: string;
+    errorCode?: string;
   };
+  phonePeStatus?: string;
+  message?: string;
+  phonePeError?: string;
 }
 
 function PaymentStatusContent() {
@@ -29,7 +32,9 @@ function PaymentStatusContent() {
   const localizedRouter = useLocalizedRouter();
 
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<'SUCCESS' | 'FAILED' | 'PENDING' | null>(null);
+  const [status, setStatus] = useState<'SUCCESS' | 'FAILED' | 'PENDING' | null>(
+    null
+  );
   const [bookingId, setBookingId] = useState<string | undefined>();
   const [bookingNumber, setBookingNumber] = useState<string | undefined>();
   const [message, setMessage] = useState<string | undefined>();
@@ -41,13 +46,119 @@ function PaymentStatusContent() {
         setLoading(true);
 
         // Get transaction ID from URL params (PhonePe redirect)
+        // PhonePe may return different parameter names
         const transactionId = searchParams.get('transactionId');
         const merchantTransactionId = searchParams.get('merchantTransactionId');
+        const merchantOrderId = searchParams.get('merchantOrderId');
         const code = searchParams.get('code');
 
-        // If code is provided directly by PhonePe
-        if (code) {
-          // PhonePe success codes
+        // Determine the order ID to use for verification
+        const orderId =
+          merchantOrderId || merchantTransactionId || transactionId;
+
+        // If code is provided directly by PhonePe (and we have an order ID to verify)
+        if (code && orderId) {
+          // Still verify with backend even if we have a code
+          // PhonePe success codes: PAYMENT_SUCCESS, PAYMENT_ERROR, PAYMENT_PENDING
+        }
+
+        // If we have an order ID, verify with backend
+        if (orderId) {
+          const token = getAuthToken();
+
+          if (!token) {
+            // If no token but we have a success code, show success anyway
+            if (code === 'PAYMENT_SUCCESS') {
+              setStatus('SUCCESS');
+              setMessage('Your payment was successful!');
+              setLoading(false);
+              return;
+            }
+            setStatus('FAILED');
+            setErrorMessage('Session expired. Please login and try again.');
+            setLoading(false);
+            return;
+          }
+
+          try {
+            // Call the correct backend endpoint
+            const response = await apiClient.get<PaymentStatusResponse>(
+              `/payments/phonepe/status?merchantOrderId=${orderId}`,
+              { token }
+            );
+
+            if (response.data.success && response.data.payment) {
+              const payment = response.data.payment;
+
+              // Map backend status to frontend status
+              const paymentStatus = payment.status;
+
+              if (paymentStatus === 'SUCCESS') {
+                setStatus('SUCCESS');
+                setBookingId(payment.bookingId);
+                setMessage(
+                  response.data.message || 'Your payment was successful!'
+                );
+              } else if (
+                paymentStatus === 'PENDING' ||
+                paymentStatus === 'INITIATED'
+              ) {
+                setStatus('PENDING');
+                setErrorMessage(
+                  response.data.message ||
+                    'Your payment is being processed. Please wait.'
+                );
+              } else {
+                setStatus('FAILED');
+                setErrorMessage(
+                  response.data.message || 'Payment failed. Please try again.'
+                );
+              }
+            } else if (response.data.success) {
+              // Success response but no payment object - check phonePeStatus
+              const phonePeStatus = response.data.phonePeStatus;
+
+              if (phonePeStatus === 'COMPLETED') {
+                setStatus('SUCCESS');
+                setMessage(
+                  response.data.message || 'Your payment was successful!'
+                );
+              } else if (phonePeStatus === 'PENDING') {
+                setStatus('PENDING');
+                setErrorMessage(
+                  response.data.message || 'Your payment is being processed.'
+                );
+              } else {
+                setStatus('FAILED');
+                setErrorMessage(
+                  response.data.message || 'Payment failed. Please try again.'
+                );
+              }
+            } else {
+              setStatus('FAILED');
+              setErrorMessage(
+                'Unable to verify payment status. Please contact support.'
+              );
+            }
+          } catch (apiError: any) {
+            console.error('Error verifying payment:', apiError);
+
+            // Fallback to code-based status if API fails
+            if (code === 'PAYMENT_SUCCESS') {
+              setStatus('SUCCESS');
+              setMessage('Your payment was successful!');
+            } else if (code === 'PAYMENT_PENDING') {
+              setStatus('PENDING');
+              setErrorMessage('Your payment is being processed. Please wait.');
+            } else {
+              setStatus('FAILED');
+              setErrorMessage(
+                apiError?.message || 'Unable to verify payment status.'
+              );
+            }
+          }
+        } else if (code) {
+          // No order ID but we have a code - use code-based status
           if (code === 'PAYMENT_SUCCESS') {
             setStatus('SUCCESS');
             setMessage('Your payment was successful!');
@@ -58,58 +169,19 @@ function PaymentStatusContent() {
             setStatus('FAILED');
             setErrorMessage('Payment failed. Please try again.');
           }
-          setLoading(false);
-          return;
-        }
-
-        // If we have transaction ID, verify with backend
-        if (transactionId || merchantTransactionId) {
-          const token = getAuthToken();
-          
-          if (!token) {
-            setStatus('FAILED');
-            setErrorMessage('Session expired. Please login and try again.');
-            setLoading(false);
-            return;
-          }
-
-          try {
-            const response = await apiClient.get<PaymentStatusResponse>(
-              `/patient/payments/status?transactionId=${transactionId || merchantTransactionId}`,
-              { token }
-            );
-
-            if (response.data.success && response.data.data) {
-              const data = response.data.data;
-              setStatus(data.status);
-              setBookingId(data.bookingId);
-              setBookingNumber(data.bookingNumber);
-              
-              if (data.status === 'SUCCESS') {
-                setMessage(data.message || 'Your payment was successful!');
-              } else if (data.status === 'PENDING') {
-                setErrorMessage(data.message || 'Your payment is being processed.');
-              } else {
-                setErrorMessage(data.message || 'Payment failed. Please try again.');
-              }
-            } else {
-              setStatus('FAILED');
-              setErrorMessage('Unable to verify payment status. Please contact support.');
-            }
-          } catch (apiError: any) {
-            console.error('Error verifying payment:', apiError);
-            setStatus('FAILED');
-            setErrorMessage(apiError?.message || 'Unable to verify payment status.');
-          }
         } else {
           // No transaction info in URL
           setStatus('FAILED');
-          setErrorMessage('Invalid payment callback. No transaction information found.');
+          setErrorMessage(
+            'Invalid payment callback. No transaction information found.'
+          );
         }
       } catch (error) {
         console.error('Error checking payment status:', error);
         setStatus('FAILED');
-        setErrorMessage('An unexpected error occurred. Please contact support.');
+        setErrorMessage(
+          'An unexpected error occurred. Please contact support.'
+        );
       } finally {
         setLoading(false);
       }

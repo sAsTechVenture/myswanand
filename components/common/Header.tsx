@@ -42,6 +42,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { getCurrentLocale, createLocalizedPath } from '@/lib/utils/i18n';
 import { useDictionary } from '@/lib/hooks/useDictionary';
 import { locales, localeNames, type Locale } from '@/lib/i18n/config';
+import { isAuthenticated, checkTokenValidity } from '@/lib/utils/auth';
 
 function HeaderContent() {
   const pathname = usePathname();
@@ -85,17 +86,18 @@ function HeaderContent() {
   }, [likedItems]);
 
   useEffect(() => {
-    // Check if user is logged in
+    // Check if user is logged in (also checks token expiration)
     const checkAuth = () => {
       if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('patient_token');
+        // Use isAuthenticated which checks token expiration
+        const authenticated = isAuthenticated();
         const wasLoggedIn = isLoggedIn;
-        setIsLoggedIn(!!token);
+        setIsLoggedIn(authenticated);
 
         // Only refresh liked items if user just logged in (wasn't logged in before)
-        if (token && !wasLoggedIn) {
+        if (authenticated && !wasLoggedIn) {
           refreshLikedItems();
-        } else if (!token) {
+        } else if (!authenticated) {
           setWishlistCount(0);
         }
       }
@@ -121,12 +123,12 @@ function HeaderContent() {
     // Also check on focus (in case user logged in/out in same tab)
     window.addEventListener('focus', checkAuth);
 
-    // Poll for changes (fallback for same-tab login) - but don't refresh liked items on every poll
+    // Poll for changes (fallback for same-tab login) - checks token validity including expiration
     const interval = setInterval(() => {
       if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('patient_token');
-        setIsLoggedIn(!!token);
-        if (!token) {
+        const authenticated = checkTokenValidity();
+        setIsLoggedIn(authenticated);
+        if (!authenticated) {
           setWishlistCount(0);
         }
       }
