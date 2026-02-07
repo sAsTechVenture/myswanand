@@ -47,6 +47,7 @@ export default function ApplySwanandCardForm({
   const [fetchingProfile, setFetchingProfile] = useState(true);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [cardType, setCardType] = useState<'INDIVIDUAL' | 'FAMILY'>('INDIVIDUAL');
+  const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'OFFLINE'>('ONLINE');
   const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -119,19 +120,33 @@ export default function ApplySwanandCardForm({
         success: boolean;
         data: {
           message: string;
+          redirectUrl?: string;
           application?: {
             id: string;
             type: string;
             status: string;
-            appliedAt: string;
+            appliedAt?: string;
+          };
+          payment?: {
+            id: string;
+            paymentMethod: string;
+            amount: number;
+            status: string;
           };
         };
       }>('/patient/health-card/apply', {
-        cardType: cardType,
+        cardType,
+        paymentMethod,
       }, { token });
 
       if (response.data.success) {
-        toast.success(response.data.data.message || 'Application submitted successfully');
+        const data = response.data.data;
+        if (data.redirectUrl) {
+          toast.success(data.message || 'Redirecting to payment gateway...');
+          window.location.href = data.redirectUrl;
+          return;
+        }
+        toast.success(data.message || 'Application submitted successfully');
         onSuccess();
       }
     } catch (err: any) {
@@ -281,6 +296,40 @@ export default function ApplySwanandCardForm({
         </RadioGroup>
       </div>
 
+      {/* APPLICATION FEE & PAYMENT METHOD */}
+      <div className="rounded-xl p-3" style={{ backgroundColor: colors.primaryLightest }}>
+        <p className="text-xs font-semibold text-gray-800 mb-2">
+          Application fee: ₹299
+        </p>
+        <Label className="mb-2 block text-xs font-medium text-gray-700">
+          Payment method <span className="text-red-500">*</span>
+        </Label>
+        <RadioGroup
+          value={paymentMethod}
+          onValueChange={(value) => setPaymentMethod(value as 'ONLINE' | 'OFFLINE')}
+          className="flex flex-col gap-2"
+        >
+          <label
+            className="flex items-center justify-between rounded-lg bg-white px-3 py-2.5 text-xs cursor-pointer border-2 transition-colors"
+            style={{
+              borderColor: paymentMethod === 'ONLINE' ? colors.primary : 'transparent',
+            }}
+          >
+            <span>Pay online (PhonePe) — ₹299</span>
+            <RadioGroupItem value="ONLINE" id="payment-online" />
+          </label>
+          <label
+            className="flex items-center justify-between rounded-lg bg-white px-3 py-2.5 text-xs cursor-pointer border-2 transition-colors"
+            style={{
+              borderColor: paymentMethod === 'OFFLINE' ? colors.primary : 'transparent',
+            }}
+          >
+            <span>Pay at office — ₹299</span>
+            <RadioGroupItem value="OFFLINE" id="payment-offline" />
+          </label>
+        </RadioGroup>
+      </div>
+
       {/* SUBMIT */}
       <Button
         type="submit"
@@ -294,7 +343,7 @@ export default function ApplySwanandCardForm({
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin inline" />
-            Submitting...
+            {paymentMethod === 'ONLINE' ? t('common.redirectingToPayment') : 'Submitting...'}
           </>
         ) : (
           "SUBMIT APPLICATION"

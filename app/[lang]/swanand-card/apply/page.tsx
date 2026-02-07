@@ -46,7 +46,7 @@ export default function SwanandCardApplyPage() {
             Application Submitted
           </h2>
           <p className="text-gray-600 mb-6">
-            Our team will review your Swanand Card application shortly. You will be notified once it is processed.
+            Pay ₹299 at the office to complete your application. Our team will review your Swanand Card application and notify you once it is processed.
           </p>
 
           <Button
