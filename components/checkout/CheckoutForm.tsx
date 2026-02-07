@@ -164,6 +164,9 @@ export function CheckoutForm({
   const [showHealthDisorder, setShowHealthDisorder] = useState(false);
   const [healthDisorder, setHealthDisorder] = useState('');
 
+  // Swanand health card - 20% discount applied by backend
+  const [userHealthCard, setUserHealthCard] = useState<string | null>(null);
+
   // Check URL parameter for auto-enabling coin redemption
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -194,6 +197,7 @@ export function CheckoutForm({
 
         if (profileResponse.data.success && profileResponse.data.data?.user) {
           const user = profileResponse.data.data.user;
+          setUserHealthCard(user.healthCard || null);
           if (user.address) {
             setAddress({
               id: user.id,
@@ -286,15 +290,22 @@ export function CheckoutForm({
     HOME_SAMPLE_CHARGE +
     (hardcopyReport === 'yes' ? 100 : 0);
 
-  // Apply coin discount if using coins
-  const total = useCoins && discountAmount > 0 ? finalAmount : baseTotal;
+  // Swanand health card: 20% discount (applied by backend)
+  const HEALTH_CARD_DISCOUNT_PERCENT = 20;
+  const healthCardDiscount =
+    userHealthCard ? Math.round(baseTotal * (HEALTH_CARD_DISCOUNT_PERCENT / 100)) : 0;
+  const totalBeforeCoins = userHealthCard ? baseTotal - healthCardDiscount : baseTotal;
+
+  // Apply coin discount if using coins; otherwise use base total (with health card discount if applicable)
+  const total = useCoins && discountAmount > 0 ? finalAmount : totalBeforeCoins;
 
   // Validate coin redemption when useCoins is toggled or total changes
+  // Use totalBeforeCoins so coins validate against the amount user actually pays (after health card discount)
   useEffect(() => {
     const validateCoinRedemption = async () => {
       if (!useCoins || totalCoins < 100) {
         setDiscountAmount(0);
-        setFinalAmount(baseTotal);
+        setFinalAmount(totalBeforeCoins);
         setCoinsToRedeem(0);
         return;
       }
@@ -315,7 +326,7 @@ export function CheckoutForm({
         }>(
           '/patient/coins/validate-redemption',
           {
-            bookingAmount: baseTotal,
+            bookingAmount: totalBeforeCoins,
             coinsToRedeem: totalCoins,
           },
           { token }
@@ -323,11 +334,11 @@ export function CheckoutForm({
 
         if (response.data.success && response.data.data) {
           setDiscountAmount(response.data.data.discountAmount || 0);
-          setFinalAmount(response.data.data.finalAmount || baseTotal);
+          setFinalAmount(response.data.data.finalAmount || totalBeforeCoins);
           setCoinsToRedeem(response.data.data.coinsToRedeem || 0);
         } else {
           setDiscountAmount(0);
-          setFinalAmount(baseTotal);
+          setFinalAmount(totalBeforeCoins);
           setCoinsToRedeem(0);
         }
       } catch (error: any) {
@@ -335,7 +346,7 @@ export function CheckoutForm({
         // If validation fails, disable coin usage
         setUseCoins(false);
         setDiscountAmount(0);
-        setFinalAmount(baseTotal);
+        setFinalAmount(totalBeforeCoins);
         setCoinsToRedeem(0);
         if (error?.message) {
           toast.error(error.message);
@@ -346,7 +357,7 @@ export function CheckoutForm({
     };
 
     validateCoinRedemption();
-  }, [useCoins, baseTotal, totalCoins]);
+  }, [useCoins, baseTotal, totalBeforeCoins, totalCoins]);
 
   const handlePlaceOrder = async () => {
     // Validate required fields
@@ -1086,6 +1097,16 @@ export function CheckoutForm({
                       {hardcopyReport === 'yes' ? '₹100' : '₹0'}
                     </span>
                   </div>
+                  {userHealthCard && healthCardDiscount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">
+                        Swanand Card discount (20%)
+                      </span>
+                      <span className="font-medium text-green-600">
+                        -₹{healthCardDiscount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  )}
                   {useCoins && discountAmount > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Coin Discount</span>
